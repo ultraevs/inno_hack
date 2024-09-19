@@ -37,6 +37,5 @@ class GPT:
         if 'error' in response.json():
             return {'status': 'failed', 'result': response.json()['error']['message']}
 
-        print({'status': 'success', 'result': response.json()['result']['alternatives'][0]['message']['text']})
 
         return {'status': 'success', 'result': response.json()['result']['alternatives'][0]['message']['text']}
