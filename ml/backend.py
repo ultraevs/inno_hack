@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.responses import FileResponse
 from typing import List
 
 
@@ -15,11 +16,16 @@ class TaskData(BaseModel):
 
 _gpt = GPT()
 
-@app.post("/process_tasks/")
-def process_tasks(task_data: TaskData):
+@app.get("/", response_class=FileResponse)
+async def root():
+    return FileResponse("root.html")
+
+@app.post("/generate_tasks")
+def process_tasks(task_data: TaskData) -> dict:
     project_description = task_data.description,
     project_tasks = task_data.tasks
 
-    response = _gpt.generate(prompts['tasks_gen'].format(project_description=project_description, project_tasks=project_tasks))
 
-    return {'status': 'success', 'response': response}
+    response = _gpt.generate(prompts['tasks_gen'].format(project_description=project_description, project_tasks=', '.join(project_tasks)))
+    response['result'] = response['result'].replace('* ', '').split('\n')
+    return response
