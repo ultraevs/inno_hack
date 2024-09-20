@@ -28,7 +28,7 @@ func CreateTask(context *gin.Context) {
 		return
 	}
 
-	_, err := database.Db.Exec(`INSERT INTO tasks (title, description, project_id, assignee_id, status, deadline, start_time, end_time, duration)
+	_, err := database.Db.Exec(`INSERT INTO notion_tasks (title, description, project_id, assignee_id, status, deadline, start_time, end_time, duration)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
 		body.Title, body.Description, projectID, body.AssigneeID, body.Status, body.Deadline, body.StartTime, body.EndTime, body.Duration)
 
@@ -58,7 +58,7 @@ func GetTask(context *gin.Context) {
 
 	err := database.Db.QueryRow(`
 		SELECT id, title, description, assignee_id, status, deadline, start_time, end_time, duration 
-		FROM tasks 
+		FROM notion_tasks 
 		WHERE id = $1 AND project_id = $2`, taskID, projectID).
 		Scan(&task.ID, &task.Title, &task.Description, &task.AssigneeID, &task.Status, &task.Deadline, &task.StartTime, &task.EndTime, &task.Duration)
 
@@ -93,7 +93,7 @@ func UpdateTask(context *gin.Context) {
 	}
 
 	// Генерируем запрос динамически, обновляя только те поля, которые были переданы
-	query := "UPDATE tasks SET "
+	query := "UPDATE notion_tasks SET "
 	var params []interface{}
 	counter := 1
 
@@ -172,7 +172,7 @@ func DeleteTask(context *gin.Context) {
 	taskID := context.Param("task_id")
 	projectID := context.Param("project_id")
 
-	_, err := database.Db.Exec("DELETE FROM tasks WHERE id = $1 AND project_id = $2", taskID, projectID)
+	_, err := database.Db.Exec("DELETE FROM notion_tasks WHERE id = $1 AND project_id = $2", taskID, projectID)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete task"})
 		return

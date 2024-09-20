@@ -129,9 +129,9 @@ func GetUserInvitations(context *gin.Context) {
 
 	// Запрашиваем приглашения для пользователя по его email
 	rows, err := database.Db.Query(`
-        SELECT project_invitations.id, projects.name, project_invitations.status, project_invitations.created_at
-        FROM project_invitations
-        JOIN projects ON project_invitations.project_id = projects.id
+        SELECT notion_project_invitations.id, notion_project_invitations.name, notion_project_invitations.status, notion_project_invitations.created_at
+        FROM notion_project_invitations
+        JOIN notion_projects ON notion_project_invitations.project_id = notion_projects.id
         WHERE invitee_email = $1`, userEmail)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve invitations"})
