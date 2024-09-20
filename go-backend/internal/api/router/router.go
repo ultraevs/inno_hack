@@ -23,7 +23,7 @@ func (router *Router) Run(port string) error {
 func (router *Router) Setup() {
 	gin.SetMode(gin.DebugMode)
 	router.engine.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://atomic.shmyaks.ru", "http://localhost:5173"},
+		AllowOrigins:     []string{"https://task.shmyaks.ru", "http://localhost:5173"},
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
@@ -32,5 +32,6 @@ func (router *Router) Setup() {
 	//router.engine.Use(middleware.RateLimiterMiddleware())
 	v1 := router.engine.Group("/v1")
 	router.AuthRoutes(v1)
+	router.ProjectRoutes(v1)
 
 }

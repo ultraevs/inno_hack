@@ -5,6 +5,7 @@ import (
 	"app/internal/model"
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -38,7 +39,18 @@ func UserCreate(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read body"})
 		return
 	}
-	_, err = database.Db.Exec("INSERT INTO notion_users (email, password, name) VALUES ($1, $2, $3)", body.Email, string(hashPass), body.Name)
+
+	var maxID int
+	err = database.Db.QueryRow("SELECT COALESCE(MAX(id), 0) FROM notion_users").Scan(&maxID)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve max ID"})
+		return
+	}
+
+	newID := maxID + 1
+	uniqueName := fmt.Sprintf("%s#%04d", body.Name, newID)
+
+	_, err = database.Db.Exec("INSERT INTO notion_users (email, password, name) VALUES ($1, $2, $3)", body.Email, string(hashPass), uniqueName)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
