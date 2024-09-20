@@ -53,10 +53,10 @@ func ConnectDatabase() {
 	);
 	
 	CREATE TABLE IF NOT EXISTS text_projects (
-    id SERIAL PRIMARY KEY,
-    project_id INT REFERENCES projects(id) ON DELETE CASCADE,
-    content TEXT                            -- Текстовый контент проекта
-);
+    	id SERIAL PRIMARY KEY,
+    	project_id INT REFERENCES projects(id) ON DELETE CASCADE,
+    	content TEXT                            -- Текстовый контент проекта
+	);
 
 	CREATE TABLE IF NOT EXISTS tasks (
 		id SERIAL PRIMARY KEY,
@@ -72,6 +72,16 @@ func ConnectDatabase() {
 		end_time TIMESTAMP,                           -- Время завершения задачи
 		duration INTERVAL                             -- Продолжительность выполнения задачи
 	);
+
+	CREATE TABLE IF NOT EXISTS project_invitations (
+	    id SERIAL PRIMARY KEY,
+	    project_id INT REFERENCES projects(id) ON DELETE CASCADE,
+	    invitee_email VARCHAR(255) NOT NULL,  -- Email приглашаемого пользователя
+	    inviter_id INT REFERENCES notion_users(id),  -- ID пригласившего пользователя
+	    status VARCHAR(20) DEFAULT 'pending',  -- Статус: pending, accepted, declined
+	    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	);
+
 	`
 
 	_, err = Db.Exec(createTablesQuery)

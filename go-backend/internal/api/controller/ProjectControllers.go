@@ -29,11 +29,7 @@ func ProjectCreate(context *gin.Context) {
 	}
 
 	// Получаем email пользователя из токена
-	userEmail, exists := context.Get("user_email")
-	if !exists {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "User not authorized"})
-		return
-	}
+	userEmail := context.MustGet("Email").(string)
 
 	var userID int
 	err := database.Db.QueryRow("SELECT id FROM notion_users WHERE email = $1", userEmail).Scan(&userID)

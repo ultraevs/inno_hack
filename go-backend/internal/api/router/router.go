@@ -33,5 +33,7 @@ func (router *Router) Setup() {
 	v1 := router.engine.Group("/v1")
 	router.AuthRoutes(v1)
 	router.ProjectRoutes(v1)
+	router.TaskRoutes(v1)
+	router.InvitationRoutes(v1)
 
 }
