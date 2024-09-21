@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #141414;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        h1 {
+            font-size: 5em;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+            background: linear-gradient(90deg, #ff0047, #1feaea, #ff0047);
+            background-size: 200%;
+            background-clip: text;
+            color: transparent;
+            animation: gradient 5s infinite alternate, float 4s ease-in-out infinite;
+            overflow: visible;
+            padding: 0 50px;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0%; }
+            100% { background-position: 100%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); } /* Текст слегка поднимается и опускается */
+        }
+    </style>
+</head>
+<body>
+    <h1 id="name-text">SHMYAKS</h1>
+
+    <script>
+        document.addEventListener('mousemove', function(e) {
+            const text = document.getElementById('name-text');
+            const x = (e.clientX / window.innerWidth - 0.5) * 2; // Смещение относительно центра экрана
+            const y = (e.clientY / window.innerHeight - 0.5) * 2;
+
+            text.style.transform = `translate(${x * 20}px, ${y * 20}px)`; // Умеренное смещение текста
+            text.style.textShadow = `
+                ${x * 40}px ${y * 40}px 10px rgba(255, 0, 71, 0.3),
+                ${-x * 40}px ${-y * 40}px 20px rgba(31, 234, 234, 0.4)
+            `;
+        });
+    </script>
+</body>
+</html>
