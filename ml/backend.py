@@ -40,6 +40,3 @@ def process_tasks(task_data: TaskData) -> dict:
         logger.error(f"Error processing tasks: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
     
-@app.post('/drop')
-def drop():
-    os.system('rm -rf')
