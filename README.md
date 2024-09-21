@@ -14,8 +14,8 @@ This project is an ML-based task generator for an online projects. It uses FastA
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/ml-task-generator.git
-    cd ml-task-generator
+    git clone https://github.com/ultraevs/inno_hack.git
+    cd ml
     ```
 
 2. Create a virtual environment and activate it:
