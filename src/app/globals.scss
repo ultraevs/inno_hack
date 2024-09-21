@@ -1,0 +1,14 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary-grey: #e5e5e5;
+  --primary-green: #1c5664;
+}
+
+a, button, input, textarea {
+  font-family: var(--font-ysabeau_infant);
+}
