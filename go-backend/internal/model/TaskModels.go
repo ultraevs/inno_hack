@@ -19,14 +19,10 @@ type TaskTableResponse struct {
 }
 
 type TaskCreateRequest struct {
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	AssigneeID  int       `json:"assignee_id"`
-	Status      string    `json:"status"` // "To Do", "In Progress", "Done"
-	Deadline    time.Time `json:"deadline"`
-	StartTime   time.Time `json:"start_time"`
-	EndTime     time.Time `json:"end_time"`
-	Duration    string    `json:"duration"`
+	Title       string `json:"title" binding:"required"`
+	Description string `json:"description"`
+	AssigneeID  int    `json:"assignee_id"`
+	Status      string `json:"status" binding:"required"` // "To Do", "In Progress", "Done"
 }
 
 type TaskUpdateRequest struct {

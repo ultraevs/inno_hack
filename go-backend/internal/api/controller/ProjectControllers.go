@@ -4,6 +4,7 @@ import (
 	"app/internal/database"
 	"app/internal/model"
 	"database/sql"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -60,11 +61,14 @@ func ProjectCreate(context *gin.Context) {
 // @Router /v1/projects/{project_id}/view [put]
 func ChangeProjectView(context *gin.Context) {
 	projectID := context.Param("project_id")
-	var body struct {
-		ViewMode string // 'text' или 'task_table'
+	var body model.ChangeViewRequest
+	if context.Bind(&body) != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read body"})
+		return
 	}
+	fmt.Println(body)
 
-	if context.Bind(&body) != nil || (body.ViewMode != "text" && body.ViewMode != "task_table") {
+	if body.ViewMode != "text" && body.ViewMode != "task_table" {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid view mode"})
 		return
 	}
@@ -103,6 +107,7 @@ func GetProjectDetails(context *gin.Context) {
 		var content string
 		err := database.Db.QueryRow("SELECT content FROM notion_text_projects WHERE project_id = $1", projectID).Scan(&content)
 		if err != nil {
+			fmt.Println(err)
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve text content"})
 			return
 		}
@@ -143,8 +148,8 @@ func GetProjectDetails(context *gin.Context) {
 // @Produce json
 // @Success 200 {object} model.UserProjectsResponse "Список проектов"
 // @Failure 400 {object} model.ErrorResponse "Ошибка при получении проектов"
-// @Tags Projects
-// @Router /user/projects [get]
+// @Tags Project
+// @Router /v1/user/projects [get]
 func GetProjects(context *gin.Context) {
 	// Извлекаем email пользователя из контекста
 	userEmail := context.MustGet("Email").(string)

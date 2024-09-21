@@ -3,12 +3,13 @@ package controller
 import (
 	"app/internal/database"
 	"app/internal/model"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 )
 
-// CreateTask создает новую задачу в рамках проекта
+// CreateTask создает новую задачу
 // @Summary Создать новую задачу
 // @Description Создаёт новую задачу для конкретного проекта
 // @Accept json
@@ -18,7 +19,7 @@ import (
 // @Success 200 {object} model.CodeResponse "Задача успешно создана"
 // @Failure 400 {object} model.ErrorResponse "Ошибка при создании задачи"
 // @Tags Tasks
-// @Router /projects/{project_id}/tasks [post]
+// @Router /v1/projects/{project_id}/tasks [post]
 func CreateTask(context *gin.Context) {
 	projectID := context.Param("project_id")
 	var body model.TaskCreateRequest
@@ -28,9 +29,10 @@ func CreateTask(context *gin.Context) {
 		return
 	}
 
-	_, err := database.Db.Exec(`INSERT INTO notion_tasks (title, description, project_id, assignee_id, status, deadline, start_time, end_time, duration)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-		body.Title, body.Description, projectID, body.AssigneeID, body.Status, body.Deadline, body.StartTime, body.EndTime, body.Duration)
+	_, err := database.Db.Exec(`
+		INSERT INTO notion_tasks (title, description, project_id, assignee_id, status)
+		VALUES ($1, $2, $3, $4, $5)`,
+		body.Title, body.Description, projectID, body.AssigneeID, body.Status)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create task"})
@@ -49,13 +51,12 @@ func CreateTask(context *gin.Context) {
 // @Success 200 {object} model.TaskDetails "Информация о задаче"
 // @Failure 400 {object} model.ErrorResponse "Ошибка при получении задачи"
 // @Tags Tasks
-// @Router /projects/{project_id}/tasks/{task_id} [get]
+// @Router /v1/projects/{project_id}/tasks/{task_id} [get]
 func GetTask(context *gin.Context) {
 	taskID := context.Param("task_id")
 	projectID := context.Param("project_id")
 
 	var task model.TaskDetails
-
 	err := database.Db.QueryRow(`
 		SELECT id, title, description, assignee_id, status, deadline, start_time, end_time, duration 
 		FROM notion_tasks 
@@ -63,6 +64,7 @@ func GetTask(context *gin.Context) {
 		Scan(&task.ID, &task.Title, &task.Description, &task.AssigneeID, &task.Status, &task.Deadline, &task.StartTime, &task.EndTime, &task.Duration)
 
 	if err != nil {
+		fmt.Println(err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve task"})
 		return
 	}
@@ -81,7 +83,7 @@ func GetTask(context *gin.Context) {
 // @Success 200 {object} model.CodeResponse "Задача успешно обновлена"
 // @Failure 400 {object} model.ErrorResponse "Ошибка при обновлении задачи"
 // @Tags Tasks
-// @Router /projects/{project_id}/tasks/{task_id} [put]
+// @Router /v1/projects/{project_id}/tasks/{task_id} [put]
 func UpdateTask(context *gin.Context) {
 	taskID := context.Param("task_id")
 	projectID := context.Param("project_id")
@@ -92,11 +94,11 @@ func UpdateTask(context *gin.Context) {
 		return
 	}
 
-	// Генерируем запрос динамически, обновляя только те поля, которые были переданы
 	query := "UPDATE notion_tasks SET "
 	var params []interface{}
 	counter := 1
 
+	// Проверка и добавление динамических полей
 	if body.Title != nil {
 		query += "title = $" + strconv.Itoa(counter) + ", "
 		params = append(params, *body.Title)
@@ -145,7 +147,7 @@ func UpdateTask(context *gin.Context) {
 		counter++
 	}
 
-	// Убираем последнюю запятую
+	// Убираем последнюю запятую и добавляем WHERE
 	query = query[:len(query)-2]
 	query += " WHERE id = $" + strconv.Itoa(counter) + " AND project_id = $" + strconv.Itoa(counter+1)
 	params = append(params, taskID, projectID)
@@ -167,7 +169,7 @@ func UpdateTask(context *gin.Context) {
 // @Success 200 {object} model.CodeResponse "Задача успешно удалена"
 // @Failure 400 {object} model.ErrorResponse "Ошибка при удалении задачи"
 // @Tags Tasks
-// @Router /projects/{project_id}/tasks/{task_id} [delete]
+// @Router /v1/projects/{project_id}/tasks/{task_id} [delete]
 func DeleteTask(context *gin.Context) {
 	taskID := context.Param("task_id")
 	projectID := context.Param("project_id")

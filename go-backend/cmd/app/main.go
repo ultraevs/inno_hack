@@ -10,9 +10,9 @@ import (
 	"os"
 )
 
-// @title AtomicHack Service API
+// @title InnoHack Service API
 // @version 1.0
-// @description atomic.shmyaks.ru API
+// @description task.shmyaks.ru API
 
 // @securityDefinitions.apikey CookieAuth
 // @in cookie

@@ -3,7 +3,7 @@ package model
 import "time"
 
 type ProjectInvitationRequest struct {
-	InviteeName int `json:"invitee_name"`
+	InviteeName string `json:"invitee_name"`
 }
 
 type InvitationResponseRequest struct {
