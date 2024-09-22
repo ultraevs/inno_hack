@@ -9,6 +9,7 @@ interface IProps {
 
 const ProjectProgress: FC<IProps> = (props) => {
   const { projectName, progress } = props;
+  
   return (
     <div className={styles.progress}>
       <h3>{projectName}</h3>

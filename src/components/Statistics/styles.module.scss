@@ -1,0 +1,31 @@
+.statistics {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 276px;
+  padding: 36px 24px;
+  background: var(--primary-grey);
+  border-radius: 24px;
+
+  h4 {
+    color: #000000;
+    font-size: 2.25rem;
+    font-weight: 500;
+  }
+
+  p {
+    color: #000000;
+    font-size: 1.25rem;
+    font-weight: 300;
+  }
+
+  &__shadow {
+    position: absolute;
+    left: 156px;
+    top: 214px;
+    width: 100px;
+    height: 100px;
+    background: #1c5664;
+    filter: blur(90px);
+  }
+}

@@ -3,6 +3,8 @@ import "./globals.scss";
 
 import { Ysabeau_Infant } from "next/font/google";
 
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
+
 const ysabeau_infant = Ysabeau_Infant({ subsets: [] });
 
 export const metadata: Metadata = {
@@ -17,7 +19,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={ysabeau_infant.className}>{children}</body>
+      <body className={ysabeau_infant.className}>
+        <AppRouterCacheProvider>{children}</AppRouterCacheProvider>
+      </body>
     </html>
   );
 }

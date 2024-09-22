@@ -8,4 +8,8 @@
   flex-direction: row;
   align-items: flex-start;
   gap: 20px;
+
+  main {
+    width: calc(1740px - 293px);
+  }
 }
