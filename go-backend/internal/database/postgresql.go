@@ -39,14 +39,15 @@ func ConnectDatabase() {
 		id SERIAL PRIMARY KEY,  -- Идентификатор пользователя
 		name VARCHAR(255) NOT NULL,  -- Имя пользователя
 		email VARCHAR(255) NOT NULL, -- Email пользователя
-		password VARCHAR(255) NOT NULL	-- Пароль пользователя
+		password VARCHAR(255) NOT NULL,	-- Пароль пользователя
+		CONSTRAINT unique_name UNIQUE (name)
 	);
 
 	CREATE TABLE IF NOT EXISTS notion_projects (
 	    id SERIAL PRIMARY KEY,
 	    name VARCHAR(255) NOT NULL,             -- Название проекта
 	    description TEXT,                       -- Описание проекта
-	    owner_id INT REFERENCES notion_users(id) ON DELETE SET NULL,  -- Владелец проекта
+    	owner_name VARCHAR(255) REFERENCES notion_users(name) ON DELETE SET NULL,  -- Владелец проекта, идентификация по 'name#0000'
 	    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Время создания проекта
 	    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Время последнего обновления
 	    view_mode VARCHAR(50) DEFAULT 'text'    -- Текущий вид проекта: 'text' или 'task_table'
@@ -63,7 +64,7 @@ func ConnectDatabase() {
 		title VARCHAR(255) NOT NULL,                  -- Название задачи
 		description TEXT,                             -- Описание задачи
 		project_id INT REFERENCES notion_projects(id) ON DELETE CASCADE,  -- Проект, к которому принадлежит задача
-		assignee_id INT REFERENCES notion_users(id) ON DELETE SET NULL,  -- Исполнитель задачи
+		assignee_name VARCHAR(255) REFERENCES notion_users(name)  ON DELETE SET NULL,  -- Исполнитель задачи
 		status VARCHAR(50) NOT NULL,                  -- Статус задачи (например, 'To Do', 'In Progress', 'Done')
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Время создания задачи
 		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Время последнего обновления
@@ -76,8 +77,8 @@ func ConnectDatabase() {
 	CREATE TABLE IF NOT EXISTS notion_project_invitations (
 	    id SERIAL PRIMARY KEY,
 	    project_id INT REFERENCES notion_projects(id) ON DELETE CASCADE,
-	    invitee_email VARCHAR(255) NOT NULL,  -- Email приглашаемого пользователя
-	    inviter_id INT REFERENCES notion_users(id),  -- ID пригласившего пользователя
+	    invitee_name VARCHAR(255) NOT NULL,  -- Email приглашаемого пользователя
+	    inviter_name VARCHAR(255) REFERENCES notion_users(name),  -- ID пригласившего пользователя
 	    status VARCHAR(20) DEFAULT 'pending',  -- Статус: pending, accepted, declined
 	    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);

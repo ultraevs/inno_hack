@@ -14,8 +14,8 @@ type Invitation struct {
 	ID          int       `json:"id"`
 	ProjectID   int       `json:"project_id"`
 	ProjectName string    `json:"project_name"`
-	InviteeID   int       `json:"invitee_id"`
-	InviterID   int       `json:"inviter_id"`
+	InviteeName string    `json:"invitee_name"`
+	InviterName string    `json:"inviter_name"`
 	Status      string    `json:"status"`
 	CreatedAt   time.Time `json:"created_at"`
 }

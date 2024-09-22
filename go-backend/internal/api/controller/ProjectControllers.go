@@ -32,15 +32,15 @@ func ProjectCreate(context *gin.Context) {
 	// Получаем email пользователя из токена
 	userEmail := context.MustGet("Email").(string)
 
-	var userID int
-	err := database.Db.QueryRow("SELECT id FROM notion_users WHERE email = $1", userEmail).Scan(&userID)
+	var userName string
+	err := database.Db.QueryRow("SELECT name FROM notion_users WHERE email = $1", userEmail).Scan(&userName)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "User not found"})
 		return
 	}
 
 	// Создаем проект с видом по умолчанию "text"
-	_, err = database.Db.Exec("INSERT INTO notion_projects (name, description, owner_id, view_mode) VALUES ($1, $2, $3, 'text')", body.Name, body.Description, userID)
+	_, err = database.Db.Exec("INSERT INTO notion_projects (name, description, owner_name, view_mode) VALUES ($1, $2, $3, 'text')", body.Name, body.Description, userName)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create project"})
 		return
@@ -114,7 +114,7 @@ func GetProjectDetails(context *gin.Context) {
 		context.JSON(http.StatusOK, gin.H{"content": content})
 	case "task_table":
 		// Логика для отображения таблицы задач
-		rows, err := database.Db.Query("SELECT id, title, description, status, assignee_id, deadline, start_time, end_time, duration FROM notion_tasks WHERE project_id = $1", projectID)
+		rows, err := database.Db.Query("SELECT id, title, description, status, assignee_name, deadline, start_time, end_time, duration FROM notion_tasks WHERE project_id = $1", projectID)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve tasks"})
 			return
@@ -129,7 +129,7 @@ func GetProjectDetails(context *gin.Context) {
 		var tasks []model.TaskDetails
 		for rows.Next() {
 			var task model.TaskDetails
-			err = rows.Scan(&task.ID, &task.Title, &task.Description, &task.Status, &task.AssigneeID, &task.Deadline, &task.StartTime, &task.EndTime, &task.Duration)
+			err = rows.Scan(&task.ID, &task.Title, &task.Description, &task.Status, &task.AssigneeName, &task.Deadline, &task.StartTime, &task.EndTime, &task.Duration)
 			if err != nil {
 				context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve task details"})
 				return
@@ -155,8 +155,8 @@ func GetProjects(context *gin.Context) {
 	userEmail := context.MustGet("Email").(string)
 
 	// Находим ID пользователя по email
-	var userID int
-	err := database.Db.QueryRow("SELECT id FROM notion_users WHERE email = $1", userEmail).Scan(&userID)
+	var userName string
+	err := database.Db.QueryRow("SELECT name FROM notion_users WHERE email = $1", userEmail).Scan(&userName)
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
 		return
@@ -164,9 +164,9 @@ func GetProjects(context *gin.Context) {
 
 	// Запрашиваем проекты, где пользователь является владельцем
 	rows, err := database.Db.Query(`
-		SELECT p.id, p.name, p.description, p.owner_id, p.created_at, p.updated_at, p.view_mode
+		SELECT p.id, p.name, p.description, p.owner_name, p.created_at, p.updated_at, p.view_mode
 		FROM notion_projects p
-		WHERE p.owner_id = $1`, userID)
+		WHERE p.owner_name = $1`, userName)
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve projects"})
 		return
@@ -182,7 +182,7 @@ func GetProjects(context *gin.Context) {
 	var projects []model.Project
 	for rows.Next() {
 		var project model.Project
-		if err := rows.Scan(&project.ID, &project.Name, &project.Description, &project.OwnerID, &project.CreatedAt, &project.UpdatedAt, &project.ViewMode); err != nil {
+		if err := rows.Scan(&project.ID, &project.Name, &project.Description, &project.OwnerName, &project.CreatedAt, &project.UpdatedAt, &project.ViewMode); err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan project"})
 			return
 		}

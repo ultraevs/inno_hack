@@ -30,9 +30,9 @@ func CreateTask(context *gin.Context) {
 	}
 
 	_, err := database.Db.Exec(`
-		INSERT INTO notion_tasks (title, description, project_id, assignee_id, status)
+		INSERT INTO notion_tasks (title, description, project_id, assignee_name, status)
 		VALUES ($1, $2, $3, $4, $5)`,
-		body.Title, body.Description, projectID, body.AssigneeID, body.Status)
+		body.Title, body.Description, projectID, body.AssigneeName, body.Status)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create task"})
@@ -57,11 +57,22 @@ func GetTask(context *gin.Context) {
 	projectID := context.Param("project_id")
 
 	var task model.TaskDetails
+
 	err := database.Db.QueryRow(`
-		SELECT id, title, description, assignee_id, status, deadline, start_time, end_time, duration 
+		SELECT id, title, description, assignee_name, status, deadline, start_time, end_time, duration 
 		FROM notion_tasks 
 		WHERE id = $1 AND project_id = $2`, taskID, projectID).
-		Scan(&task.ID, &task.Title, &task.Description, &task.AssigneeID, &task.Status, &task.Deadline, &task.StartTime, &task.EndTime, &task.Duration)
+		Scan(
+			&task.ID,
+			&task.Title,
+			&task.Description,
+			&task.AssigneeName,
+			&task.Status,
+			&task.Deadline,  // Используем указатель на time.Time
+			&task.StartTime, // Используем указатель на time.Time
+			&task.EndTime,   // Используем указатель на time.Time
+			&task.Duration,
+		)
 
 	if err != nil {
 		fmt.Println(err)
@@ -90,6 +101,7 @@ func UpdateTask(context *gin.Context) {
 	var body model.TaskUpdateRequest
 
 	if err := context.ShouldBindJSON(&body); err != nil {
+		fmt.Println(err)
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
@@ -111,9 +123,9 @@ func UpdateTask(context *gin.Context) {
 		counter++
 	}
 
-	if body.AssigneeID != nil {
+	if body.AssigneeName != nil {
 		query += "assignee_id = $" + strconv.Itoa(counter) + ", "
-		params = append(params, *body.AssigneeID)
+		params = append(params, *body.AssigneeName)
 		counter++
 	}
 

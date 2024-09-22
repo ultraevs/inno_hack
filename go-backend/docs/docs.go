@@ -580,11 +580,11 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "invitee_id": {
-                    "type": "integer"
+                "invitee_name": {
+                    "type": "string"
                 },
-                "inviter_id": {
-                    "type": "integer"
+                "inviter_name": {
+                    "type": "string"
                 },
                 "project_id": {
                     "type": "integer"
@@ -636,8 +636,8 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "owner_id": {
-                    "type": "integer"
+                "owner_name": {
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -685,8 +685,8 @@ const docTemplate = `{
                 "title"
             ],
             "properties": {
-                "assignee_id": {
-                    "type": "integer"
+                "assignee_name": {
+                    "type": "string"
                 },
                 "description": {
                     "type": "string"
@@ -703,10 +703,11 @@ const docTemplate = `{
         "model.TaskDetails": {
             "type": "object",
             "properties": {
-                "assignee_id": {
-                    "type": "integer"
+                "assignee_name": {
+                    "type": "string"
                 },
                 "deadline": {
+                    "description": "Используем указатель на time.Time",
                     "type": "string"
                 },
                 "description": {
@@ -716,12 +717,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "end_time": {
+                    "description": "Используем указатель на time.Time",
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "start_time": {
+                    "description": "Используем указатель на time.Time",
                     "type": "string"
                 },
                 "status": {
@@ -735,8 +738,8 @@ const docTemplate = `{
         "model.TaskUpdateRequest": {
             "type": "object",
             "properties": {
-                "assignee_id": {
-                    "type": "integer"
+                "assignee_name": {
+                    "type": "string"
                 },
                 "deadline": {
                     "type": "string"
