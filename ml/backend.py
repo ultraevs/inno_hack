@@ -34,7 +34,7 @@ app = FastAPI(
 async def root():
     logger.info("Serving root.html")
     try:
-        return FileResponse("root.html")
+        return FileResponse("ml/root.html")
     except Exception as e:
         logger.error(f"Error serving root.html: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
@@ -71,7 +71,7 @@ def figma_check(figma_data: FigmaData) -> dict:
         res = figma_compare(project_name)
         logger.info(f"Figma comparison result: {res}")
 
-        return {'result': 'success', 'difference': res['difference']}
+        return {'result': 'success'} | res
         
     except Exception as e:
         logger.error(f"Error loading Figma data: {e}")
