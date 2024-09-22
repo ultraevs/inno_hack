@@ -29,3 +29,8 @@ type Project struct {
 type UserProjectsResponse struct {
 	Projects []Project `json:"projects"`
 }
+
+type UserDetails struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}

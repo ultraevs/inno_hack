@@ -45,6 +45,23 @@ func ProjectCreate(context *gin.Context) {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create project"})
 		return
 	}
+
+	// Получаем ID созданного проекта
+	var projectID int
+	err = database.Db.QueryRow("SELECT id FROM notion_projects WHERE name = $1 AND owner_name = $2", body.Name, userName).Scan(&projectID)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve project ID"})
+		return
+	}
+
+	// Добавляем владельца проекта в список участников
+	_, err = database.Db.Exec(`INSERT INTO notion_project_users (project_id, user_name) VALUES ($1, $2)`, projectID, userName)
+	if err != nil {
+		fmt.Println(err)
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add project owner to users"})
+		return
+	}
+
 	context.JSON(http.StatusOK, gin.H{"message": "Project created successfully"})
 }
 
@@ -191,4 +208,44 @@ func GetProjects(context *gin.Context) {
 
 	// Возвращаем список проектов
 	context.JSON(http.StatusOK, gin.H{"projects": projects})
+}
+
+// GetProjectUsers возвращает список участников проекта
+// @Summary Получить список участников проекта
+// @Description Возвращает список всех пользователей, работающих над проектом, включая владельца
+// @Produce json
+// @Param project_id path int true "ID проекта"
+// @Success 200 {array} model.UserDetails "Список участников проекта"
+// @Failure 400 {object} model.ErrorResponse "Неверный запрос"
+// @Failure 500 {object} model.ErrorResponse "Ошибка сервера"
+// @Tags Project
+// @Router /v1/projects/{project_id}/users [get]
+func GetProjectUsers(context *gin.Context) {
+	projectID := context.Param("project_id")
+
+	// Выполняем запрос для получения списка участников
+	rows, err := database.Db.Query(`
+		SELECT u.name, u.email 
+		FROM notion_users u
+		JOIN notion_project_users pu ON u.name = pu.user_name
+		WHERE pu.project_id = $1`, projectID)
+
+	if err != nil {
+		fmt.Println(err)
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve project users"})
+		return
+	}
+	defer rows.Close()
+
+	var users []model.UserDetails
+	for rows.Next() {
+		var user model.UserDetails
+		if err := rows.Scan(&user.Name, &user.Email); err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan user"})
+			return
+		}
+		users = append(users, user)
+	}
+
+	context.JSON(http.StatusOK, gin.H{"users": users})
 }

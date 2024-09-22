@@ -109,11 +109,12 @@ func RespondToInvitation(context *gin.Context) {
 			return
 		}
 
-		//_, err = database.Db.Exec(`INSERT INTO notion_project_users (project_id, user_email) VALUES ($1, $2)`, projectID, userEmail)
-		//if err != nil {
-		//	context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add user to project"})
-		//	return
-		//}
+		// Добавляем пользователя в проект
+		_, err := database.Db.Exec(`INSERT INTO notion_project_users (project_id, user_name) VALUES ($1, $2)`, projectID, userName)
+		if err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add user to project"})
+			return
+		}
 	}
 
 	context.JSON(http.StatusOK, gin.H{"message": "Invitation response processed successfully"})

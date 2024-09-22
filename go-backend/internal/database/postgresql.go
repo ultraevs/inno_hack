@@ -52,6 +52,12 @@ func ConnectDatabase() {
 	    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Время последнего обновления
 	    view_mode VARCHAR(50) DEFAULT 'text'    -- Текущий вид проекта: 'text' или 'task_table'
 	);
+
+	CREATE TABLE IF NOT EXISTS notion_project_users (
+    	project_id INT REFERENCES notion_projects(id) ON DELETE CASCADE, -- Проект
+    	user_name VARCHAR(255) REFERENCES notion_users(name) ON DELETE CASCADE, -- Участник (по имени)
+    	PRIMARY KEY (project_id, user_name) -- Уникальность записи: один пользователь в одном проекте
+	);
 	
 	CREATE TABLE IF NOT EXISTS notion_text_projects (
     	id SERIAL PRIMARY KEY,
