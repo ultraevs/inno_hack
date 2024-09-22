@@ -20,7 +20,7 @@ type Project struct {
 	ID          int       `json:"id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
-	OwnerID     int       `json:"owner_id"`
+	OwnerName   string    `json:"owner_name"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	ViewMode    string    `json:"view_mode"` // Текущий вид проекта: 'text' или 'task_table'
@@ -28,4 +28,9 @@ type Project struct {
 
 type UserProjectsResponse struct {
 	Projects []Project `json:"projects"`
+}
+
+type UserDetails struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }

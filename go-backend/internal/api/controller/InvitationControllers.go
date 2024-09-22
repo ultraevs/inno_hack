@@ -4,6 +4,7 @@ import (
 	"app/internal/database"
 	"app/internal/model"
 	"database/sql"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -18,34 +19,29 @@ import (
 // @Success 200 {object} model.CodeResponse "Приглашение успешно отправлено"
 // @Failure 400 {object} model.ErrorResponse "Ошибка при отправке приглашения"
 // @Tags Invitations
-// @Router /projects/:project_id/invite [post]
+// @Router /v1/projects/{project_id}/invite [post]
 func InviteUserToProject(context *gin.Context) {
 	projectID := context.Param("project_id")
 	var body model.ProjectInvitationRequest
-
+	if context.Bind(&body) != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read body"})
+		return
+	}
 	// Извлекаем email текущего пользователя из куки
 	inviterEmail := context.MustGet("Email").(string)
 
 	// Находим отправителя по его email
-	var inviterID int
-	err := database.Db.QueryRow("SELECT id FROM notion_users WHERE email = $1", inviterEmail).Scan(&inviterID)
+	var inviterName string
+	err := database.Db.QueryRow("SELECT name FROM notion_users WHERE email = $1", inviterEmail).Scan(&inviterName)
 	if err != nil {
 		context.JSON(http.StatusUnauthorized, gin.H{"error": "Inviter not found"})
 		return
 	}
 
-	// Поиск пользователя по имени для отправки приглашения
-	var inviteeEmail string
-	err = database.Db.QueryRow("SELECT email FROM notion_users WHERE name = $1", body.InviteeName).Scan(&inviteeEmail)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "User not found by name"})
-		return
-	}
-
 	// Проверяем, не существует ли уже активного приглашения для этого пользователя
 	var existingStatus string
-	err = database.Db.QueryRow(`SELECT status FROM project_invitations WHERE project_id = $1 AND invitee_email = $2`,
-		projectID, inviteeEmail).Scan(&existingStatus)
+	err = database.Db.QueryRow(`SELECT status FROM project_invitations WHERE project_id = $1 AND invitee_name = $2`,
+		projectID, body.InviteeName).Scan(&existingStatus)
 
 	if err == nil && existingStatus == "pending" {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invitation already pending"})
@@ -53,10 +49,11 @@ func InviteUserToProject(context *gin.Context) {
 	}
 
 	// Добавляем новое приглашение
-	_, err = database.Db.Exec(`INSERT INTO project_invitations (project_id, invitee_email, inviter_id, status)
-		VALUES ($1, $2, $3, 'pending')`, projectID, inviteeEmail, inviterID)
+	_, err = database.Db.Exec(`INSERT INTO notion_project_invitations (project_id, invitee_name, inviter_name, status)
+		VALUES ($1, $2, $3, 'pending')`, projectID, body.InviteeName, inviterName)
 
 	if err != nil {
+		fmt.Println(err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send invitation"})
 		return
 	}
@@ -74,7 +71,7 @@ func InviteUserToProject(context *gin.Context) {
 // @Success 200 {object} model.CodeResponse "Приглашение обработано успешно"
 // @Failure 400 {object} model.ErrorResponse "Ошибка при обработке приглашения"
 // @Tags Invitations
-// @Router /invitations/:invitation_id/respond [post]
+// @Router /v1/invitations/{invitation_id}/respond [post]
 func RespondToInvitation(context *gin.Context) {
 	invitationID := context.Param("invitation_id")
 	var body model.InvitationResponseRequest
@@ -87,9 +84,16 @@ func RespondToInvitation(context *gin.Context) {
 	// Получаем email текущего пользователя из куки
 	userEmail := context.MustGet("Email").(string)
 
+	var userName string
+	err := database.Db.QueryRow("SELECT name FROM notion_users WHERE email = $1", userEmail).Scan(&userName)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Inviter not found"})
+		return
+	}
+
 	// Обновляем статус приглашения для пользователя
-	_, err := database.Db.Exec(`UPDATE project_invitations SET status = $1 WHERE id = $2 AND invitee_email = $3`,
-		body.Response, invitationID, userEmail)
+	_, err = database.Db.Exec(`UPDATE notion_project_invitations SET status = $1 WHERE id = $2 AND invitee_name = $3`,
+		body.Response, invitationID, userName)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to respond to invitation"})
@@ -99,13 +103,14 @@ func RespondToInvitation(context *gin.Context) {
 	// Если пользователь принял приглашение, добавляем его в проект
 	if body.Response == "accepted" {
 		var projectID int
-		err = database.Db.QueryRow(`SELECT project_id FROM project_invitations WHERE id = $1`, invitationID).Scan(&projectID)
+		err = database.Db.QueryRow(`SELECT project_id FROM notion_project_invitations WHERE id = $1`, invitationID).Scan(&projectID)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve project details"})
 			return
 		}
 
-		_, err = database.Db.Exec(`INSERT INTO project_users (project_id, user_email) VALUES ($1, $2)`, projectID, userEmail)
+		// Добавляем пользователя в проект
+		_, err := database.Db.Exec(`INSERT INTO notion_project_users (project_id, user_name) VALUES ($1, $2)`, projectID, userName)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add user to project"})
 			return
@@ -122,18 +127,26 @@ func RespondToInvitation(context *gin.Context) {
 // @Success 200 {object} model.UserInvitationsResponse "Список приглашений"
 // @Failure 400 {object} model.ErrorResponse "Ошибка при получении приглашений"
 // @Tags Invitations
-// @Router /user/invitations [get]
+// @Router /v1/user/invitations [get]
 func GetUserInvitations(context *gin.Context) {
 	// Извлекаем email пользователя из cookies
 	userEmail := context.MustGet("Email").(string)
 
+	var userName string
+	err := database.Db.QueryRow("SELECT name FROM notion_users WHERE email = $1", userEmail).Scan(&userName)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "Inviter not found"})
+		return
+	}
+
 	// Запрашиваем приглашения для пользователя по его email
 	rows, err := database.Db.Query(`
-        SELECT notion_project_invitations.id, notion_project_invitations.name, notion_project_invitations.status, notion_project_invitations.created_at
+        SELECT notion_project_invitations.id, notion_project_invitations.status, notion_project_invitations.created_at, notion_project_invitations.inviter_name, notion_project_invitations.invitee_name
         FROM notion_project_invitations
         JOIN notion_projects ON notion_project_invitations.project_id = notion_projects.id
-        WHERE invitee_email = $1`, userEmail)
+        WHERE invitee_name = $1`, userName)
 	if err != nil {
+		fmt.Println(err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve invitations"})
 		return
 	}
@@ -148,7 +161,8 @@ func GetUserInvitations(context *gin.Context) {
 	var invitations []model.Invitation
 	for rows.Next() {
 		var invitation model.Invitation
-		if err := rows.Scan(&invitation.ID, &invitation.ProjectName, &invitation.Status, &invitation.CreatedAt); err != nil {
+		if err := rows.Scan(&invitation.ID, &invitation.Status, &invitation.CreatedAt, &invitation.InviterName, &invitation.InviteeName); err != nil {
+			fmt.Println(err)
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan invitation"})
 			return
 		}
