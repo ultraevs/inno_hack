@@ -1,0 +1,21 @@
+.progress {
+  width: 374px;
+  height: 180px;
+  padding: 24px;
+  background: var(--primary-grey);
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  h3 {
+    font-size: 2rem;
+    font-weight: 500;
+  }
+
+  &__status {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+}

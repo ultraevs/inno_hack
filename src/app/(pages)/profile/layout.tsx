@@ -1,6 +1,6 @@
 import styles from "./layout.module.scss";
 import type { Metadata } from "next";
-import { NavBar } from "@/app/components/NavBar";
+import { NavBar } from "@/components/NavBar";
 
 export const metadata: Metadata = {
   title: "Create Next App",

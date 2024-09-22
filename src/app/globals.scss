@@ -5,10 +5,14 @@
 }
 
 :root {
-  --primary-grey: #e5e5e5;
+  --primary-grey: #f5f5f7;
+  --primary-dark-grey: #e5e5e5;
   --primary-green: #1c5664;
 }
 
-a, button, input, textarea {
+a,
+button,
+input,
+textarea {
   font-family: var(--font-ysabeau_infant);
 }
