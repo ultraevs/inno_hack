@@ -1,0 +1,83 @@
+.meeting {
+    border-radius: 1.25rem;
+    background: #3A3A3A;
+
+    display: flex;
+    flex-direction: column;
+    gap: 2.04rem;
+
+    padding: 1.62rem 1.88rem;
+
+    height: fit-content;
+    width: fit-content;
+
+    &__main_info {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        gap: 5.94rem;
+
+        &__text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+
+            &__title {
+                color: #FFFFFF;
+                font-size: 1.125rem;
+                font-style: normal;
+                font-weight: 600;
+                line-height: normal;
+
+                width: 9.375rem;
+            }
+
+            &__projectName {
+                color: #FFFFFF;
+                opacity: 0.8;
+
+                font-size: 0.875rem;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
+            }
+        }
+
+        &__date {
+            width: 4.25rem;
+
+            color: #FFFFFF;
+            font-size: 1rem;
+            font-style: normal;
+            font-weight: 500;
+            line-height: normal;
+        }
+
+
+    }
+
+    &__more_info{
+        display: flex;
+        gap: 12rem;
+        &__imagesContainer {
+            display: flex;
+            position: relative;
+            width: max-content;
+          
+          
+          &__imageIcon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid white;
+            margin-left: -10px; 
+            
+            &:first-child {
+              margin-left: 0;
+            }
+          }
+        }
+          
+    }
+}

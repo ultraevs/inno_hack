@@ -6,6 +6,8 @@ import { Statistics } from "@/components/Statistics";
 import { Username } from "@/components/Username";
 import { CreateProject } from "@/components/CreateProject";
 import { Calendar } from "@/components/Calendar";
+import { Meeting } from "@/components/Meeting";
+
 
 export default function Profile() {
   return (
@@ -23,10 +25,12 @@ export default function Profile() {
       <div className={styles.page__secondColumn}>
         <Username username="Kostya" />
         <CreateProject />
-        <div>
+        <div className={styles.page__secondColumn__widgets}>
           <Calendar />
+          <Meeting projectName="Хакатон" date="2024-09-19 10:23" images={["", "", ""]} link="https://itatmisis.ru/" />
         </div>
       </div>
+
     </div>
   );
 }

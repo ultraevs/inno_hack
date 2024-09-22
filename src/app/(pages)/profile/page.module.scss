@@ -35,5 +35,10 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+
+    &__widgets{
+      display: flex;
+      gap: 20px;
+    }
   }
 }
