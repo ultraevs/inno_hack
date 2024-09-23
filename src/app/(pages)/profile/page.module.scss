@@ -38,7 +38,14 @@
 
     &__widgets{
       display: flex;
+      flex-direction: row;
       gap: 20px;
+
+      &__meetings {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
     }
   }
 }

@@ -13,7 +13,7 @@ const months = [
   "июл", "авг", "сент", "окт", "нояб", "дек"
 ];
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string): string => {
   const dateObj = new Date(dateString);
   const day = dateObj.getDate();
   const month = months[dateObj.getMonth()];
@@ -28,24 +28,24 @@ const Meeting: FC<IProps> = (props) => {
 
   return (
     <div className={styles.meeting}>
-      <div className={styles.meeting__main_info}>
-        <div className={styles.meeting__main_info__text}>
-          <p className={styles.meeting__main_info__text__title}>Созвон с командой</p>
-          <p className={styles.meeting__main_info__text__projectName}>{projectName}</p>
+      <div className={styles.meeting__mainInfo}>
+        <div className={styles.meeting__mainInfo__text}>
+          <p className={styles.meeting__mainInfo__text__title}>Созвон с командой</p>
+          <p className={styles.meeting__mainInfo__text__projectName}>{projectName}</p>
         </div>
-        <div className={styles.meeting__main_info__date}>
+        <div className={styles.meeting__mainInfo__date}>
           <p>{formatDate(date)}</p>
         </div>
       </div>
 
-      <div className={styles.meeting__more_info}>
-        <div className={styles.meeting__more_info__imagesContainer}>
+      <div className={styles.meeting__moreInfo}>
+        <div className={styles.meeting__moreInfo__imagesContainer}>
           {images.map((image, index) => (
             <img 
               key={index} 
               src={image} 
               alt={`icon-${index}`} 
-              className={styles.meeting__more_info__imagesContainer__imageIcon} 
+              className={styles.meeting__moreInfo__imagesContainer__imageIcon} 
             />
           ))}
         </div>

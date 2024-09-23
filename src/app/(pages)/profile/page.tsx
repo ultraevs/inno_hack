@@ -7,15 +7,9 @@ import { Username } from "@/components/Username";
 import { CreateProject } from "@/components/CreateProject";
 import { Calendar } from "@/components/Calendar";
 import { Meeting } from "@/components/Meeting";
-
-import ellipse1 from "@/assets/ellipse1.png"
-import ellipse2 from "@/assets/ellipse2.png"
-import ellipse3 from "@/assets/ellipse3.png"
+import { CreateMeeting } from "@/components/CreateMeeting";
 
 const exampleIconUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-
-
-
 
 export default function Profile() {
   return (
@@ -35,10 +29,23 @@ export default function Profile() {
         <CreateProject />
         <div className={styles.page__secondColumn__widgets}>
           <Calendar />
-          <Meeting projectName="Хакатон" date="2024-09-19 10:23" images={[exampleIconUrl, exampleIconUrl, exampleIconUrl]} link="https://itatmisis.ru/" />
+          <div className={styles.page__secondColumn__widgets__meetings}>
+            <Meeting
+              projectName="Хакатон"
+              date="2024-09-19 10:23"
+              images={[exampleIconUrl, exampleIconUrl, exampleIconUrl]}
+              link="https://itatmisis.ru/"
+            />
+            <Meeting
+              projectName="Хакатон"
+              date="2024-09-19 10:23"
+              images={[exampleIconUrl, exampleIconUrl, exampleIconUrl]}
+              link="https://itatmisis.ru/"
+            />
+            <CreateMeeting />
+          </div>
         </div>
       </div>
-
     </div>
   );
 }
