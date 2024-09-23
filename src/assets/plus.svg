@@ -1,0 +1,12 @@
+<svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame" clip-path="url(#clip0_32_269)">
+<path id="Vector" d="M40.4444 51.9993H11.5556C5.17111 51.9993 0 46.8282 0 40.4437V11.5548C0 5.17038 5.17111 -0.000732422 11.5556 -0.000732422H40.4444C46.8289 -0.000732422 52 5.17038 52 11.5548V40.4437C52 46.8282 46.8289 51.9993 40.4444 51.9993Z" fill="white"/>
+<rect id="Rectangle 674" x="24.5" y="14" width="3" height="24" rx="1.5" fill="#69A7B4"/>
+<rect id="Rectangle 675" x="38.0002" y="24.5" width="3" height="24" rx="1.5" transform="rotate(90 38.0002 24.5)" fill="#69A7B4"/>
+</g>
+<defs>
+<clipPath id="clip0_32_269">
+<rect width="52" height="52" fill="white"/>
+</clipPath>
+</defs>
+</svg>
