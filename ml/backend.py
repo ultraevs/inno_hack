@@ -6,11 +6,20 @@ from fastapi.responses import FileResponse
 from fastapi.openapi.utils import get_openapi
 from ml.gpt.gpt import GPT
 from ml.gpt.prompts import prompts
-from ml.figma.figma_compare import figma_compare
 from ml.figma.figma_loader import figma_load
+import json
 
-logging.basicConfig(level=logging.INFO)
+
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(formatter)
+
+logger.addHandler(console_handler)
 
 class TaskData(BaseModel):
     description: str
@@ -56,6 +65,21 @@ def process_tasks(task_data: TaskData) -> dict:
         logger.error(f"Error processing tasks: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+@app.post("/ai_helper")
+def process_ai_helper(user_text: str) -> dict:
+    try:
+        logger.info(f"Received user text: {user_text}")
+
+        logger.info("Before calling _gpt.generate()")
+        response = _gpt.generate(prompts['ai_helper'].format(user_text=user_text))
+        formatted_response = json.loads(response['result'])
+        logger.info("AI helper processing successful")
+        return {'status': 'success', 'result': formatted_response}
+    except Exception as e:
+        logger.error(f"Error processing AI helper: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
+
+
 @app.post("/figma_check")
 def figma_check(figma_data: FigmaData) -> dict:
     try:
@@ -66,15 +90,12 @@ def figma_check(figma_data: FigmaData) -> dict:
         res = figma_load(figma_file_key, figma_token, project_name)
         if 'error' in res:
             logger.error(f"Error loading Figma data: {res['error']}")
-            raise HTTPException(status_code=400, detail=res['error'])
-        logger.info("Figma data loading successful")
-        res = figma_compare(project_name)
-        logger.info(f"Figma comparison result: {res}")
+            raise HTTPException(status_code=500, detail=res['error'])
 
-        return {'result': 'success'} | res
-        
+        logger.info("Figma check successful")
+        return res
     except Exception as e:
-        logger.error(f"Error loading Figma data: {e}")
+        logger.error(f"Error processing Figma check: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 def custom_openapi():

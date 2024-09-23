@@ -6,7 +6,7 @@ import json
 class GPT:
     def __init__(self):
         #self.YC = os.getenv('YC_TOKEN')
-        self.YC = 't1.9euelZqSlpLLlsyLipOPzo6JjJOXj-3rnpWaisjJxsyJy5LLkM2byovJzs7l8_dQBkVI-e8GUBER_d3z9xA1Qkj57wZQERH9zef1656VmpWLlMmUk8_Gm5rGk8mWj5Ce7_zF656VmpWLlMmUk8_Gm5rGk8mWj5Ce.WHSmxFZRhEx6GlB9HIx0Q6rK0-nLnGtIUy99WlmWXkM8mdlxH-ENNYMaEhRl1v_Rqu8C2KD3sDZ4xDfmzfsCDg'
+        self.YC = 't1.9euelZqSlJfPzs6VjJqQzczHz8-Lke3rnpWaisjJxsyJy5LLkM2byovJzs7l8_dkSjpI-e8LTnlc_t3z9yR5N0j57wtOeVz-zef1656VmpSQnpKNlYvJnJjKls7MiYyS7_zF656VmpSQnpKNlYvJnJjKls7MiYyS.3CrUsPVwjfz02ve4JHwRZ9UHEF75JXTzFcioGUqEkAYohjtos_Zex3bvGaNzBOe8KG7tcJh9-lYszhpvd1MWCw'
         self.folder = 'b1gchek74cd5e8aadsp6'
         self.url = 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion'
 
@@ -21,7 +21,7 @@ class GPT:
             "modelUri": f"gpt://{self.folder}/yandexgpt-lite",
             "completionOptions": {
                 "stream": False,
-                "temperature": 0.6,
+                "temperature": 0.5,
                 "maxTokens": 2000
             },
             "messages": [

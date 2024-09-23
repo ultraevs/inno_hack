@@ -1,7 +1,58 @@
-2024-09-23 00:48:20,076 ERROR:Error in figma_compare for project SHMYAKSSS: list index out of range
-2024-09-23 00:57:25,815 ERROR:Error loading Figma data: unsupported operand type(s) for |: 'dict' and 'NoneType'
-2024-09-23 00:59:06,425 ERROR:Error loading Figma data: unsupported operand type(s) for |: 'dict' and 'NoneType'
-2024-09-23 01:01:07,242 ERROR:Error loading Figma data: unsupported operand type(s) for |: 'dict' and 'NoneType'
-2024-09-23 01:05:55,011 ERROR:Error loading Figma data: unsupported operand type(s) for |: 'dict' and 'NoneType'
-2024-09-23 01:06:39,004 ERROR:Error loading Figma data: unsupported operand type(s) for |: 'dict' and 'NoneType'
-2024-09-23 01:25:09,908 ERROR:Error loading Figma data: unsupported operand type(s) for |: 'dict' and 'NoneType'
+2024-09-23 15:21:00,243 INFO:Received user text: Создай задачу разработать фронтенд для проекта СуперПриложение
+2024-09-23 15:21:00,243 INFO:Before calling _gpt.generate()
+2024-09-23 15:21:00,243 ERROR:Error processing AI helper: '"type"'
+Traceback (most recent call last):
+  File "C:\Users\Sehap\Documents\hackathons\inno_hack\ml\backend.py", line 74, in process_ai_helper
+    response = _gpt.generate(prompts['ai_helper'].format(user_text=user_text))
+KeyError: '"type"'
+2024-09-23 15:21:52,600 INFO:Received user text: Создай задачу разработать фронтенд для проекта СуперПриложение
+2024-09-23 15:21:52,600 INFO:Before calling _gpt.generate()
+2024-09-23 15:21:52,601 ERROR:Error processing AI helper: '"type"'
+Traceback (most recent call last):
+  File "C:\Users\Sehap\Documents\hackathons\inno_hack\ml\backend.py", line 74, in process_ai_helper
+    response = _gpt.generate(prompts['ai_helper'].format(user_text=user_text))
+KeyError: '"type"'
+2024-09-23 15:22:11,138 INFO:Received user text: Создай задачу разработать фронтенд для проекта СуперПриложение
+2024-09-23 15:22:11,138 INFO:Before calling _gpt.generate()
+2024-09-23 15:22:12,370 INFO:AI helper processing successful
+2024-09-23 15:23:54,362 INFO:Received user text: Создай задачу разработать фронтенд для проекта СуперПриложение
+2024-09-23 15:23:54,363 INFO:Before calling _gpt.generate()
+2024-09-23 15:23:56,253 INFO:AI helper processing successful
+2024-09-23 15:26:21,269 INFO:Received user text: Создай задачу разработать фронтенд для проекта СуперПриложение
+2024-09-23 15:26:21,270 INFO:Before calling _gpt.generate()
+2024-09-23 15:26:23,036 INFO:AI helper processing successful
+2024-09-23 15:27:32,405 INFO:Received user text: Создай задачу разработать фронтенд для проекта СуперПриложение
+2024-09-23 15:27:32,405 INFO:Before calling _gpt.generate()
+2024-09-23 15:27:33,228 INFO:AI helper processing successful
+2024-09-23 15:28:23,630 INFO:Received user text: Создай задачу разработать фронтенд для проекта СуперПриложение
+2024-09-23 15:28:23,631 INFO:Before calling _gpt.generate()
+2024-09-23 15:28:24,262 INFO:AI helper processing successful
+2024-09-23 15:29:03,731 INFO:Received user text: создай задачу "разработать фронтенд" для проекта "шмякс"
+2024-09-23 15:29:03,732 INFO:Before calling _gpt.generate()
+2024-09-23 15:29:04,393 INFO:AI helper processing successful
+2024-09-23 15:36:14,852 INFO:Received user text: привет
+2024-09-23 15:36:14,853 INFO:Before calling _gpt.generate()
+2024-09-23 15:36:15,280 INFO:AI helper processing successful
+2024-09-23 15:36:23,126 INFO:Received user text: кто ты?
+2024-09-23 15:36:23,126 INFO:Before calling _gpt.generate()
+2024-09-23 15:36:24,155 INFO:AI helper processing successful
+2024-09-23 15:36:41,592 INFO:Received user text: кто ты?
+2024-09-23 15:36:41,592 INFO:Before calling _gpt.generate()
+2024-09-23 15:36:42,587 INFO:AI helper processing successful
+2024-09-23 15:37:05,310 INFO:Received user text: что такое математика
+2024-09-23 15:37:05,311 INFO:Before calling _gpt.generate()
+2024-09-23 15:37:05,949 INFO:AI helper processing successful
+2024-09-23 15:38:00,692 INFO:Received task data: description=проект-аналог Notion с переносом всех его функций, tasks=['бекенд', 'фронтенд', 'авторизация']
+2024-09-23 15:38:03,355 INFO:Task generation successful
+2024-09-23 15:41:03,223 INFO:Received user text: новая задача разработать бекенд в проекте "шмякс"
+2024-09-23 15:41:03,223 INFO:Before calling _gpt.generate()
+2024-09-23 15:41:03,808 INFO:AI helper processing successful
+2024-09-23 17:25:05,551 INFO:Received user text: новая задача разработать бекенд в проекте "шмякс"
+2024-09-23 17:25:05,552 INFO:Before calling _gpt.generate()
+2024-09-23 17:25:06,288 INFO:AI helper processing successful
+2024-09-23 17:25:10,711 INFO:Received user text: разработать бекенд в проекте "шмякс"
+2024-09-23 17:25:10,711 INFO:Before calling _gpt.generate()
+2024-09-23 17:25:11,558 INFO:AI helper processing successful
+2024-09-23 17:25:32,331 INFO:Received user text: добавь задачу разработать бекенд в проекте шмякс
+2024-09-23 17:25:32,332 INFO:Before calling _gpt.generate()
+2024-09-23 17:25:32,963 INFO:AI helper processing successful
