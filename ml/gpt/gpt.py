@@ -6,7 +6,7 @@ import json
 class GPT:
     def __init__(self):
         #self.YC = os.getenv('YC_TOKEN')
-        self.YC = 't1.9euelZqSlJfPzs6VjJqQzczHz8-Lke3rnpWaisjJxsyJy5LLkM2byovJzs7l8_dkSjpI-e8LTnlc_t3z9yR5N0j57wtOeVz-zef1656VmpSQnpKNlYvJnJjKls7MiYyS7_zF656VmpSQnpKNlYvJnJjKls7MiYyS.3CrUsPVwjfz02ve4JHwRZ9UHEF75JXTzFcioGUqEkAYohjtos_Zex3bvGaNzBOe8KG7tcJh9-lYszhpvd1MWCw'
+        self.YC = 't1.9euelZqRmZHHl8fGkZKSjcqYjZuWne3rnpWaisjJxsyJy5LLkM2byovJzs7l8_cHIjhI-e9WXQ1J_d3z90dQNUj571ZdDUn9zef1656VmpWJzIyUlc_Jxoqak5uMlpiU7_zF656VmpWJzIyUlc_Jxoqak5uMlpiU.PFCBrILBIzOajpG6XKby02pCCwXcQozNnUdO28dP0oKPUY6pOt_wdSwSRr1j9Kn5BRU5J9sIv2dtw1qVBFcJBw'
         self.folder = 'b1gchek74cd5e8aadsp6'
         self.url = 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion'
 

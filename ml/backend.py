@@ -7,6 +7,7 @@ from fastapi.openapi.utils import get_openapi
 from ml.gpt.gpt import GPT
 from ml.gpt.prompts import prompts
 from ml.figma.figma_loader import figma_load
+from ml.figma.figma_compare import figma_compare
 import json
 
 
@@ -90,12 +91,15 @@ def figma_check(figma_data: FigmaData) -> dict:
         res = figma_load(figma_file_key, figma_token, project_name)
         if 'error' in res:
             logger.error(f"Error loading Figma data: {res['error']}")
-            raise HTTPException(status_code=500, detail=res['error'])
+            raise HTTPException(status_code=400, detail=res['error'])
+        logger.info("Figma data loading successful")
+        res = figma_compare(project_name)
+        logger.info(f"Figma comparison result: {res}")
 
-        logger.info("Figma check successful")
-        return res
+        return {'result': 'success'} | res
+        
     except Exception as e:
-        logger.error(f"Error processing Figma check: {e}", exc_info=True)
+        logger.error(f"Error loading Figma data: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 def custom_openapi():
