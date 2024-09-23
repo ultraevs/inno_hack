@@ -1,0 +1,577 @@
+definitions:
+  model.ChangeViewRequest:
+    properties:
+      view_mode:
+        description: 'Допустимые значения: ''text'', ''task_table'''
+        type: string
+    type: object
+  model.CodeResponse:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  model.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  model.Invitation:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      invitee_name:
+        type: string
+      inviter_name:
+        type: string
+      project_id:
+        type: integer
+      project_name:
+        type: string
+      status:
+        type: string
+    type: object
+  model.InvitationResponseRequest:
+    properties:
+      response:
+        description: '"accepted" или "declined"'
+        type: string
+    type: object
+  model.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  model.Project:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      owner_name:
+        type: string
+      updated_at:
+        type: string
+      view_mode:
+        description: 'Текущий вид проекта: ''text'' или ''task_table'''
+        type: string
+    type: object
+  model.ProjectCreateRequest:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+    type: object
+  model.ProjectDetailsResponse:
+    properties:
+      content:
+        type: string
+      view_mode:
+        type: string
+    type: object
+  model.ProjectInvitationRequest:
+    properties:
+      invitee_name:
+        type: string
+    type: object
+  model.TaskCreateRequest:
+    properties:
+      assignee_name:
+        type: string
+      description:
+        type: string
+      status:
+        description: '"To Do", "In Progress", "Done"'
+        type: string
+      title:
+        type: string
+    required:
+    - status
+    - title
+    type: object
+  model.TaskDetails:
+    properties:
+      assignee_name:
+        type: string
+      deadline:
+        description: Используем указатель на time.Time
+        type: string
+      description:
+        type: string
+      duration:
+        type: string
+      end_time:
+        description: Используем указатель на time.Time
+        type: string
+      id:
+        type: integer
+      start_time:
+        description: Используем указатель на time.Time
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+    type: object
+  model.TaskUpdateRequest:
+    properties:
+      assignee_name:
+        type: string
+      deadline:
+        type: string
+      description:
+        type: string
+      duration:
+        type: string
+      end_time:
+        type: string
+      start_time:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+    type: object
+  model.UserCreateRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  model.UserDetails:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+    type: object
+  model.UserInvitationsResponse:
+    properties:
+      invitations:
+        items:
+          $ref: '#/definitions/model.Invitation'
+        type: array
+    type: object
+  model.UserProjectsResponse:
+    properties:
+      projects:
+        items:
+          $ref: '#/definitions/model.Project'
+        type: array
+    type: object
+info:
+  contact: {}
+  description: task.shmyaks.ru API
+  title: InnoHack Service API
+  version: "1.0"
+paths:
+  /v1/invitations/{invitation_id}/respond:
+    post:
+      consumes:
+      - application/json
+      description: Позволяет пользователю принять или отклонить приглашение
+      parameters:
+      - description: ID приглашения
+        in: path
+        name: invitation_id
+        required: true
+        type: integer
+      - description: Запрос на принятие или отклонение приглашения
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.InvitationResponseRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Приглашение обработано успешно
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Ошибка при обработке приглашения
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Ответить на приглашение в проект
+      tags:
+      - Invitations
+  /v1/login:
+    post:
+      consumes:
+      - application/json
+      description: Авторизует пользователя с предоставленным email и паролем.
+      parameters:
+      - description: Запрос на авторизацию пользователя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Пользователь авторизован
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Не удалось авторизовать пользователя
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Логин
+      tags:
+      - Auth
+  /v1/project_create:
+    post:
+      consumes:
+      - application/json
+      description: Создает новый проект, который по умолчанию является текстовым проектом.
+        Вид можно поменять на таблицу задач.
+      parameters:
+      - description: Запрос на создание проекта
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.ProjectCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Проект успешно создан
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Ошибка при создании проекта
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Создать новый проект
+      tags:
+      - Project
+  /v1/projects/{project_id}:
+    get:
+      description: 'Возвращает детали проекта в зависимости от текущего вида: текст
+        или таблица задач.'
+      parameters:
+      - description: ID проекта
+        in: path
+        name: project_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Детали проекта
+          schema:
+            $ref: '#/definitions/model.ProjectDetailsResponse'
+        "400":
+          description: Ошибка при получении данных проекта
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить детали проекта
+      tags:
+      - Project
+  /v1/projects/{project_id}/invite:
+    post:
+      consumes:
+      - application/json
+      description: Отправляет приглашение пользователю присоединиться к проекту, используя
+        имя для поиска email
+      parameters:
+      - description: ID проекта
+        in: path
+        name: project_id
+        required: true
+        type: integer
+      - description: Запрос на приглашение пользователя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.ProjectInvitationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Приглашение успешно отправлено
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Ошибка при отправке приглашения
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Пригласить пользователя в проект
+      tags:
+      - Invitations
+  /v1/projects/{project_id}/tasks:
+    post:
+      consumes:
+      - application/json
+      description: Создаёт новую задачу для конкретного проекта
+      parameters:
+      - description: ID проекта
+        in: path
+        name: project_id
+        required: true
+        type: integer
+      - description: Запрос на создание задачи
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.TaskCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Задача успешно создана
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Ошибка при создании задачи
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Создать новую задачу
+      tags:
+      - Tasks
+  /v1/projects/{project_id}/tasks/{task_id}:
+    delete:
+      description: Удаляет задачу по её ID
+      parameters:
+      - description: ID проекта
+        in: path
+        name: project_id
+        required: true
+        type: integer
+      - description: ID задачи
+        in: path
+        name: task_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Задача успешно удалена
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Ошибка при удалении задачи
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Удалить задачу
+      tags:
+      - Tasks
+    get:
+      description: Возвращает информацию о задаче по её ID
+      parameters:
+      - description: ID проекта
+        in: path
+        name: project_id
+        required: true
+        type: integer
+      - description: ID задачи
+        in: path
+        name: task_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о задаче
+          schema:
+            $ref: '#/definitions/model.TaskDetails'
+        "400":
+          description: Ошибка при получении задачи
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить задачу
+      tags:
+      - Tasks
+    put:
+      consumes:
+      - application/json
+      description: Обновляет информацию о задаче, включая статус, исполнителя, дедлайн
+        и т.д.
+      parameters:
+      - description: ID проекта
+        in: path
+        name: project_id
+        required: true
+        type: integer
+      - description: ID задачи
+        in: path
+        name: task_id
+        required: true
+        type: integer
+      - description: Запрос на обновление задачи
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.TaskUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Задача успешно обновлена
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Ошибка при обновлении задачи
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Обновить задачу
+      tags:
+      - Tasks
+  /v1/projects/{project_id}/users:
+    get:
+      description: Возвращает список всех пользователей, работающих над проектом,
+        включая владельца
+      parameters:
+      - description: ID проекта
+        in: path
+        name: project_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список участников проекта
+          schema:
+            items:
+              $ref: '#/definitions/model.UserDetails'
+            type: array
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Ошибка сервера
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить список участников проекта
+      tags:
+      - Project
+  /v1/projects/{project_id}/view:
+    put:
+      consumes:
+      - application/json
+      description: 'Меняет вид проекта: текстовый или таблица задач.'
+      parameters:
+      - description: ID проекта
+        in: path
+        name: project_id
+        required: true
+        type: integer
+      - description: Запрос на смену вида проекта
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.ChangeViewRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Вид проекта успешно изменен
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Ошибка при изменении вида проекта
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Изменить вид проекта
+      tags:
+      - Project
+  /v1/user/invitations:
+    get:
+      description: Возвращает список приглашений, отправленных пользователю, идентифицированному
+        по email из cookies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список приглашений
+          schema:
+            $ref: '#/definitions/model.UserInvitationsResponse'
+        "400":
+          description: Ошибка при получении приглашений
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить приглашения для пользователя
+      tags:
+      - Invitations
+  /v1/user/projects:
+    get:
+      description: Возвращает все проекты, где пользователь является участником или
+        владельцем
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список проектов
+          schema:
+            $ref: '#/definitions/model.UserProjectsResponse'
+        "400":
+          description: Ошибка при получении проектов
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить проекты пользователя
+      tags:
+      - Project
+  /v1/user_create:
+    post:
+      consumes:
+      - application/json
+      description: Создает нового пользователя с предоставленным email, паролем и
+        именем.
+      parameters:
+      - description: Запрос на создание пользователя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Пользователь успешно создан
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Не удалось создать пользователя
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Создать нового пользователя
+      tags:
+      - Auth
+securityDefinitions:
+  CookieAuth:
+    in: cookie
+    name: Authtoken
+    type: apiKey
+swagger: "2.0"

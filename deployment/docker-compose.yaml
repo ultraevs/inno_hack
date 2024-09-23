@@ -1,0 +1,26 @@
+version: "3.3"
+
+services:
+  frontend:
+    build:
+      context: ../inno-front/
+      dockerfile: Dockerfile
+    ports:
+      - "5180:5180"
+  backend:
+    build:
+      context: ../go-backend/
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - DOCKER_MODE=1
+    ports:
+      - "8030:8030"
+    network_mode: host
+  ml:
+    build:
+      context: ../ml/
+      dockerfile: Dockerfile
+    ports:
+      - "8443:8443"
+    command: python backend.py
