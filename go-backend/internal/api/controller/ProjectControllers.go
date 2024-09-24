@@ -80,8 +80,9 @@ func GetProjectDetails(context *gin.Context) {
 
 	// Логика для текстового содержимого
 	var content string
-	err := database.Db.QueryRow("SELECT content FROM project_texts WHERE project_id = $1", projectID).Scan(&content)
+	err := database.Db.QueryRow("SELECT content FROM notion_text_projects WHERE project_id = $1", projectID).Scan(&content)
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		fmt.Println(err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve text content"})
 		return
 	}

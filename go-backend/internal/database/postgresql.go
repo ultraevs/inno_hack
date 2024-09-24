@@ -49,7 +49,7 @@ func ConnectDatabase() {
 	    description TEXT,                       -- Описание проекта
     	owner_name VARCHAR(255) REFERENCES notion_users(name) ON DELETE SET NULL,  -- Владелец проекта, идентификация по 'name#0000'
 	    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Время создания проекта
-	    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Время последнего обновления
+	    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Время последнего обновления
 	);
 
 	CREATE TABLE IF NOT EXISTS notion_project_users (

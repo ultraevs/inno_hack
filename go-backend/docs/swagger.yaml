@@ -1,10 +1,4 @@
 definitions:
-  model.ChangeViewRequest:
-    properties:
-      view_mode:
-        description: 'Допустимые значения: ''text'', ''task_table'''
-        type: string
-    type: object
   model.CodeResponse:
     properties:
       code:
@@ -64,9 +58,6 @@ definitions:
         type: string
       updated_at:
         type: string
-      view_mode:
-        description: 'Текущий вид проекта: ''text'' или ''task_table'''
-        type: string
     type: object
   model.ProjectCreateRequest:
     properties:
@@ -78,8 +69,6 @@ definitions:
   model.ProjectDetailsResponse:
     properties:
       content:
-        type: string
-      view_mode:
         type: string
     type: object
   model.ProjectInvitationRequest:
@@ -179,6 +168,13 @@ definitions:
           $ref: '#/definitions/model.Project'
         type: array
     type: object
+  model.UserStatsResponse:
+    properties:
+      done_tasks_count:
+        type: integer
+      total_projects_count:
+        type: integer
+    type: object
 info:
   contact: {}
   description: task.shmyaks.ru API
@@ -271,8 +267,7 @@ paths:
       - Project
   /v1/projects/{project_id}:
     get:
-      description: 'Возвращает детали проекта в зависимости от текущего вида: текст
-        или таблица задач.'
+      description: Возвращает текстовое содержание и задачи проекта.
       parameters:
       - description: ID проекта
         in: path
@@ -475,37 +470,6 @@ paths:
       summary: Получить список участников проекта
       tags:
       - Project
-  /v1/projects/{project_id}/view:
-    put:
-      consumes:
-      - application/json
-      description: 'Меняет вид проекта: текстовый или таблица задач.'
-      parameters:
-      - description: ID проекта
-        in: path
-        name: project_id
-        required: true
-        type: integer
-      - description: Запрос на смену вида проекта
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/model.ChangeViewRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Вид проекта успешно изменен
-          schema:
-            $ref: '#/definitions/model.CodeResponse'
-        "400":
-          description: Ошибка при изменении вида проекта
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-      summary: Изменить вид проекта
-      tags:
-      - Project
   /v1/user/invitations:
     get:
       description: Возвращает список приглашений, отправленных пользователю, идентифицированному
@@ -569,6 +533,24 @@ paths:
       summary: Создать нового пользователя
       tags:
       - Auth
+  /v1/users/stats:
+    get:
+      description: Возвращает количество завершённых задач и количество проектов,
+        в которых пользователь участвует
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Статистика пользователя
+          schema:
+            $ref: '#/definitions/model.UserStatsResponse'
+        "400":
+          description: Ошибка при получении статистики
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить статистику пользователя
+      tags:
+      - Users
 securityDefinitions:
   CookieAuth:
     in: cookie

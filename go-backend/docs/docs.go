@@ -144,7 +144,7 @@ const docTemplate = `{
         },
         "/v1/projects/{project_id}": {
             "get": {
-                "description": "Возвращает детали проекта в зависимости от текущего вида: текст или таблица задач.",
+                "description": "Возвращает текстовое содержание и задачи проекта.",
                 "produces": [
                     "application/json"
                 ],
@@ -446,53 +446,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/projects/{project_id}/view": {
-            "put": {
-                "description": "Меняет вид проекта: текстовый или таблица задач.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Project"
-                ],
-                "summary": "Изменить вид проекта",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID проекта",
-                        "name": "project_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Запрос на смену вида проекта",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.ChangeViewRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Вид проекта успешно изменен",
-                        "schema": {
-                            "$ref": "#/definitions/model.CodeResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Ошибка при изменении вида проекта",
-                        "schema": {
-                            "$ref": "#/definitions/model.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/user/invitations": {
             "get": {
                 "description": "Возвращает список приглашений, отправленных пользователю, идентифицированному по email из cookies",
@@ -584,18 +537,35 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/users/stats": {
+            "get": {
+                "description": "Возвращает количество завершённых задач и количество проектов, в которых пользователь участвует",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Получить статистику пользователя",
+                "responses": {
+                    "200": {
+                        "description": "Статистика пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/model.UserStatsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при получении статистики",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "model.ChangeViewRequest": {
-            "type": "object",
-            "properties": {
-                "view_mode": {
-                    "description": "Допустимые значения: 'text', 'task_table'",
-                    "type": "string"
-                }
-            }
-        },
         "model.CodeResponse": {
             "type": "object",
             "properties": {
@@ -685,10 +655,6 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
-                },
-                "view_mode": {
-                    "description": "Текущий вид проекта: 'text' или 'task_table'",
-                    "type": "string"
                 }
             }
         },
@@ -707,9 +673,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "content": {
-                    "type": "string"
-                },
-                "view_mode": {
                     "type": "string"
                 }
             }
@@ -857,6 +820,17 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/model.Project"
                     }
+                }
+            }
+        },
+        "model.UserStatsResponse": {
+            "type": "object",
+            "properties": {
+                "done_tasks_count": {
+                    "type": "integer"
+                },
+                "total_projects_count": {
+                    "type": "integer"
                 }
             }
         }
