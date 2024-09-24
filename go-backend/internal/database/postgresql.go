@@ -98,6 +98,20 @@ func ConnectDatabase() {
     	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Время последнего обновления
 	);
 
+	CREATE TABLE IF NOT EXISTS notion_meetings (
+    	id SERIAL PRIMARY KEY,
+    	meeting_date TIMESTAMP NOT NULL,    -- Дата и время собрания
+    	zoom_link VARCHAR(255) NOT NULL,    -- Ссылка на Zoom или другую платформу
+    	created_by VARCHAR(255) REFERENCES notion_users(name) ON DELETE CASCADE, -- Создатель созвона
+    	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Время создания
+	);
+
+	CREATE TABLE IF NOT EXISTS notion_meeting_participants (
+    	meeting_id INT REFERENCES notion_meetings(id) ON DELETE CASCADE,   -- ID созвона
+    	user_name VARCHAR(255) REFERENCES notion_users(name) ON DELETE CASCADE, -- Имя участника
+    	PRIMARY KEY (meeting_id, user_name)
+	);
+
 
 	`
 

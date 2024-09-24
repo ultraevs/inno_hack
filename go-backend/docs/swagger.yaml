@@ -26,6 +26,13 @@ definitions:
       order_num:
         type: integer
     type: object
+  model.CreateMeetingRequest:
+    properties:
+      meeting_date:
+        type: string
+      zoom_link:
+        type: string
+    type: object
   model.ErrorResponse:
     properties:
       error:
@@ -54,6 +61,11 @@ definitions:
         description: '"accepted" или "declined"'
         type: string
     type: object
+  model.InviteUserRequest:
+    properties:
+      user_name:
+        type: string
+    type: object
   model.LoginRequest:
     properties:
       email:
@@ -63,6 +75,32 @@ definitions:
     required:
     - email
     - password
+    type: object
+  model.MeetingDetails:
+    properties:
+      created_by:
+        type: string
+      id:
+        type: integer
+      meeting_date:
+        type: string
+      zoom_link:
+        type: string
+    type: object
+  model.MeetingDetailsWithParticipants:
+    properties:
+      created_by:
+        type: string
+      id:
+        type: integer
+      meeting_date:
+        type: string
+      participants:
+        items:
+          type: string
+        type: array
+      zoom_link:
+        type: string
     type: object
   model.Project:
     properties:
@@ -258,6 +296,86 @@ paths:
       summary: Логин
       tags:
       - Auth
+  /v1/meetings/{meeting_id}:
+    get:
+      description: Возвращает детальную информацию о созвоне, включая участников
+      parameters:
+      - description: ID созвона
+        in: path
+        name: meeting_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Детали созвона
+          schema:
+            $ref: '#/definitions/model.MeetingDetailsWithParticipants'
+        "400":
+          description: Ошибка при получении данных
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить данные о созвоне
+      tags:
+      - Meetings
+  /v1/meetings/{meeting_id}/invite:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет пользователя в список участников созвона
+      parameters:
+      - description: ID созвона
+        in: path
+        name: meeting_id
+        required: true
+        type: integer
+      - description: Запрос на приглашение пользователя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.InviteUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Пользователь успешно приглашён
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Ошибка при приглашении пользователя
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Пригласить пользователя на созвон
+      tags:
+      - Meetings
+  /v1/meetings/new_meeting:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет новый созвон с указанием даты и ссылки на Zoom
+      parameters:
+      - description: Запрос на создание созвона
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMeetingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Созвон успешно создан
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Ошибка при создании созвона
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Создать новый созвон
+      tags:
+      - Meetings
   /v1/project_create:
     post:
       consumes:
@@ -667,6 +785,26 @@ paths:
       summary: Создать нового пользователя
       tags:
       - Auth
+  /v1/users/meetings:
+    get:
+      description: Возвращает все созвоны, в которых пользователь является участником
+        или создателем
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список созвонов
+          schema:
+            items:
+              $ref: '#/definitions/model.MeetingDetails'
+            type: array
+        "400":
+          description: Ошибка при получении данных
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить все созвоны пользователя
+      tags:
+      - Meetings
   /v1/users/stats:
     get:
       description: Возвращает количество завершённых задач и количество проектов,

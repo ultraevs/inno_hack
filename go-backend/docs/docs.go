@@ -102,6 +102,128 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/meetings/new_meeting": {
+            "post": {
+                "description": "Добавляет новый созвон с указанием даты и ссылки на Zoom",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Meetings"
+                ],
+                "summary": "Создать новый созвон",
+                "parameters": [
+                    {
+                        "description": "Запрос на создание созвона",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateMeetingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Созвон успешно создан",
+                        "schema": {
+                            "$ref": "#/definitions/model.CodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при создании созвона",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/meetings/{meeting_id}": {
+            "get": {
+                "description": "Возвращает детальную информацию о созвоне, включая участников",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Meetings"
+                ],
+                "summary": "Получить данные о созвоне",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID созвона",
+                        "name": "meeting_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Детали созвона",
+                        "schema": {
+                            "$ref": "#/definitions/model.MeetingDetailsWithParticipants"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при получении данных",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/meetings/{meeting_id}/invite": {
+            "post": {
+                "description": "Добавляет пользователя в список участников созвона",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Meetings"
+                ],
+                "summary": "Пригласить пользователя на созвон",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID созвона",
+                        "name": "meeting_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Запрос на приглашение пользователя",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.InviteUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Пользователь успешно приглашён",
+                        "schema": {
+                            "$ref": "#/definitions/model.CodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при приглашении пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/project_create": {
             "post": {
                 "description": "Создает новый проект, который по умолчанию является текстовым проектом. Вид можно поменять на таблицу задач.",
@@ -710,6 +832,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/users/meetings": {
+            "get": {
+                "description": "Возвращает все созвоны, в которых пользователь является участником или создателем",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Meetings"
+                ],
+                "summary": "Получить все созвоны пользователя",
+                "responses": {
+                    "200": {
+                        "description": "Список созвонов",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.MeetingDetails"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при получении данных",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/users/stats": {
             "get": {
                 "description": "Возвращает количество завершённых задач и количество проектов, в которых пользователь участвует",
@@ -780,6 +931,17 @@ const docTemplate = `{
                 }
             }
         },
+        "model.CreateMeetingRequest": {
+            "type": "object",
+            "properties": {
+                "meeting_date": {
+                    "type": "string"
+                },
+                "zoom_link": {
+                    "type": "string"
+                }
+            }
+        },
         "model.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -823,6 +985,14 @@ const docTemplate = `{
                 }
             }
         },
+        "model.InviteUserRequest": {
+            "type": "object",
+            "properties": {
+                "user_name": {
+                    "type": "string"
+                }
+            }
+        },
         "model.LoginRequest": {
             "type": "object",
             "required": [
@@ -834,6 +1004,46 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MeetingDetails": {
+            "type": "object",
+            "properties": {
+                "created_by": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "meeting_date": {
+                    "type": "string"
+                },
+                "zoom_link": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MeetingDetailsWithParticipants": {
+            "type": "object",
+            "properties": {
+                "created_by": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "meeting_date": {
+                    "type": "string"
+                },
+                "participants": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "zoom_link": {
                     "type": "string"
                 }
             }
