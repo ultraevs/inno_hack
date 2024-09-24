@@ -102,6 +102,128 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/meetings/new_meeting": {
+            "post": {
+                "description": "Добавляет новый созвон с указанием даты и ссылки на Zoom",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Meetings"
+                ],
+                "summary": "Создать новый созвон",
+                "parameters": [
+                    {
+                        "description": "Запрос на создание созвона",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.CreateMeetingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Созвон успешно создан",
+                        "schema": {
+                            "$ref": "#/definitions/model.CodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при создании созвона",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/meetings/{meeting_id}": {
+            "get": {
+                "description": "Возвращает детальную информацию о созвоне, включая участников",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Meetings"
+                ],
+                "summary": "Получить данные о созвоне",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID созвона",
+                        "name": "meeting_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Детали созвона",
+                        "schema": {
+                            "$ref": "#/definitions/model.MeetingDetailsWithParticipants"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при получении данных",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/meetings/{meeting_id}/invite": {
+            "post": {
+                "description": "Добавляет пользователя в список участников созвона",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Meetings"
+                ],
+                "summary": "Пригласить пользователя на созвон",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID созвона",
+                        "name": "meeting_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Запрос на приглашение пользователя",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.InviteUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Пользователь успешно приглашён",
+                        "schema": {
+                            "$ref": "#/definitions/model.CodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при приглашении пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/project_create": {
             "post": {
                 "description": "Создает новый проект, который по умолчанию является текстовым проектом. Вид можно поменять на таблицу задач.",
@@ -142,9 +264,98 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/projects/content/{block_id}": {
+            "put": {
+                "description": "Обновляет существующий блок текста или другого контента в проекте",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TextContent"
+                ],
+                "summary": "Обновить блок контента",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID блока",
+                        "name": "block_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Запрос на обновление контента",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AddContentBlockRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Контент успешно обновлён",
+                        "schema": {
+                            "$ref": "#/definitions/model.CodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при обновлении контента",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаляет существующий блок контента из проекта",
+                "tags": [
+                    "TextContent"
+                ],
+                "summary": "Удалить блок контента",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID блока",
+                        "name": "block_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Контент успешно удалён",
+                        "schema": {
+                            "$ref": "#/definitions/model.CodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при удалении контента",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/projects/{project_id}": {
             "get": {
-                "description": "Возвращает детали проекта в зависимости от текущего вида: текст или таблица задач.",
+                "description": "Возвращает текстовое содержание и задачи проекта.",
                 "produces": [
                     "application/json"
                 ],
@@ -170,6 +381,89 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Ошибка при получении данных проекта",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/projects/{project_id}/content": {
+            "get": {
+                "description": "Возвращает весь контент проекта в виде блоков с различными типами",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TextContent"
+                ],
+                "summary": "Получить контент проекта",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID проекта",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список блоков контента",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ContentBlockResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при получении контента",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Добавляет новый блок текста или другого контента в проект",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TextContent"
+                ],
+                "summary": "Добавить блок контента",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID проекта",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Запрос на добавление контента",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AddContentBlockRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Контент успешно добавлен",
+                        "schema": {
+                            "$ref": "#/definitions/model.CodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при добавлении контента",
                         "schema": {
                             "$ref": "#/definitions/model.ErrorResponse"
                         }
@@ -446,53 +740,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/projects/{project_id}/view": {
-            "put": {
-                "description": "Меняет вид проекта: текстовый или таблица задач.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Project"
-                ],
-                "summary": "Изменить вид проекта",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID проекта",
-                        "name": "project_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Запрос на смену вида проекта",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.ChangeViewRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Вид проекта успешно изменен",
-                        "schema": {
-                            "$ref": "#/definitions/model.CodeResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Ошибка при изменении вида проекта",
-                        "schema": {
-                            "$ref": "#/definitions/model.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/user/invitations": {
             "get": {
                 "description": "Возвращает список приглашений, отправленных пользователю, идентифицированному по email из cookies",
@@ -584,15 +831,75 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/users/meetings": {
+            "get": {
+                "description": "Возвращает все созвоны, в которых пользователь является участником или создателем",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Meetings"
+                ],
+                "summary": "Получить все созвоны пользователя",
+                "responses": {
+                    "200": {
+                        "description": "Список созвонов",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.MeetingDetails"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при получении данных",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/users/stats": {
+            "get": {
+                "description": "Возвращает количество завершённых задач и количество проектов, в которых пользователь участвует",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Получить статистику пользователя",
+                "responses": {
+                    "200": {
+                        "description": "Статистика пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/model.UserStatsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при получении статистики",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "model.ChangeViewRequest": {
+        "model.AddContentBlockRequest": {
             "type": "object",
             "properties": {
-                "view_mode": {
-                    "description": "Допустимые значения: 'text', 'task_table'",
+                "content": {
                     "type": "string"
+                },
+                "content_type": {
+                    "type": "string"
+                },
+                "order_num": {
+                    "type": "integer"
                 }
             }
         },
@@ -603,6 +910,34 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ContentBlockResponse": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "content_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "order_num": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.CreateMeetingRequest": {
+            "type": "object",
+            "properties": {
+                "meeting_date": {
+                    "type": "string"
+                },
+                "zoom_link": {
                     "type": "string"
                 }
             }
@@ -650,6 +985,14 @@ const docTemplate = `{
                 }
             }
         },
+        "model.InviteUserRequest": {
+            "type": "object",
+            "properties": {
+                "user_name": {
+                    "type": "string"
+                }
+            }
+        },
         "model.LoginRequest": {
             "type": "object",
             "required": [
@@ -661,6 +1004,46 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MeetingDetails": {
+            "type": "object",
+            "properties": {
+                "created_by": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "meeting_date": {
+                    "type": "string"
+                },
+                "zoom_link": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.MeetingDetailsWithParticipants": {
+            "type": "object",
+            "properties": {
+                "created_by": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "meeting_date": {
+                    "type": "string"
+                },
+                "participants": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "zoom_link": {
                     "type": "string"
                 }
             }
@@ -685,10 +1068,6 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
-                },
-                "view_mode": {
-                    "description": "Текущий вид проекта: 'text' или 'task_table'",
-                    "type": "string"
                 }
             }
         },
@@ -707,9 +1086,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "content": {
-                    "type": "string"
-                },
-                "view_mode": {
                     "type": "string"
                 }
             }
@@ -857,6 +1233,17 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/model.Project"
                     }
+                }
+            }
+        },
+        "model.UserStatsResponse": {
+            "type": "object",
+            "properties": {
+                "done_tasks_count": {
+                    "type": "integer"
+                },
+                "total_projects_count": {
+                    "type": "integer"
                 }
             }
         }

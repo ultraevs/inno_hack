@@ -1,15 +1,36 @@
 definitions:
-  model.ChangeViewRequest:
+  model.AddContentBlockRequest:
     properties:
-      view_mode:
-        description: 'Допустимые значения: ''text'', ''task_table'''
+      content:
         type: string
+      content_type:
+        type: string
+      order_num:
+        type: integer
     type: object
   model.CodeResponse:
     properties:
       code:
         type: string
       message:
+        type: string
+    type: object
+  model.ContentBlockResponse:
+    properties:
+      content:
+        type: string
+      content_type:
+        type: string
+      id:
+        type: integer
+      order_num:
+        type: integer
+    type: object
+  model.CreateMeetingRequest:
+    properties:
+      meeting_date:
+        type: string
+      zoom_link:
         type: string
     type: object
   model.ErrorResponse:
@@ -40,6 +61,11 @@ definitions:
         description: '"accepted" или "declined"'
         type: string
     type: object
+  model.InviteUserRequest:
+    properties:
+      user_name:
+        type: string
+    type: object
   model.LoginRequest:
     properties:
       email:
@@ -49,6 +75,32 @@ definitions:
     required:
     - email
     - password
+    type: object
+  model.MeetingDetails:
+    properties:
+      created_by:
+        type: string
+      id:
+        type: integer
+      meeting_date:
+        type: string
+      zoom_link:
+        type: string
+    type: object
+  model.MeetingDetailsWithParticipants:
+    properties:
+      created_by:
+        type: string
+      id:
+        type: integer
+      meeting_date:
+        type: string
+      participants:
+        items:
+          type: string
+        type: array
+      zoom_link:
+        type: string
     type: object
   model.Project:
     properties:
@@ -64,9 +116,6 @@ definitions:
         type: string
       updated_at:
         type: string
-      view_mode:
-        description: 'Текущий вид проекта: ''text'' или ''task_table'''
-        type: string
     type: object
   model.ProjectCreateRequest:
     properties:
@@ -78,8 +127,6 @@ definitions:
   model.ProjectDetailsResponse:
     properties:
       content:
-        type: string
-      view_mode:
         type: string
     type: object
   model.ProjectInvitationRequest:
@@ -179,6 +226,13 @@ definitions:
           $ref: '#/definitions/model.Project'
         type: array
     type: object
+  model.UserStatsResponse:
+    properties:
+      done_tasks_count:
+        type: integer
+      total_projects_count:
+        type: integer
+    type: object
 info:
   contact: {}
   description: task.shmyaks.ru API
@@ -242,6 +296,86 @@ paths:
       summary: Логин
       tags:
       - Auth
+  /v1/meetings/{meeting_id}:
+    get:
+      description: Возвращает детальную информацию о созвоне, включая участников
+      parameters:
+      - description: ID созвона
+        in: path
+        name: meeting_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Детали созвона
+          schema:
+            $ref: '#/definitions/model.MeetingDetailsWithParticipants'
+        "400":
+          description: Ошибка при получении данных
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить данные о созвоне
+      tags:
+      - Meetings
+  /v1/meetings/{meeting_id}/invite:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет пользователя в список участников созвона
+      parameters:
+      - description: ID созвона
+        in: path
+        name: meeting_id
+        required: true
+        type: integer
+      - description: Запрос на приглашение пользователя
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.InviteUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Пользователь успешно приглашён
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Ошибка при приглашении пользователя
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Пригласить пользователя на созвон
+      tags:
+      - Meetings
+  /v1/meetings/new_meeting:
+    post:
+      consumes:
+      - application/json
+      description: Добавляет новый созвон с указанием даты и ссылки на Zoom
+      parameters:
+      - description: Запрос на создание созвона
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMeetingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Созвон успешно создан
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Ошибка при создании созвона
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Создать новый созвон
+      tags:
+      - Meetings
   /v1/project_create:
     post:
       consumes:
@@ -271,8 +405,7 @@ paths:
       - Project
   /v1/projects/{project_id}:
     get:
-      description: 'Возвращает детали проекта в зависимости от текущего вида: текст
-        или таблица задач.'
+      description: Возвращает текстовое содержание и задачи проекта.
       parameters:
       - description: ID проекта
         in: path
@@ -293,6 +426,61 @@ paths:
       summary: Получить детали проекта
       tags:
       - Project
+  /v1/projects/{project_id}/content:
+    get:
+      description: Возвращает весь контент проекта в виде блоков с различными типами
+      parameters:
+      - description: ID проекта
+        in: path
+        name: project_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список блоков контента
+          schema:
+            items:
+              $ref: '#/definitions/model.ContentBlockResponse'
+            type: array
+        "400":
+          description: Ошибка при получении контента
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить контент проекта
+      tags:
+      - TextContent
+    post:
+      consumes:
+      - application/json
+      description: Добавляет новый блок текста или другого контента в проект
+      parameters:
+      - description: ID проекта
+        in: path
+        name: project_id
+        required: true
+        type: integer
+      - description: Запрос на добавление контента
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddContentBlockRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Контент успешно добавлен
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Ошибка при добавлении контента
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Добавить блок контента
+      tags:
+      - TextContent
   /v1/projects/{project_id}/invite:
     post:
       consumes:
@@ -475,37 +663,65 @@ paths:
       summary: Получить список участников проекта
       tags:
       - Project
-  /v1/projects/{project_id}/view:
+  /v1/projects/content/{block_id}:
+    delete:
+      description: Удаляет существующий блок контента из проекта
+      parameters:
+      - description: ID блока
+        in: path
+        name: block_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Контент успешно удалён
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Ошибка при удалении контента
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Удалить блок контента
+      tags:
+      - TextContent
     put:
       consumes:
       - application/json
-      description: 'Меняет вид проекта: текстовый или таблица задач.'
+      description: Обновляет существующий блок текста или другого контента в проекте
       parameters:
-      - description: ID проекта
+      - description: ID блока
         in: path
-        name: project_id
+        name: block_id
         required: true
         type: integer
-      - description: Запрос на смену вида проекта
+      - description: Запрос на обновление контента
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/model.ChangeViewRequest'
+          $ref: '#/definitions/model.AddContentBlockRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: Вид проекта успешно изменен
+          description: Контент успешно обновлён
           schema:
             $ref: '#/definitions/model.CodeResponse'
         "400":
-          description: Ошибка при изменении вида проекта
+          description: Неверный запрос
           schema:
             $ref: '#/definitions/model.ErrorResponse'
-      summary: Изменить вид проекта
+        "500":
+          description: Ошибка при обновлении контента
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Обновить блок контента
       tags:
-      - Project
+      - TextContent
   /v1/user/invitations:
     get:
       description: Возвращает список приглашений, отправленных пользователю, идентифицированному
@@ -569,6 +785,44 @@ paths:
       summary: Создать нового пользователя
       tags:
       - Auth
+  /v1/users/meetings:
+    get:
+      description: Возвращает все созвоны, в которых пользователь является участником
+        или создателем
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список созвонов
+          schema:
+            items:
+              $ref: '#/definitions/model.MeetingDetails'
+            type: array
+        "400":
+          description: Ошибка при получении данных
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить все созвоны пользователя
+      tags:
+      - Meetings
+  /v1/users/stats:
+    get:
+      description: Возвращает количество завершённых задач и количество проектов,
+        в которых пользователь участвует
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Статистика пользователя
+          schema:
+            $ref: '#/definitions/model.UserStatsResponse'
+        "400":
+          description: Ошибка при получении статистики
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить статистику пользователя
+      tags:
+      - Users
 securityDefinitions:
   CookieAuth:
     in: cookie

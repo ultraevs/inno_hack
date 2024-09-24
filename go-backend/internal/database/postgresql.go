@@ -49,8 +49,7 @@ func ConnectDatabase() {
 	    description TEXT,                       -- Описание проекта
     	owner_name VARCHAR(255) REFERENCES notion_users(name) ON DELETE SET NULL,  -- Владелец проекта, идентификация по 'name#0000'
 	    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Время создания проекта
-	    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Время последнего обновления
-	    view_mode VARCHAR(50) DEFAULT 'text'    -- Текущий вид проекта: 'text' или 'task_table'
+	    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Время последнего обновления
 	);
 
 	CREATE TABLE IF NOT EXISTS notion_project_users (
@@ -88,6 +87,31 @@ func ConnectDatabase() {
 	    status VARCHAR(20) DEFAULT 'pending',  -- Статус: pending, accepted, declined
 	    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
+
+	CREATE TABLE IF NOT EXISTS notion_project_content_blocks (
+    	id SERIAL PRIMARY KEY,
+    	project_id INT REFERENCES notion_projects(id) ON DELETE CASCADE, -- Проект, к которому принадлежит блок
+    	content_type VARCHAR(50) NOT NULL,   -- Тип контента (например, 'heading', 'paragraph', 'list')
+    	content TEXT NOT NULL,               -- Содержание блока
+    	order_num INT NOT NULL,              -- Порядок отображения блока
+    	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Время создания
+    	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Время последнего обновления
+	);
+
+	CREATE TABLE IF NOT EXISTS notion_meetings (
+    	id SERIAL PRIMARY KEY,
+    	meeting_date TIMESTAMP NOT NULL,    -- Дата и время собрания
+    	zoom_link VARCHAR(255) NOT NULL,    -- Ссылка на Zoom или другую платформу
+    	created_by VARCHAR(255) REFERENCES notion_users(name) ON DELETE CASCADE, -- Создатель созвона
+    	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Время создания
+	);
+
+	CREATE TABLE IF NOT EXISTS notion_meeting_participants (
+    	meeting_id INT REFERENCES notion_meetings(id) ON DELETE CASCADE,   -- ID созвона
+    	user_name VARCHAR(255) REFERENCES notion_users(name) ON DELETE CASCADE, -- Имя участника
+    	PRIMARY KEY (meeting_id, user_name)
+	);
+
 
 	`
 
