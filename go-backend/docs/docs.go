@@ -142,6 +142,95 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/projects/content/{block_id}": {
+            "put": {
+                "description": "Обновляет существующий блок текста или другого контента в проекте",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TextContent"
+                ],
+                "summary": "Обновить блок контента",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID блока",
+                        "name": "block_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Запрос на обновление контента",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AddContentBlockRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Контент успешно обновлён",
+                        "schema": {
+                            "$ref": "#/definitions/model.CodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при обновлении контента",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаляет существующий блок контента из проекта",
+                "tags": [
+                    "TextContent"
+                ],
+                "summary": "Удалить блок контента",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID блока",
+                        "name": "block_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Контент успешно удалён",
+                        "schema": {
+                            "$ref": "#/definitions/model.CodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при удалении контента",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/projects/{project_id}": {
             "get": {
                 "description": "Возвращает текстовое содержание и задачи проекта.",
@@ -170,6 +259,89 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Ошибка при получении данных проекта",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/projects/{project_id}/content": {
+            "get": {
+                "description": "Возвращает весь контент проекта в виде блоков с различными типами",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TextContent"
+                ],
+                "summary": "Получить контент проекта",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID проекта",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список блоков контента",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.ContentBlockResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при получении контента",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Добавляет новый блок текста или другого контента в проект",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "TextContent"
+                ],
+                "summary": "Добавить блок контента",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID проекта",
+                        "name": "project_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Запрос на добавление контента",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AddContentBlockRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Контент успешно добавлен",
+                        "schema": {
+                            "$ref": "#/definitions/model.CodeResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при добавлении контента",
                         "schema": {
                             "$ref": "#/definitions/model.ErrorResponse"
                         }
@@ -566,6 +738,20 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.AddContentBlockRequest": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "content_type": {
+                    "type": "string"
+                },
+                "order_num": {
+                    "type": "integer"
+                }
+            }
+        },
         "model.CodeResponse": {
             "type": "object",
             "properties": {
@@ -574,6 +760,23 @@ const docTemplate = `{
                 },
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "model.ContentBlockResponse": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "content_type": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "order_num": {
+                    "type": "integer"
                 }
             }
         },

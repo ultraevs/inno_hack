@@ -88,6 +88,17 @@ func ConnectDatabase() {
 	    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 	);
 
+	CREATE TABLE IF NOT EXISTS notion_project_content_blocks (
+    	id SERIAL PRIMARY KEY,
+    	project_id INT REFERENCES notion_projects(id) ON DELETE CASCADE, -- Проект, к которому принадлежит блок
+    	content_type VARCHAR(50) NOT NULL,   -- Тип контента (например, 'heading', 'paragraph', 'list')
+    	content TEXT NOT NULL,               -- Содержание блока
+    	order_num INT NOT NULL,              -- Порядок отображения блока
+    	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Время создания
+    	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP  -- Время последнего обновления
+	);
+
+
 	`
 
 	_, err = Db.Exec(createTablesQuery)

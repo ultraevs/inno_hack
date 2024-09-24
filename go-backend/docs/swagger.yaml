@@ -1,10 +1,30 @@
 definitions:
+  model.AddContentBlockRequest:
+    properties:
+      content:
+        type: string
+      content_type:
+        type: string
+      order_num:
+        type: integer
+    type: object
   model.CodeResponse:
     properties:
       code:
         type: string
       message:
         type: string
+    type: object
+  model.ContentBlockResponse:
+    properties:
+      content:
+        type: string
+      content_type:
+        type: string
+      id:
+        type: integer
+      order_num:
+        type: integer
     type: object
   model.ErrorResponse:
     properties:
@@ -288,6 +308,61 @@ paths:
       summary: Получить детали проекта
       tags:
       - Project
+  /v1/projects/{project_id}/content:
+    get:
+      description: Возвращает весь контент проекта в виде блоков с различными типами
+      parameters:
+      - description: ID проекта
+        in: path
+        name: project_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список блоков контента
+          schema:
+            items:
+              $ref: '#/definitions/model.ContentBlockResponse'
+            type: array
+        "400":
+          description: Ошибка при получении контента
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить контент проекта
+      tags:
+      - TextContent
+    post:
+      consumes:
+      - application/json
+      description: Добавляет новый блок текста или другого контента в проект
+      parameters:
+      - description: ID проекта
+        in: path
+        name: project_id
+        required: true
+        type: integer
+      - description: Запрос на добавление контента
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddContentBlockRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Контент успешно добавлен
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Ошибка при добавлении контента
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Добавить блок контента
+      tags:
+      - TextContent
   /v1/projects/{project_id}/invite:
     post:
       consumes:
@@ -470,6 +545,65 @@ paths:
       summary: Получить список участников проекта
       tags:
       - Project
+  /v1/projects/content/{block_id}:
+    delete:
+      description: Удаляет существующий блок контента из проекта
+      parameters:
+      - description: ID блока
+        in: path
+        name: block_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Контент успешно удалён
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Ошибка при удалении контента
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Удалить блок контента
+      tags:
+      - TextContent
+    put:
+      consumes:
+      - application/json
+      description: Обновляет существующий блок текста или другого контента в проекте
+      parameters:
+      - description: ID блока
+        in: path
+        name: block_id
+        required: true
+        type: integer
+      - description: Запрос на обновление контента
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddContentBlockRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Контент успешно обновлён
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Неверный запрос
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Ошибка при обновлении контента
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Обновить блок контента
+      tags:
+      - TextContent
   /v1/user/invitations:
     get:
       description: Возвращает список приглашений, отправленных пользователю, идентифицированному

@@ -4,7 +4,6 @@ import (
 	"app/internal/database"
 	"app/internal/model"
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -78,16 +77,31 @@ func ProjectCreate(context *gin.Context) {
 func GetProjectDetails(context *gin.Context) {
 	projectID := context.Param("project_id")
 
-	// Логика для текстового содержимого
-	var content string
-	err := database.Db.QueryRow("SELECT content FROM notion_text_projects WHERE project_id = $1", projectID).Scan(&content)
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		fmt.Println(err)
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve text content"})
+	// Логика для текстового содержимого: получаем все блоки контента
+	contentRows, err := database.Db.Query(`
+		SELECT id, content_type, content, order_num 
+		FROM notion_project_content_blocks 
+		WHERE project_id = $1 ORDER BY order_num`, projectID)
+
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve content blocks"})
 		return
 	}
-	if errors.Is(err, sql.ErrNoRows) {
-		content = "" // Если нет текстового содержимого, возвращаем пустое значение
+	defer func(contentRows *sql.Rows) {
+		err := contentRows.Close()
+		if err != nil {
+
+		}
+	}(contentRows)
+
+	var contentBlocks []model.ContentBlockResponse
+	for contentRows.Next() {
+		var block model.ContentBlockResponse
+		if err := contentRows.Scan(&block.ID, &block.ContentType, &block.Content, &block.OrderNum); err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan content block"})
+			return
+		}
+		contentBlocks = append(contentBlocks, block)
 	}
 
 	// Логика для таблицы задач
@@ -116,7 +130,7 @@ func GetProjectDetails(context *gin.Context) {
 
 	// Возвращаем и текст, и задачи
 	context.JSON(http.StatusOK, gin.H{
-		"text_content": content,
+		"text_content": contentBlocks,
 		"tasks":        tasks,
 	})
 }

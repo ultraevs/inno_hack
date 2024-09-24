@@ -36,5 +36,6 @@ func (router *Router) Setup() {
 	router.TaskRoutes(v1)
 	router.InvitationRoutes(v1)
 	router.UserStatisticRoutes(v1)
+	router.TextContentRoutes(v1)
 
 }
