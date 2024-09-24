@@ -1,0 +1,1 @@
+export {FontOptions} from "./FontOptions"
