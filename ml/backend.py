@@ -9,6 +9,9 @@ from ml.gpt.prompts import prompts
 from ml.figma.figma_loader import figma_load
 from ml.figma.figma_compare import figma_compare
 import json
+from ml.db.database import set_token_data, get_token_data
+import secrets
+import time
 
 
 logger = logging.getLogger(__name__)
@@ -30,6 +33,10 @@ class FigmaData(BaseModel):
     project_name: str
     figma_token: str
     figma_file_key: str
+
+class UserAnswer(BaseModel):
+    secret: str
+    answer: bool
 
 _gpt = GPT()
 app = FastAPI(
@@ -66,20 +73,79 @@ def process_tasks(task_data: TaskData) -> dict:
         logger.error(f"Error processing tasks: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-@app.post("/ai_helper")
+@app.post("/ai")
 def process_ai_helper(user_text: str) -> dict:
     try:
         logger.info(f"Received user text: {user_text}")
 
-        logger.info("Before calling _gpt.generate()")
-        response = _gpt.generate(prompts['ai_helper'].format(user_text=user_text))
-        formatted_response = json.loads(response['result'])
-        logger.info("AI helper processing successful")
-        return {'status': 'success', 'result': formatted_response}
+        type_ = _gpt.generate(prompts['classify_task'].format(user_text=user_text))['result']
+        print(type_)
+        formatted_type_ = json.loads(_format(type_))
+        print(formatted_type_)
+
+        time.sleep(1.5) # delay due to Yandex Cloud API limitations
+
+        if formatted_type_['type'] == 'other':
+            answer = prompts['default_answer']
+            buttons = False
+            secret = None
+
+        elif formatted_type_['type'] == 'add_task':
+            action = _gpt.generate(prompts['add_task'].format(user_text=user_text))['result']
+            formatted_action = json.loads(_format(action))
+            answer = prompts['add_task_answer'].format(project=formatted_action['target_project'], task=formatted_action['task'])
+            buttons = True
+            secret = secrets.token_hex(16)
+            set_token_data(secret, json.dumps(formatted_action))
+
+        elif formatted_type_['type'] == 'invite_team':
+            action = _gpt.generate(prompts['invite_team'].format(user_text=user_text))['result']
+            formatted_action = json.loads(_format(action))
+            answer = prompts['invite_team_answer'].format(project=formatted_action['target_project'], user=formatted_action['nickname'])
+            buttons = True
+            secret = secrets.token_hex(16)
+            set_token_data(secret, json.dumps(formatted_action))
+        
+        elif formatted_type_['type'] == 'kick_team':
+            action = _gpt.generate(prompts['kick_team'].format(user_text=user_text))['result']
+            formatted_action = json.loads(_format(action))
+            answer = prompts['kick_team_answer'].format(project=formatted_action['target_project'], user=formatted_action['nickname'])
+            buttons = True
+            secret = secrets.token_hex(16)
+            set_token_data(secret, json.dumps(formatted_action))
+        
+        elif formatted_type_['type'] == 'delete_task':
+            action = _gpt.generate(prompts['delete_task'].format(user_text=user_text))['result']
+            formatted_action = json.loads(_format(action))
+            answer = prompts['delete_task_answer'].format(project=formatted_action['target_project'], task=formatted_action['task'])
+            buttons = True
+            secret = secrets.token_hex(16)
+            set_token_data(secret, json.dumps(formatted_action))
+        
+        elif formatted_type_['type'] == 'check_task':
+            action = _gpt.generate(prompts['check_task'].format(user_text=user_text))['result']
+            formatted_action = json.loads(_format(action))
+            answer = prompts['check_task_answer'].format(project=formatted_action['target_project'], task=formatted_action['task'])
+            buttons = True
+            secret = secrets.token_hex(16)
+            set_token_data(secret, json.dumps(formatted_action))
+
+        
+
+        return {'result': 'success', 'data': {'text': answer, 'buttons': buttons, 'secret': secret}}
     except Exception as e:
         logger.error(f"Error processing AI helper: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+@app.post("/user_answer")
+def process_user_answer(user_answer: UserAnswer) -> dict:
+    try:
+
+
+        return {'result': 'success'}
+    except Exception as e:
+        logger.error(f"Error processing user answer: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @app.post("/figma_check")
 def figma_check(figma_data: FigmaData) -> dict:
@@ -107,9 +173,9 @@ def custom_openapi():
         return app.openapi_schema
     try:
         openapi_schema = get_openapi(
-            title="My Project API",
+            title="shmyaks task api",
             version="1.0.0",
-            description="This is an API for managing projects and generating tasks using GPT.",
+            description="",
             routes=app.routes,
         )
         app.openapi_schema = openapi_schema
@@ -119,3 +185,6 @@ def custom_openapi():
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 app.openapi = custom_openapi
+
+def _format(text: str) -> str:
+    return text.replace('\'', '').replace('\n', '')
