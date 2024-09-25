@@ -127,3 +127,18 @@ def get_token_data(token):
         return None
     finally:
         session.close()
+
+def delete_token_data(token):
+    session = Session()
+    try:
+        token_data = session.query(TokenData).filter_by(token=token).first()
+        if token_data:
+            session.delete(token_data)
+            session.commit()
+        else:
+            logging.error(f"Token {token} not found")
+    except SQLAlchemyError as e:
+        session.rollback()
+        logging.error(f"Error deleting token data: {e}")
+    finally:
+        session.close()

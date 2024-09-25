@@ -9,7 +9,7 @@ from ml.gpt.prompts import prompts
 from ml.figma.figma_loader import figma_load
 from ml.figma.figma_compare import figma_compare
 import json
-from ml.db.database import set_token_data, get_token_data
+from ml.db.database import set_token_data, get_token_data, delete_token_data
 import secrets
 import time
 
@@ -79,9 +79,7 @@ def process_ai_helper(user_text: str) -> dict:
         logger.info(f"Received user text: {user_text}")
 
         type_ = _gpt.generate(prompts['classify_task'].format(user_text=user_text))['result']
-        print(type_)
         formatted_type_ = json.loads(_format(type_))
-        print(formatted_type_)
 
         time.sleep(1.5) # delay due to Yandex Cloud API limitations
 
@@ -140,9 +138,30 @@ def process_ai_helper(user_text: str) -> dict:
 @app.post("/user_answer")
 def process_user_answer(user_answer: UserAnswer) -> dict:
     try:
+        secret = user_answer.secret
+        answer = user_answer.answer
+        if not answer:
+            return {'result': 'success', 'data': {'text': 'Хорошо, я отменил операцию.', 'buttons': False, 'secret': None}}
+        else:
+            action = get_token_data(secret)
+            if action:
+                action = json.loads(action)
 
-
-        return {'result': 'success'}
+                if action['type'] == 'add_task':
+                    return {'result': 'success', 'data': {'text': f'Задача "{action["task"]}" добавлена в проект "{action["target_project"]}"', 'buttons': False, 'secret': None}}
+                elif action['type'] == 'invite_team':
+                    return {'result': 'success', 'data': {'text': f'Пользователь "{action["nickname"]}" добавлен в проект "{action["target_project"]}"', 'buttons': False, 'secret': None}}
+                elif action['type'] == 'kick_team':
+                    return {'result': 'success', 'data': {'text': f'Пользователь "{action["nickname"]}" удалён из проекта "{action["target_project"]}"', 'buttons': False, 'secret': None}}
+                elif action['type'] == 'delete_task':
+                    return {'result': 'success', 'data': {'text': f'Задача "{action["task"]}" удалена из проекта "{action["target_project"]}"', 'buttons': False, 'secret': None}}
+                elif action['type'] == 'check_task':
+                    return {'result': 'success', 'data': {'text': f'Задача "{action["task"]}" отмечена как выполненная в проекте "{action["target_project"]}"', 'buttons': False, 'secret': None}}
+                
+                delete_token_data(secret)
+            else:
+                return {'result': 'error', 'data': {'text': f'$ токен {secret} не найден в базе данных', 'buttons': False, 'secret': None}}
+        
     except Exception as e:
         logger.error(f"Error processing user answer: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
