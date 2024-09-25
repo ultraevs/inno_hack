@@ -49,8 +49,8 @@ func InviteUserToProject(context *gin.Context) {
 	}
 
 	// Добавляем новое приглашение
-	_, err = database.Db.Exec(`INSERT INTO notion_project_invitations (project_id, invitee_name, inviter_name, status)
-		VALUES ($1, $2, $3, 'pending')`, projectID, body.InviteeName, inviterName)
+	_, err = database.Db.Exec(`INSERT INTO notion_project_invitations (project_id, invitee_name, inviter_name, status, role)
+		VALUES ($1, $2, $3, 'pending', $4)`, projectID, body.InviteeName, inviterName, body.Role)
 
 	if err != nil {
 		fmt.Println(err)
@@ -103,14 +103,15 @@ func RespondToInvitation(context *gin.Context) {
 	// Если пользователь принял приглашение, добавляем его в проект
 	if body.Response == "accepted" {
 		var projectID int
-		err = database.Db.QueryRow(`SELECT project_id FROM notion_project_invitations WHERE id = $1`, invitationID).Scan(&projectID)
+		var role string
+		err = database.Db.QueryRow(`SELECT project_id, role FROM notion_project_invitations WHERE id = $1`, invitationID).Scan(&projectID, &role)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve project details"})
 			return
 		}
 
 		// Добавляем пользователя в проект
-		_, err := database.Db.Exec(`INSERT INTO notion_project_users (project_id, user_name) VALUES ($1, $2)`, projectID, userName)
+		_, err := database.Db.Exec(`INSERT INTO notion_project_users (project_id, role, user_name) VALUES ($1, $2, $3)`, projectID, role, userName)
 		if err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add user to project"})
 			return
@@ -141,7 +142,7 @@ func GetUserInvitations(context *gin.Context) {
 
 	// Запрашиваем приглашения для пользователя по его email
 	rows, err := database.Db.Query(`
-        SELECT notion_project_invitations.id, notion_project_invitations.status, notion_project_invitations.created_at, notion_project_invitations.inviter_name, notion_project_invitations.invitee_name
+        SELECT notion_project_invitations.id, notion_project_invitations.status, notion_project_invitations.created_at, notion_project_invitations.inviter_name, notion_project_invitations.invitee_name, notion_project_invitations.role
         FROM notion_project_invitations
         JOIN notion_projects ON notion_project_invitations.project_id = notion_projects.id
         WHERE invitee_name = $1`, userName)
@@ -161,7 +162,7 @@ func GetUserInvitations(context *gin.Context) {
 	var invitations []model.Invitation
 	for rows.Next() {
 		var invitation model.Invitation
-		if err := rows.Scan(&invitation.ID, &invitation.Status, &invitation.CreatedAt, &invitation.InviterName, &invitation.InviteeName); err != nil {
+		if err := rows.Scan(&invitation.ID, &invitation.Status, &invitation.CreatedAt, &invitation.InviterName, &invitation.InviteeName, &invitation.Role); err != nil {
 			fmt.Println(err)
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan invitation"})
 			return

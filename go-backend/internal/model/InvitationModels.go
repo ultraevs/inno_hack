@@ -4,6 +4,7 @@ import "time"
 
 type ProjectInvitationRequest struct {
 	InviteeName string `json:"invitee_name"`
+	Role        string `json:"role"`
 }
 
 type InvitationResponseRequest struct {
@@ -18,6 +19,7 @@ type Invitation struct {
 	InviterName string    `json:"inviter_name"`
 	Status      string    `json:"status"`
 	CreatedAt   time.Time `json:"created_at"`
+	Role        string    `json:"role"`
 }
 
 type UserInvitationsResponse struct {
