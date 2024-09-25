@@ -20,10 +20,8 @@ import (
 // @Tags Project
 // @Router /v1/project_create [post]
 func ProjectCreate(context *gin.Context) {
-	var body struct {
-		Name        string
-		Description string
-	}
+	var body model.ProjectCreateRequest
+
 	if context.Bind(&body) != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Failed to read body"})
 		return
@@ -40,8 +38,9 @@ func ProjectCreate(context *gin.Context) {
 	}
 
 	// Создаем проект с видом по умолчанию "text"
-	_, err = database.Db.Exec("INSERT INTO notion_projects (name, description, owner_name) VALUES ($1, $2, $3)", body.Name, body.Description, userName)
+	_, err = database.Db.Exec("INSERT INTO notion_projects (name, description, owner_name, figma_link) VALUES ($1, $2, $3, $4)", body.Name, body.Description, userName, body.Figma)
 	if err != nil {
+		fmt.Println(err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create project"})
 		return
 	}
@@ -157,7 +156,7 @@ func GetProjects(context *gin.Context) {
 
 	// Запрашиваем проекты, где пользователь является владельцем
 	rows, err := database.Db.Query(`
-		SELECT p.id, p.name, p.description, p.owner_name, p.created_at, p.updated_at
+		SELECT p.id, p.name, p.description, p.owner_name, p.created_at, p.updated_at, p.figma_link
 		FROM notion_projects p
 		WHERE p.owner_name = $1`, userName)
 	if err != nil {
@@ -175,7 +174,7 @@ func GetProjects(context *gin.Context) {
 	var projects []model.Project
 	for rows.Next() {
 		var project model.Project
-		if err := rows.Scan(&project.ID, &project.Name, &project.Description, &project.OwnerName, &project.CreatedAt, &project.UpdatedAt); err != nil {
+		if err := rows.Scan(&project.ID, &project.Name, &project.Description, &project.OwnerName, &project.CreatedAt, &project.UpdatedAt, &project.Figma); err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan project"})
 			return
 		}

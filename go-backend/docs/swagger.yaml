@@ -52,6 +52,8 @@ definitions:
         type: integer
       project_name:
         type: string
+      role:
+        type: string
       status:
         type: string
     type: object
@@ -108,6 +110,8 @@ definitions:
         type: string
       description:
         type: string
+      figma:
+        type: string
       id:
         type: integer
       name:
@@ -121,6 +125,8 @@ definitions:
     properties:
       description:
         type: string
+      figma:
+        type: string
       name:
         type: string
     type: object
@@ -132,6 +138,8 @@ definitions:
   model.ProjectInvitationRequest:
     properties:
       invitee_name:
+        type: string
+      role:
         type: string
     type: object
   model.TaskCreateRequest:
@@ -785,6 +793,23 @@ paths:
       summary: Создать нового пользователя
       tags:
       - Auth
+  /v1/users/info:
+    get:
+      description: Возвращает email и имя пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Инфр пользователя
+          schema:
+            $ref: '#/definitions/model.UserStatsResponse'
+        "400":
+          description: Ошибка при получении инфо
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить инфо пользователя
+      tags:
+      - Users
   /v1/users/meetings:
     get:
       description: Возвращает все созвоны, в которых пользователь является участником

@@ -8,4 +8,5 @@ import (
 
 func (router *Router) UserStatisticRoutes(group *gin.RouterGroup) {
 	group.GET("/users/stats", middleware.CookieMiddleware(), controller.GetUserStats)
+	group.GET("/users/info", middleware.CookieMiddleware(), controller.GetUserInfo)
 }

@@ -832,6 +832,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/users/info": {
+            "get": {
+                "description": "Возвращает email и имя пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Получить инфо пользователя",
+                "responses": {
+                    "200": {
+                        "description": "Инфр пользователя",
+                        "schema": {
+                            "$ref": "#/definitions/model.UserStatsResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Ошибка при получении инфо",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/users/meetings": {
             "get": {
                 "description": "Возвращает все созвоны, в которых пользователь является участником или создателем",
@@ -971,6 +997,9 @@ const docTemplate = `{
                 "project_name": {
                     "type": "string"
                 },
+                "role": {
+                    "type": "string"
+                },
                 "status": {
                     "type": "string"
                 }
@@ -1057,6 +1086,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "figma": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -1077,6 +1109,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "figma": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 }
@@ -1094,6 +1129,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "invitee_name": {
+                    "type": "string"
+                },
+                "role": {
                     "type": "string"
                 }
             }

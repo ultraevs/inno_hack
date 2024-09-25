@@ -49,12 +49,14 @@ func ConnectDatabase() {
 	    description TEXT,                       -- Описание проекта
     	owner_name VARCHAR(255) REFERENCES notion_users(name) ON DELETE SET NULL,  -- Владелец проекта, идентификация по 'name#0000'
 	    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Время создания проекта
-	    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Время последнего обновления
+	    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Время последнего обновления
+	    figma_link VARCHAR(255) -- Опциональная ссылка на проект в figma
 	);
 
 	CREATE TABLE IF NOT EXISTS notion_project_users (
     	project_id INT REFERENCES notion_projects(id) ON DELETE CASCADE, -- Проект
     	user_name VARCHAR(255) REFERENCES notion_users(name) ON DELETE CASCADE, -- Участник (по имени)
+    	role VARCHAR(100) NOT NULL, -- Роль пользователя в проекте (например, 'backend', 'frontend')
     	PRIMARY KEY (project_id, user_name) -- Уникальность записи: один пользователь в одном проекте
 	);
 	
@@ -85,7 +87,8 @@ func ConnectDatabase() {
 	    invitee_name VARCHAR(255) NOT NULL,  -- Email приглашаемого пользователя
 	    inviter_name VARCHAR(255) REFERENCES notion_users(name),  -- ID пригласившего пользователя
 	    status VARCHAR(20) DEFAULT 'pending',  -- Статус: pending, accepted, declined
-	    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+	    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	    role VARCHAR(255) -- Роль пользователя в проекте (например, 'backend', 'frontend')
 	);
 
 	CREATE TABLE IF NOT EXISTS notion_project_content_blocks (

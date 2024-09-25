@@ -52,3 +52,25 @@ func GetUserStats(context *gin.Context) {
 		"total_projects_count": totalProjectsCount,
 	})
 }
+
+// GetUserInfo возвращает инфо о пользователе
+// @Summary Получить инфо пользователя
+// @Description Возвращает email и имя пользователя
+// @Produce json
+// @Success 200 {object} model.UserStatsResponse "Инфр пользователя"
+// @Failure 400 {object} model.ErrorResponse "Ошибка при получении инфо"
+// @Tags Users
+// @Router /v1/users/info [get]
+func GetUserInfo(context *gin.Context) {
+	// Извлекаем email текущего пользователя из куки
+	userEmail := context.MustGet("Email").(string)
+
+	// Находим отправителя по его email
+	var userName string
+	err := database.Db.QueryRow("SELECT name FROM notion_users WHERE email = $1", userEmail).Scan(&userName)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"email": userEmail, "name": userName})
+}
