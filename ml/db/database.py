@@ -5,8 +5,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 import json
 
-logging.basicConfig(filename='ml/logs/database.log', level=logging.ERROR, 
-                    format='%(asctime)s %(levelname)s:%(message)s')
+logging.basicConfig(filename='ml/logs/app.log', level=logging.ERROR, 
+                    format='%(asctime)s %(levelname)s:%(message)s', encoding='utf-8')
 
 Base = declarative_base()
 engine = create_engine('sqlite:///ml/projects.db')

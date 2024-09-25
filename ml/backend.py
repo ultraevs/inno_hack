@@ -12,6 +12,7 @@ import json
 from ml.db.database import set_token_data, get_token_data, delete_token_data
 import secrets
 import time
+import requests
 
 
 logger = logging.getLogger(__name__)
@@ -37,6 +38,11 @@ class FigmaData(BaseModel):
 class UserAnswer(BaseModel):
     secret: str
     answer: bool
+    Authtoken: str
+
+class UserText(BaseModel):
+    user_text: str
+    Authtoken: str
 
 _gpt = GPT()
 app = FastAPI(
@@ -74,59 +80,82 @@ def process_tasks(task_data: TaskData) -> dict:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @app.post("/ai")
-def process_ai_helper(user_text: str) -> dict:
+def process_ai_helper(usertext: UserText) -> dict:
+    user_text = usertext.user_text
+    Authtoken = usertext.Authtoken
+
     try:
         logger.info(f"Received user text: {user_text}")
 
-        type_ = _gpt.generate(prompts['classify_task'].format(user_text=user_text))['result']
-        formatted_type_ = json.loads(_format(type_))
+        formatted_type_ = _gpt.classify(user_text)['result']
 
-        time.sleep(1.5) # delay due to Yandex Cloud API limitations
+        formatted_type_ = {
+            'добавить задачу': 'add_task',
+            'удалить задачу': 'delete_task',
+            'отметить задачу выполненной': 'check_task',
+            'пригласить человека': 'invite_team',
+            'удалить человека': 'kick_team',
+            'другое': 'other'
+        }[formatted_type_]
 
-        if formatted_type_['type'] == 'other':
+        logger.info(f"Action type: {formatted_type_}")
+
+        if formatted_type_ == 'other':
             answer = prompts['default_answer']
             buttons = False
             secret = None
+        else:
+            buttons = True
+            secret = secrets.token_hex(16)
 
-        elif formatted_type_['type'] == 'add_task':
-            action = _gpt.generate(prompts['add_task'].format(user_text=user_text))['result']
-            formatted_action = json.loads(_format(action))
-            answer = prompts['add_task_answer'].format(project=formatted_action['target_project'], task=formatted_action['task'])
-            buttons = True
-            secret = secrets.token_hex(16)
-            set_token_data(secret, json.dumps(formatted_action))
+            cookies = {'Authtoken': Authtoken}
+            user_projects = requests.get(url='https://task.shmyaks.ru/v1/user/projects', cookies=cookies).json()['projects']
+            user_projects = [project['name'] for project in user_projects]
+            logger.info(f"User projects: {user_projects}")
 
-        elif formatted_type_['type'] == 'invite_team':
-            action = _gpt.generate(prompts['invite_team'].format(user_text=user_text))['result']
-            formatted_action = json.loads(_format(action))
-            answer = prompts['invite_team_answer'].format(project=formatted_action['target_project'], user=formatted_action['nickname'])
-            buttons = True
-            secret = secrets.token_hex(16)
-            set_token_data(secret, json.dumps(formatted_action))
-        
-        elif formatted_type_['type'] == 'kick_team':
-            action = _gpt.generate(prompts['kick_team'].format(user_text=user_text))['result']
-            formatted_action = json.loads(_format(action))
-            answer = prompts['kick_team_answer'].format(project=formatted_action['target_project'], user=formatted_action['nickname'])
-            buttons = True
-            secret = secrets.token_hex(16)
-            set_token_data(secret, json.dumps(formatted_action))
-        
-        elif formatted_type_['type'] == 'delete_task':
-            action = _gpt.generate(prompts['delete_task'].format(user_text=user_text))['result']
-            formatted_action = json.loads(_format(action))
-            answer = prompts['delete_task_answer'].format(project=formatted_action['target_project'], task=formatted_action['task'])
-            buttons = True
-            secret = secrets.token_hex(16)
-            set_token_data(secret, json.dumps(formatted_action))
-        
-        elif formatted_type_['type'] == 'check_task':
-            action = _gpt.generate(prompts['check_task'].format(user_text=user_text))['result']
-            formatted_action = json.loads(_format(action))
-            answer = prompts['check_task_answer'].format(project=formatted_action['target_project'], task=formatted_action['task'])
-            buttons = True
-            secret = secrets.token_hex(16)
-            set_token_data(secret, json.dumps(formatted_action))
+            if not user_projects: 
+                return {'result': 'error', 'data': {'text': 'У вас нет проектов, к которым можно применить действие.', 'buttons': False, 'secret': None}}
+
+            if formatted_type_ == 'add_task':
+                action = _gpt.generate(prompts['add_task'].format(user_text=user_text))['result']
+                logger.info(f"Action: {action}")
+
+                formatted_action = json.loads(_format(action))
+
+                backup_project = formatted_action['target_project']
+                formatted_action['target_project'] = _gpt.compare(formatted_action['target_project'], user_projects)['result']
+                logger.info(f"Formatted action: {formatted_action}")
+
+                if formatted_action['target_project'] == 'other':
+                    return {'result': 'error', 'data': {'text': f'К сожалению, мне не удалось найти проект "{backup_project}" или у Вас нет к нему доступа.', 'buttons': False, 'secret': None}}
+
+                answer = prompts['add_task_answer'].format(project=formatted_action['target_project'], task=formatted_action['task'])
+                logger.info(f"Answer: {answer}")
+                set_token_data(secret, json.dumps(formatted_action))
+
+            elif formatted_type_ == 'invite_team':
+                action = _gpt.generate(prompts['invite_team'].format(user_text=user_text))['result']
+                formatted_action = json.loads(_format(action))
+                answer = prompts['invite_team_answer'].format(project=formatted_action['target_project'], user=formatted_action['nickname'])
+                set_token_data(secret, json.dumps(formatted_action))
+            
+            elif formatted_type_ == 'kick_team':
+                action = _gpt.generate(prompts['kick_team'].format(user_text=user_text))['result']
+                formatted_action = json.loads(_format(action))
+                answer = prompts['kick_team_answer'].format(project=formatted_action['target_project'], user=formatted_action['nickname'])
+                set_token_data(secret, json.dumps(formatted_action))
+            
+            elif formatted_type_ == 'delete_task':
+                action = _gpt.generate(prompts['delete_task'].format(user_text=user_text))['result']
+                formatted_action = json.loads(_format(action))
+                answer = prompts['delete_task_answer'].format(project=formatted_action['target_project'], task=formatted_action['task'])
+                set_token_data(secret, json.dumps(formatted_action))
+            
+            elif formatted_type_ == 'check_task':
+                action = _gpt.generate(prompts['check_task'].format(user_text=user_text))['result']
+                formatted_action = json.loads(_format(action))
+                answer = prompts['check_task_answer'].format(project=formatted_action['target_project'], task=formatted_action['task'])
+                set_token_data(secret, json.dumps(formatted_action))
 
         
 
@@ -140,6 +169,8 @@ def process_user_answer(user_answer: UserAnswer) -> dict:
     try:
         secret = user_answer.secret
         answer = user_answer.answer
+        Authtoken = user_answer.Authtoken
+
         if not answer:
             return {'result': 'success', 'data': {'text': 'Хорошо, я отменил операцию.', 'buttons': False, 'secret': None}}
         else:
@@ -147,7 +178,10 @@ def process_user_answer(user_answer: UserAnswer) -> dict:
             if action:
                 action = json.loads(action)
 
+                delete_token_data(secret)
+
                 if action['type'] == 'add_task':
+
                     return {'result': 'success', 'data': {'text': f'Задача "{action["task"]}" добавлена в проект "{action["target_project"]}"', 'buttons': False, 'secret': None}}
                 elif action['type'] == 'invite_team':
                     return {'result': 'success', 'data': {'text': f'Пользователь "{action["nickname"]}" добавлен в проект "{action["target_project"]}"', 'buttons': False, 'secret': None}}
@@ -158,7 +192,6 @@ def process_user_answer(user_answer: UserAnswer) -> dict:
                 elif action['type'] == 'check_task':
                     return {'result': 'success', 'data': {'text': f'Задача "{action["task"]}" отмечена как выполненная в проекте "{action["target_project"]}"', 'buttons': False, 'secret': None}}
                 
-                delete_token_data(secret)
             else:
                 return {'result': 'error', 'data': {'text': f'$ токен {secret} не найден в базе данных', 'buttons': False, 'secret': None}}
         
@@ -206,4 +239,7 @@ def custom_openapi():
 app.openapi = custom_openapi
 
 def _format(text: str) -> str:
-    return text.replace('\'', '').replace('\n', '')
+    logger.info(f"Formatting text: {text}")
+    formatted_ = text.replace('\'', '').replace('\n', '').replace('`', '')
+    logger.info(f"Formatted text: {formatted_}")
+    return formatted_
