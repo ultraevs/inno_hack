@@ -1,0 +1,93 @@
+.fontOptions {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+
+    &__crossButton {
+        font-size: 24px;
+        cursor: pointer;
+        border: none;
+        background: none;
+        margin-top: 10px;
+        margin-left: -30px;
+        width: fit-content;
+    }
+
+    &__optionsMenu {
+        display: flex;
+        flex-direction: column;
+        width: fit-content;
+        margin-bottom: 10px;
+        margin-top: -30px;
+
+        button {
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            border: 1px solid #EFEFEF;
+            background: #FBFBFB;
+            color: #000;
+            font-family: "Inter", sans-serif;
+            font-size: 1.25rem;
+            font-weight: 400;
+        }
+    }
+
+    &__inputField {
+        width: 80%;
+        border: none;
+        outline: none;
+        color: #000;
+        resize: none; /* Убираем возможность изменения размера вручную */
+        overflow: hidden; /* Убираем прокрутку */
+        word-break: break-word; /* Перенос слов на новую строку */
+    }
+
+    &__savedTextContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        white-space: pre-wrap; /* Перенос строк как в тексте */
+        word-wrap: break-word; /* Автоматический перенос текста */
+        
+    }
+
+    &__textItem {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__h1 {
+        font-family: "Inter", sans-serif;
+        font-weight: 500;
+        font-size: 36px;
+    }
+
+    &__h2 {
+        font-family: "Inter", sans-serif;
+        font-weight: 500;
+        font-size: 30px;
+    }
+
+    &__h3 {
+        font-family: "Inter", sans-serif;
+        font-weight: 400;
+        font-size: 20px;
+    }
+
+    &__actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    &__deleteButton {
+        cursor: pointer;
+        background: none;
+        border: none;
+        opacity: 0.7;
+        color: #000000;
+        font-size: 1.25rem;
+        font-weight: 400;
+    }
+}

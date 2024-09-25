@@ -1,0 +1,15 @@
+.container {
+  margin: 72px auto;
+  max-width: calc(1920px - 180px);
+}
+
+.layout {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 20px;
+
+  main {
+    width: calc(1740px - 293px);
+  }
+}
