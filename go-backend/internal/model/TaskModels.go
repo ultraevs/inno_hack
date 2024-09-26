@@ -5,9 +5,9 @@ import "time"
 type TaskDetails struct {
 	ID           int        `json:"id"`
 	Title        string     `json:"title"`
-	Description  string     `json:"description"`
-	Status       string     `json:"status"`
-	AssigneeName string     `json:"assignee_name"`
+	Description  *string    `json:"description,omitempty"`
+	Status       *string    `json:"status,omitempty"`
+	AssigneeName *string    `json:"assignee_name,omitempty"`
 	Deadline     *time.Time `json:"deadline,omitempty"`   // Используем указатель на time.Time
 	StartTime    *time.Time `json:"start_time,omitempty"` // Используем указатель на time.Time
 	EndTime      *time.Time `json:"end_time,omitempty"`   // Используем указатель на time.Time
@@ -19,10 +19,7 @@ type TaskTableResponse struct {
 }
 
 type TaskCreateRequest struct {
-	Title        string `json:"title" binding:"required"`
-	Description  string `json:"description"`
-	AssigneeName string `json:"assignee_name"`
-	Status       string `json:"status" binding:"required"` // "To Do", "In Progress", "Done"
+	Title string `json:"title" binding:"required"`
 }
 
 type TaskUpdateRequest struct {

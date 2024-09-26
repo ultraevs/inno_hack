@@ -30,16 +30,18 @@ func CreateTask(context *gin.Context) {
 	}
 
 	_, err := database.Db.Exec(`
-		INSERT INTO notion_tasks (title, description, project_id, assignee_name, status)
-		VALUES ($1, $2, $3, $4, $5)`,
-		body.Title, body.Description, projectID, body.AssigneeName, body.Status)
+		INSERT INTO notion_tasks (title, project_id)
+		VALUES ($1, $2)`,
+		body.Title, projectID)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create task"})
 		return
 	}
+	var task_id int
+	err = database.Db.QueryRow(`SELECT id FROM notion_tasks WHERE title = $1 and project_id = $2`, body.Title, projectID).Scan(&task_id)
 
-	context.JSON(http.StatusOK, gin.H{"message": "Task created successfully"})
+	context.JSON(http.StatusOK, gin.H{"message": gin.H{"task_id": task_id}})
 }
 
 // GetTask возвращает информацию о задаче
@@ -124,7 +126,7 @@ func UpdateTask(context *gin.Context) {
 	}
 
 	if body.AssigneeName != nil {
-		query += "assignee_id = $" + strconv.Itoa(counter) + ", "
+		query += "assignee_name = $" + strconv.Itoa(counter) + ", "
 		params = append(params, *body.AssigneeName)
 		counter++
 	}
@@ -166,6 +168,7 @@ func UpdateTask(context *gin.Context) {
 
 	_, err := database.Db.Exec(query, params...)
 	if err != nil {
+		fmt.Println(err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update task"})
 		return
 	}

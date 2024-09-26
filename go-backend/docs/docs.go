@@ -1139,20 +1139,9 @@ const docTemplate = `{
         "model.TaskCreateRequest": {
             "type": "object",
             "required": [
-                "status",
                 "title"
             ],
             "properties": {
-                "assignee_name": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "status": {
-                    "description": "\"To Do\", \"In Progress\", \"Done\"",
-                    "type": "string"
-                },
                 "title": {
                     "type": "string"
                 }

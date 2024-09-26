@@ -72,7 +72,7 @@ func ConnectDatabase() {
 		description TEXT,                             -- Описание задачи
 		project_id INT REFERENCES notion_projects(id) ON DELETE CASCADE,  -- Проект, к которому принадлежит задача
 		assignee_name VARCHAR(255) REFERENCES notion_users(name)  ON DELETE SET NULL,  -- Исполнитель задачи
-		status VARCHAR(50) NOT NULL,                  -- Статус задачи (например, 'To Do', 'In Progress', 'Done')
+		status VARCHAR(50),                  -- Статус задачи (например, 'To Do', 'In Progress', 'Done')
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Время создания задачи
 		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Время последнего обновления
 		deadline TIMESTAMP,                           -- Дедлайн задачи
@@ -84,6 +84,7 @@ func ConnectDatabase() {
 	CREATE TABLE IF NOT EXISTS notion_project_invitations (
 	    id SERIAL PRIMARY KEY,
 	    project_id INT REFERENCES notion_projects(id) ON DELETE CASCADE,
+	    project_name VARCHAR(255), -- Название проекта
 	    invitee_name VARCHAR(255) NOT NULL,  -- Email приглашаемого пользователя
 	    inviter_name VARCHAR(255) REFERENCES notion_users(name),  -- ID пригласившего пользователя
 	    status VARCHAR(20) DEFAULT 'pending',  -- Статус: pending, accepted, declined
