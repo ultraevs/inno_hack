@@ -144,17 +144,9 @@ definitions:
     type: object
   model.TaskCreateRequest:
     properties:
-      assignee_name:
-        type: string
-      description:
-        type: string
-      status:
-        description: '"To Do", "In Progress", "Done"'
-        type: string
       title:
         type: string
     required:
-    - status
     - title
     type: object
   model.TaskDetails:

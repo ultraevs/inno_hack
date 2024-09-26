@@ -61,7 +61,7 @@ func ProjectCreate(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Project created successfully"})
+	context.JSON(http.StatusOK, gin.H{"message": gin.H{"project_id": projectID}})
 }
 
 // GetProjectDetails возвращает детали проекта, включая текст и задачи
