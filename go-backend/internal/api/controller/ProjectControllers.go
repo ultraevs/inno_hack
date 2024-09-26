@@ -54,7 +54,7 @@ func ProjectCreate(context *gin.Context) {
 	}
 
 	// Добавляем владельца проекта в список участников
-	_, err = database.Db.Exec(`INSERT INTO notion_project_users (project_id, user_name) VALUES ($1, $2)`, projectID, userName)
+	_, err = database.Db.Exec(`INSERT INTO notion_project_users (project_id, user_name, role) VALUES ($1, $2, $3)`, projectID, userName, "owner")
 	if err != nil {
 		fmt.Println(err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add project owner to users"})
@@ -200,7 +200,7 @@ func GetProjectUsers(context *gin.Context) {
 
 	// Выполняем запрос для получения списка участников
 	rows, err := database.Db.Query(`
-		SELECT u.name, u.email 
+		SELECT u.name, u.email, pu.role
 		FROM notion_users u
 		JOIN notion_project_users pu ON u.name = pu.user_name
 		WHERE pu.project_id = $1`, projectID)
@@ -220,7 +220,7 @@ func GetProjectUsers(context *gin.Context) {
 	var users []model.UserDetails
 	for rows.Next() {
 		var user model.UserDetails
-		if err := rows.Scan(&user.Name, &user.Email); err != nil {
+		if err := rows.Scan(&user.Name, &user.Email, &user.Role); err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan user"})
 			return
 		}
