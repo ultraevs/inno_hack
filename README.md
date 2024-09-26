@@ -1,3 +1,5 @@
+# [Ссылка на готовое решение](https://task.shmyaks.ru)
+
 # ML Task Generator
 
 This project is an ML-based task generator for an online projects. It uses FastAPI for the backend and integrates with Yandex GPT for generating new tasks based on the project description and existing tasks.
