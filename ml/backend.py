@@ -172,14 +172,37 @@ def process_ai_helper(usertext: UserText) -> dict:
                 set_token_data(secret, json.dumps(formatted_action))
             
             elif formatted_type_ == 'kick_team':
-                action = _gpt.generate(prompts['kick_team'].format(user_text=user_text))['result']
-                formatted_action = json.loads(_format(action))
-                answer = prompts['kick_team_answer'].format(project=formatted_action['target_project'], user=formatted_action['nickname'])
-                set_token_data(secret, json.dumps(formatted_action))
+                return {'result': 'error', 'data': {'text': 'Извините, но данное действие пока не поддерживается.', 'buttons': False, 'secret': None}}
+                # action = _gpt.generate(prompts['kick_team'].format(user_text=user_text))['result']
+                # formatted_action = json.loads(_format(action))
+                # answer = prompts['kick_team_answer'].format(project=formatted_action['target_project'], user=formatted_action['nickname'])
+                # set_token_data(secret, json.dumps(formatted_action))
             
             elif formatted_type_ == 'delete_task':
                 action = _gpt.generate(prompts['delete_task'].format(user_text=user_text))['result']
+                logger.info(f"Action: {action}")
+
                 formatted_action = json.loads(_format(action))
+
+                backup_project = formatted_action['target_project']
+                formatted_action['target_project'] = _gpt.compare_projects(formatted_action['target_project'], user_projects)['result']
+                logger.info(f"Formatted action: {formatted_action}")
+
+                if formatted_action['target_project'] == 'other':
+                    return {'result': 'error', 'data': {'text': f'К сожалению, мне не удалось найти проект "{backup_project}" или у Вас нет к нему доступа.', 'buttons': False, 'secret': None}}
+
+                project_id = get_project_id_by_name(requests.get(url='https://task.shmyaks.ru/v1/user/projects', cookies=cookies).json(), formatted_action['target_project'])
+                formatted_action['project_id'] = project_id
+                
+                project_tasks = requests.get(url=f'https://task.shmyaks.ru/v1/projects/{project_id}', cookies=cookies).json()
+                project_tasks = {task["title"]: task["id"] for task in project_tasks["tasks"]}
+
+                most_suitable_task = _gpt.compare_projects(formatted_action['task'], list(project_tasks.keys()))['result']
+                formatted_action['task'] = most_suitable_task
+                logger.info(f"Most suitable task: {most_suitable_task}")
+
+                formatted_action['task_id'] = project_tasks[most_suitable_task]
+                logger.info(f"Task id: {formatted_action['task_id']}")
                 answer = prompts['delete_task_answer'].format(project=formatted_action['target_project'], task=formatted_action['task'])
                 set_token_data(secret, json.dumps(formatted_action))
             
@@ -194,7 +217,7 @@ def process_ai_helper(usertext: UserText) -> dict:
         return {'result': 'success', 'data': {'text': answer, 'buttons': buttons, 'secret': secret}}
     except Exception as e:
         logger.error(f"Error processing AI helper: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        return {'result': 'error', 'data': {'text': f'Кажется, возникла ошибка при обработке вашего запроса, вот, кстати, и она:\n{e}', 'buttons': False, 'secret': None}}
 
 @app.post("/user_answer")
 def process_user_answer(user_answer: UserAnswer) -> dict:
@@ -239,11 +262,18 @@ def process_user_answer(user_answer: UserAnswer) -> dict:
                     r = requests.post(url=f'https://task.shmyaks.ru/v1/projects/{action["project_id"]}/invite', cookies=cookies, json=json_)
                     if r.status_code != 200:
                         return {'result': 'error', 'data': {'text': f'К сожалению, у меня произошла ошибка при добавлении человека в команду... Надеюсь, вы справитесь без него!', 'buttons': False, 'secret': None}}
-
                     return {'result': 'success', 'data': {'text': f'Приглашение в команду отправлено для {action["nickname"]} под ролью {action["role"]}. Хорошей работы вместе!', 'buttons': False, 'secret': None}}
                 elif action['type'] == 'kick_team':
                     return {'result': 'success', 'data': {'text': f'Пользователь "{action["nickname"]}" удалён из проекта "{action["target_project"]}"', 'buttons': False, 'secret': None}}
                 elif action['type'] == 'delete_task':
+                    logger.info(f'Deleting task: {action}')
+                    
+                    cookies = {'Authtoken': Authtoken}
+                    r = requests.delete(url=f'https://task.shmyaks.ru/v1/projects/{action["project_id"]}/tasks/{action["task_id"]}', cookies=cookies)
+                    print(r.json())
+                    if r.status_code != 200:
+                        return {'result': 'error', 'data': {'text': f'Кажется, произошла ошибка при попытке удалить эту задачу. Думаю, это судьба и стоит оставить ее.', 'buttons': False, 'secret': None}}
+                    
                     return {'result': 'success', 'data': {'text': f'Задача "{action["task"]}" удалена из проекта "{action["target_project"]}"', 'buttons': False, 'secret': None}}
                 elif action['type'] == 'check_task':
                     return {'result': 'success', 'data': {'text': f'Задача "{action["task"]}" отмечена как выполненная в проекте "{action["target_project"]}"', 'buttons': False, 'secret': None}}

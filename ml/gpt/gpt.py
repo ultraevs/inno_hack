@@ -82,10 +82,12 @@ class GPT:
             "labels": B,
             "text": A
         }
+        
+        print(A, B)
 
         response = requests.post(self.classification_url, headers=headers, data=json.dumps(data))
 
-        while 'ai.textGenerationCompletionSessionsCount.count' in response.text:
+        while 'ai.textGenerationCompletionSessionsCount.count' in response.text or 'ai.textClassificationClassifyRequestsPerSecond.rate' in response.text:
             time.sleep(0.5)
             response = requests.post(self.classification_url, headers=headers, data=json.dumps(data))
         
