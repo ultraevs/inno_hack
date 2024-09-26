@@ -81,7 +81,7 @@ const EditableTable: React.FC = () => {
 
   return (
     <div className={styles.editableTable}>
-      <table>
+      <table className={styles.editableTable__table}>
         <thead>
           <tr>
             <th style={{ width: "27%" }}>Название</th>
@@ -90,9 +90,9 @@ const EditableTable: React.FC = () => {
             <th style={{ width: "29%" }}>Настройки</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className={styles.editableTable__table__body}>
           {state.rows.map((row, index) => (
-            <tr key={index}>
+            <tr key={index} className={styles.editableTable__table__body__row}>
               <td>
                 <input
                   type="text"
@@ -113,7 +113,7 @@ const EditableTable: React.FC = () => {
                   isUsernames
                 />
               </td>
-              <td>
+              <td className={styles.editableTable__table__body__row__status}>
                 <SelectForm
                   index={index}
                   name="status"
@@ -166,9 +166,19 @@ const EditableTable: React.FC = () => {
             </tr>
           )}
           {!state.editing && (
-            <tr>
-              <td colSpan={1} style={{ borderRight: "1px solid #EFEFEF" }}>
-                <button onClick={addRow}>Добавить</button>
+            <tr className={styles.editableTable__table__body__addRow}>
+              <td
+                colSpan={1}
+                className={styles.editableTable__table__body__addRow__data}
+              >
+                <button
+                  onClick={addRow}
+                  className={
+                    styles.editableTable__table__body__addRow__data__btn
+                  }
+                >
+                  <span>+</span> Добавить
+                </button>
               </td>
             </tr>
           )}

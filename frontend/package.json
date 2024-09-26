@@ -23,6 +23,7 @@
     "react": "^18",
     "react-dom": "^18",
     "sass": "^1.79.2",
+    "styled-components": "^6.1.13",
     "yup": "^1.4.0",
     "zustand": "^5.0.0-rc.2"
   },

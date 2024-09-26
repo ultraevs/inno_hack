@@ -1,8 +1,25 @@
 .editableTable {
+  &__table {
+    &__body {
+      &__addRow {
+        &__data {
+          opacity: 1 !important;
+          border-right: 1px solid var(--border-color) !important;
+          border-bottom: none !important;
+
+          &__btn {
+            opacity: 1 !important;
+          }
+        }
+      }
+    }
+  }
+
   table {
     font-family: "Inter", sans-serif;
     width: 1007px;
     border-collapse: collapse;
+
     thead {
       tr {
         th {
@@ -50,7 +67,8 @@
       th,
       td {
         position: relative;
-        padding: 10px 12px;
+        height: 44px;
+        padding: 0px 12px;
         text-align: left;
         border-top: 1px solid var(--border-color);
         border-bottom: 1px solid var(--border-color);

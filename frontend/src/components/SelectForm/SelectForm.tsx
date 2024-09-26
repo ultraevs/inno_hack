@@ -3,6 +3,8 @@ import styles from "./styles.module.scss";
 import cn from "classnames";
 import { useOutsideClick } from "@/utils/hooks/useOutsideClick";
 import { getBgByField } from "@/utils/helper";
+import { StyledStatus } from "../StyledStatus";
+
 
 interface IProps {
   readonly index: number;
@@ -54,13 +56,22 @@ const SelectForm: FC<IProps> = (props) => {
         ) : value !== "" ? (
           <div
             className={styles.select__static__status}
-            style={{ background: getBgByField(value)[1] }}
+            style={{
+              background: getBgByField(value)[1],
+              color: getBgByField(value)[0],
+            }}
           >
-            <div style={{ background: getBgByField(value)[0] }}></div>
+            <div
+              style={{
+                background: getBgByField(value)[0],
+              }}
+            ></div>
             {value}
           </div>
         ) : (
-          <div>{placeholder}</div>
+          <div className={styles.select__static__placeholder}>
+            {placeholder}
+          </div>
         )}
       </div>
       <ul
@@ -77,14 +88,18 @@ const SelectForm: FC<IProps> = (props) => {
               {el}
             </li>
           ) : (
-            <li
-              className={styles.select__dropdown__status}
+            <StyledStatus
               key={index}
+              className={styles.select__dropdown__status}
+              bgColor={"#E9E9E9"}
+              textColor={"#939393"}
+              hoverBgColor={getBgByField(el)[1]}
+              hoverTextColor={getBgByField(el)[0]}
               onClick={() => handleItemClick(el)}
             >
               <div></div>
               {el}
-            </li>
+            </StyledStatus>
           ),
         )}
       </ul>

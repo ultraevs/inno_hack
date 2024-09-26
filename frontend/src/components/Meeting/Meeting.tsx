@@ -41,7 +41,7 @@ const Meeting: FC<IProps> = (props) => {
       <div className={styles.meeting__moreInfo}>
         <div className={styles.meeting__moreInfo__imagesContainer}>
           {images.map((image, index) => (
-            <img 
+            <img
               key={index} 
               src={image} 
               alt={`icon-${index}`} 
