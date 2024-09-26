@@ -56,7 +56,7 @@ func ConnectDatabase() {
 	CREATE TABLE IF NOT EXISTS notion_project_users (
     	project_id INT REFERENCES notion_projects(id) ON DELETE CASCADE, -- Проект
     	user_name VARCHAR(255) REFERENCES notion_users(name) ON DELETE CASCADE, -- Участник (по имени)
-    	role VARCHAR(100) NOT NULL, -- Роль пользователя в проекте (например, 'backend', 'frontend')
+    	role VARCHAR(100), -- Роль пользователя в проекте (например, 'backend', 'frontend')
     	PRIMARY KEY (project_id, user_name) -- Уникальность записи: один пользователь в одном проекте
 	);
 	
