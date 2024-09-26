@@ -91,10 +91,10 @@ const SelectForm: FC<IProps> = (props) => {
             <StyledStatus
               key={index}
               className={styles.select__dropdown__status}
-              bgColor={"#E9E9E9"}
-              textColor={"#939393"}
-              hoverBgColor={getBgByField(el)[1]}
-              hoverTextColor={getBgByField(el)[0]}
+              $bgColor={"#E9E9E9"}
+              $textColor={"#939393"}
+              $hoverBgColor={getBgByField(el)[1]}
+              $hoverTextColor={getBgByField(el)[0]}
               onClick={() => handleItemClick(el)}
             >
               <div></div>
