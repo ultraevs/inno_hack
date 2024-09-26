@@ -1,0 +1,10 @@
+FROM python:3.10.6
+WORKDIR /usr/src/app
+
+COPY requirements.txt ./
+RUN apt update -y && apt upgrade -y
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["uvicorn", "ml.backend:app", "--host", "0.0.0.0", "--port", "8000"]

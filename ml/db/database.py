@@ -9,7 +9,7 @@ logging.basicConfig(filename='ml/logs/app.log', level=logging.ERROR,
                     format='%(asctime)s %(levelname)s:%(message)s', encoding='utf-8')
 
 Base = declarative_base()
-engine = create_engine('sqlite:///ml/projects.db')
+engine = create_engine('sqlite:///ml/db/projects.db')
 Session = sessionmaker(bind=engine)
 
 class Project(Base):
