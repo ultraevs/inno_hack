@@ -63,9 +63,11 @@ class GPT:
 
         response = requests.post(self.classification_url, headers=headers, data=json.dumps(data))
 
-        return {'status': 'success', 'result': response.json()['predictions'][0]['label']}
+        data_ = response.json()
+
+        return {'status': 'success', 'result': max(data_['predictions'], key=lambda x: x['confidence'])['label']}
     
-    def compare(self, A, B):
+    def compare_projects(self, A, B):
         B.append('other')
 
         headers = {
@@ -80,8 +82,75 @@ class GPT:
             "labels": B,
             "text": A
         }
+        
+        print(A, B)
 
         response = requests.post(self.classification_url, headers=headers, data=json.dumps(data))
+
+        while 'ai.textGenerationCompletionSessionsCount.count' in response.text or 'ai.textClassificationClassifyRequestsPerSecond.rate' in response.text:
+            time.sleep(0.5)
+            response = requests.post(self.classification_url, headers=headers, data=json.dumps(data))
+        
+        data_ = response.json()
+
+        return {'status': 'success', 'result': max(data_['predictions'], key=lambda x: x['confidence'])['label']}
+    
+    def compare_role_task(self, A, B):
+        B.remove('owner')
+        headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.YC}",
+                "X-folder-id": self.folder
+            }
+
+        data = {
+            "modelUri": f"cls://{self.folder}/yandexgpt/latest",
+            "taskDescription": 'Подбери самую подходящую роль для задачи в проекте',
+            "labels": B,
+            "text": 'Задача: ' + A
+        }
+        
+
+        
+        while True:
+            response = requests.post(self.classification_url, headers=headers, data=json.dumps(data))
+            if 'error' not in response.text:
+                break
+            time.sleep(0.5)
+        
+        data_ = response.json()
+
+        return {'status': 'success', 'result': max(data_['predictions'], key=lambda x: x['confidence'])['label']}
+    
+    def find_similar_role(self, A, B=None):
+        headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self.YC}",
+                "X-folder-id": self.folder
+            }
+
+        data = {
+            "modelUri": f"cls://{self.folder}/yandexgpt/latest",
+            "taskDescription": 'Подбери самую ближайшую по смыслу роль на основе предоставленной.',
+            "labels": [
+                    "Project Manager",
+                    "Machine Learning",
+                    "Computer Vision",
+                    "Frontend",
+                    "Backend",
+                    "Dev-Ops",
+                    "Designer",
+                    "Full-Stack"
+                    ],
+            "text": 'Роль: ' + A
+        }
+        
+        while True:
+            response = requests.post(self.classification_url, headers=headers, data=json.dumps(data))
+            if 'error' not in response.text:
+                break
+            time.sleep(0.5)
+        
         data_ = response.json()
 
         return {'status': 'success', 'result': max(data_['predictions'], key=lambda x: x['confidence'])['label']}
