@@ -1,10 +1,12 @@
 .page {
+  position: relative;
   min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
   &__container {
+    position: absolute;
+    top: 25vh;
+    left: 50%;
+    transform: translateX(-50%);
     width: 497px;
     display: flex;
     flex-direction: column;

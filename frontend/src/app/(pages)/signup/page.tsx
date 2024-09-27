@@ -6,16 +6,21 @@ import cn from "classnames";
 import authLogo from "@/assets/authLogo.svg";
 import { authRoutes } from "@/consts/routes";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Field, Form, Formik } from "formik";
+import { useAppDispatch } from "@/store/hooks";
+import { registerUser } from "@/store/auth/actions";
 
 export default function Signup() {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
   const pathname = usePathname();
 
   const isLinkActive = (route: string): boolean => route === pathname;
 
   const initialValues = {
     email: "",
+    name: "",
     password: "",
   };
 
@@ -38,13 +43,25 @@ export default function Signup() {
         </div>
         <Formik
           initialValues={initialValues}
-          onSubmit={(values) => console.log(values)}
+          onSubmit={(values) =>
+            dispatch(registerUser(values))
+              .unwrap()
+              .then((data) => {
+                if (data.success) {
+                  router.push("/profile");
+                }
+              })
+          }
         >
           <Form className={styles.page__container__nav__form}>
             <div className={styles.page__container__nav__form__fields}>
               <label>
                 Почта
                 <Field name="email" placeholder="Введите электронную почту" />
+              </label>
+              <label>
+                Имя
+                <Field name="name" placeholder="Введите ваше имя" />
               </label>
               <label>
                 Пароль

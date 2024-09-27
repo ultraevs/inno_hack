@@ -4,6 +4,7 @@ import "./globals.scss";
 import { Ysabeau_Infant } from "next/font/google";
 
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v14-appRouter";
+import StoreProvider from "./StoreProvider";
 
 const ysabeau_infant = Ysabeau_Infant({ subsets: [] });
 
@@ -20,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={ysabeau_infant.className}>
-        <AppRouterCacheProvider>{children}</AppRouterCacheProvider>
+        <StoreProvider>
+          <AppRouterCacheProvider>{children}</AppRouterCacheProvider>
+        </StoreProvider>
       </body>
     </html>
   );

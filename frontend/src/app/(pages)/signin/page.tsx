@@ -6,10 +6,14 @@ import cn from "classnames";
 import authLogo from "@/assets/authLogo.svg";
 import { authRoutes } from "@/consts/routes";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Field, Form, Formik } from "formik";
+import { useAppDispatch } from "@/store/hooks";
+import { loginUser } from "@/store/auth/actions";
 
 export default function Signin() {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
   const pathname = usePathname();
 
   const isLinkActive = (route: string): boolean => route === pathname;
@@ -38,7 +42,15 @@ export default function Signin() {
         </div>
         <Formik
           initialValues={initialValues}
-          onSubmit={(values) => console.log(values)}
+          onSubmit={(values) =>
+            dispatch(loginUser(values))
+              .unwrap()
+              .then((data) => {
+                if (data.success) {
+                  router.push("/profile");
+                }
+              })
+          }
         >
           <Form className={styles.page__container__nav__form}>
             <div className={styles.page__container__nav__form__fields}>

@@ -13,6 +13,10 @@
   --border-color: #EFEFEF
 }
 
+body.lock-scroll {
+  overflow: hidden;
+}
+
 a,
 button,
 input,
