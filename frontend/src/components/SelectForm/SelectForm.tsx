@@ -1,10 +1,10 @@
-import React, { FC, useState } from "react";
+import React, { FC, useRef, useState } from "react";
 import styles from "./styles.module.scss";
 import cn from "classnames";
 import { useOutsideClick } from "@/utils/hooks/useOutsideClick";
 import { getBgByField } from "@/utils/helper";
 import { StyledStatus } from "../StyledStatus";
-
+import { CaretDownOutlined } from "@ant-design/icons";
 
 interface IProps {
   readonly index: number;
@@ -29,15 +29,19 @@ const SelectForm: FC<IProps> = (props) => {
 
   const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false);
 
-  const openDropdown = () => {
-    setIsDropdownOpen(true);
-  };
-
   const closeDropdown = () => {
     setIsDropdownOpen(false);
   };
 
-  const dropdownRef = useOutsideClick({ callback: closeDropdown });
+  const handleStaticBlockClick = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const excludedRef = useRef<HTMLDivElement | null>(null);
+  const dropdownRef = useOutsideClick({
+    callback: closeDropdown,
+    excludedElements: [excludedRef],
+  });
 
   const handleItemClick = (item: string) => {
     setValue(index, name, item);
@@ -46,13 +50,20 @@ const SelectForm: FC<IProps> = (props) => {
 
   return (
     <div className={styles.select}>
-      <div className={styles.select__static} onClick={openDropdown}>
+      <div
+        ref={excludedRef}
+        className={styles.select__static}
+        onClick={handleStaticBlockClick}
+      >
         {isUsernames ? (
-          <input
-            type="text"
-            value={value !== "" ? value : placeholder}
-            readOnly
-          />
+          <div className={styles.select__static__placeholder}>
+            <input
+              type="text"
+              value={value !== "" ? value : placeholder}
+              readOnly
+            />
+            <CaretDownOutlined />
+          </div>
         ) : value !== "" ? (
           <div
             className={styles.select__static__status}
@@ -70,7 +81,8 @@ const SelectForm: FC<IProps> = (props) => {
           </div>
         ) : (
           <div className={styles.select__static__placeholder}>
-            {placeholder}
+            <p>{placeholder}</p>
+            <CaretDownOutlined />
           </div>
         )}
       </div>
