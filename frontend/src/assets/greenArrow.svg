@@ -1,0 +1,7 @@
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="lucide/arrow-up-right">
+<rect x="0.5" y="0.5" width="29" height="29" rx="3.5" fill="white"/>
+<rect x="0.5" y="0.5" width="29" height="29" rx="3.5" stroke="#5CCA5C"/>
+<path id="Vector" d="M8.75 8.75H21.25M21.25 8.75V21.25M21.25 8.75L8.75 21.25" stroke="#5CCA5C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</svg>
