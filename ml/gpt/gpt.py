@@ -3,22 +3,24 @@ import os
 import json
 import subprocess
 import time
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class GPT:
     def __init__(self):
-        self.YC = os.getenv('YC_TOKEN')
-        result = subprocess.run(['yc', 'iam', 'create-token'], stdout=subprocess.PIPE, text=True)
-        self.YC = result.stdout.strip()
-        self.folder = 'b1gchek74cd5e8aadsp6'
-        self.url = 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion'
+        self.YC_JWT             = os.getenv('YC_JWT')
+        self.folder             = os.getenv('YC_folder')
 
+        self.generate_iam()
+
+        self.url                = 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion'
         self.classification_url = 'https://llm.api.cloud.yandex.net/foundationModels/v1/fewShotTextClassification'
 
     def generate(self, prompt):
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.YC}",
+            "Authorization": f"Bearer {self.IAM}",
             "X-folder-id": self.folder
         }
 
@@ -45,12 +47,15 @@ class GPT:
         
         data_ = response.json()['result']['alternatives'][0]['message']['text']
 
+        if 'token is invalid' in response.text:
+            self.generate_iam()
+            return {'status': 'error', 'message': 'Token is invalid'}
         return {'status': 'success', 'result': data_}
     
     def classify(self, text):
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.YC}",
+            "Authorization": f"Bearer {self.IAM}",
             "X-folder-id": self.folder
         }
 
@@ -65,6 +70,11 @@ class GPT:
 
         data_ = response.json()
 
+        print(data_)
+        
+        if 'token is invalid' in response.text:
+            self.generate_iam()
+            return {'status': 'error', 'message': 'Token is invalid'}
         return {'status': 'success', 'result': max(data_['predictions'], key=lambda x: x['confidence'])['label']}
     
     def compare_projects(self, A, B):
@@ -72,7 +82,7 @@ class GPT:
 
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.YC}",
+            "Authorization": f"Bearer {self.IAM}",
             "X-folder-id": self.folder
         }
 
@@ -92,14 +102,17 @@ class GPT:
             response = requests.post(self.classification_url, headers=headers, data=json.dumps(data))
         
         data_ = response.json()
-
+        
+        if 'token is invalid' in response.text:
+            self.generate_iam()
+            return {'status': 'error', 'message': 'Token is invalid'}
         return {'status': 'success', 'result': max(data_['predictions'], key=lambda x: x['confidence'])['label']}
     
     def compare_role_task(self, A, B):
         B.remove('owner')
         headers = {
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.YC}",
+                "Authorization": f"Bearer {self.IAM}",
                 "X-folder-id": self.folder
             }
 
@@ -120,12 +133,15 @@ class GPT:
         
         data_ = response.json()
 
+        if 'token is invalid' in response.text:
+            self.generate_iam()
+            return {'status': 'error', 'message': 'Token is invalid'}
         return {'status': 'success', 'result': max(data_['predictions'], key=lambda x: x['confidence'])['label']}
     
     def find_similar_role(self, A, B=None):
         headers = {
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {self.YC}",
+                "Authorization": f"Bearer {self.IAM}",
                 "X-folder-id": self.folder
             }
 
@@ -153,4 +169,21 @@ class GPT:
         
         data_ = response.json()
 
+        if 'token is invalid' in response.text:
+            self.generate_iam()
+            return {'status': 'error', 'message': 'Token is invalid'}
         return {'status': 'success', 'result': max(data_['predictions'], key=lambda x: x['confidence'])['label']}
+    
+
+    def generate_iam(self):
+        response = requests.post(
+            'https://iam.api.cloud.yandex.net/iam/v1/tokens',
+            json={"jwt": self.YC_JWT}
+        )
+
+        if 'is invalid' in response.text or 'was not found' in response.text:
+            self.IAM = None
+            return
+
+        self.IAM = response.json()['iamToken']
+        print('token - ' + self.IAM)
