@@ -5,12 +5,12 @@ import plusIcon from "@/assets/plus.svg";
 
 const CreateProject = () => {
   return (
-    <div className={styles.createProject}>
+    <button className={styles.createProject}>
       <h4>Создать проект</h4>
-      <button>
+      <div>
         <Image src={plusIcon} alt="plus icon" />
-      </button>
-    </div>
+      </div>
+    </button>
   );
 };
 

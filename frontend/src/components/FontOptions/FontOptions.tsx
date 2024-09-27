@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import styles from "./styles.module.scss";
+import frameImg from "@/assets/frameImg.svg"
 
 const FontOptions = () => {
   const [showOptions, setShowOptions] = useState(false);
@@ -113,9 +115,8 @@ const FontOptions = () => {
                     handleKeyDown(e, index);
                     handleSubmit(e);
                   }}
-                  className={`${styles.fontOptions__inputField} ${
-                    styles[`fontOptions__${item.tag}`]
-                  }`}
+                  className={`${styles.fontOptions__inputField} ${styles[`fontOptions__${item.tag}`]
+                    }`}
                   style={{ whiteSpace: "pre-wrap" }} // Отображаем текст с переносами строк
                 />
               ) : (
@@ -152,26 +153,35 @@ const FontOptions = () => {
           onClick={() => setShowOptions(!showOptions)}
           className={styles.fontOptions__crossButton}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 20 20"
-            fill="none"
-          >
-            <path
-              d="M8.30303 20V0H11.697V20H8.30303ZM0 11.697V8.30303H20V11.697H0Z"
-              fill="#A3A3A3"
-            />
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M8.30303 20V0H11.697V20H8.30303ZM0 11.697V8.30303H20V11.697H0Z" fill="#E1E1E1" />
           </svg>
         </button>
       )}
 
       {showOptions && (
         <div className={styles.fontOptions__optionsMenu}>
-          <button onClick={() => handleOptionClick("h1")}>Текст h1</button>
-          <button onClick={() => handleOptionClick("h2")}>Текст h2</button>
-          <button onClick={() => handleOptionClick("h3")}>Текст h3</button>
+          <button onClick={() => handleOptionClick("h1")}>
+            <div className={styles.fontOptions__optionsMenu__button__info}>
+              <p>Текст h1</p>
+              <p>Для того, чтобы начать писать план</p>
+            </div>
+            <Image src={frameImg} alt="" />
+          </button>
+          <button onClick={() => handleOptionClick("h2")}>
+            <div className={styles.fontOptions__optionsMenu__button__info}>
+              <p>Текст h2</p>
+              <p>Для того, чтобы начать писать план</p>
+            </div>
+            <Image src={frameImg} alt="" />
+          </button>
+          <button onClick={() => handleOptionClick("h3")}>
+            <div className={styles.fontOptions__optionsMenu__button__info}>
+              <p>Текст h3</p>
+              <p>Для того, чтобы начать писать план</p>
+            </div>
+            <Image src={frameImg} alt="" />
+          </button>
         </div>
       )}
 
@@ -185,9 +195,8 @@ const FontOptions = () => {
               autoResizeTextarea();
             }}
             onKeyDown={handleSubmit}
-            className={`${styles.fontOptions__inputField} ${
-              styles[`fontOptions__${selectedTag}`]
-            }`}
+            className={`${styles.fontOptions__inputField} ${styles[`fontOptions__${selectedTag}`]
+              }`}
             rows={1}
           />
         </div>

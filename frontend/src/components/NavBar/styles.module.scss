@@ -31,6 +31,10 @@
         align-items: center;
         gap: 16px;
 
+        img{
+          opacity: 0.7;
+        }
+
         a {
           text-decoration: none;
           color: #ffffff;
@@ -41,6 +45,10 @@
 
         &.active {
           a {
+            opacity: 1;
+          }
+
+          img{
             opacity: 1;
           }
         }
