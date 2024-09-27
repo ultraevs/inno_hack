@@ -1,6 +1,7 @@
 import React, { FC, useEffect } from "react";
 import styles from "./styles.module.scss";
 import { Field, FieldArray, Form, Formik } from "formik";
+import { SelectCustomField } from "@/components/SelectCustomField";
 
 interface IProps {
   closeModal: () => void;
@@ -14,6 +15,17 @@ const ModalContent: FC<IProps> = (props) => {
     users: [{ username: "", role: "" }],
     linkToFigma: "",
   };
+
+  const roles = [
+    "Project Manager",
+    "Machine Learning",
+    "Computer Vision",
+    "Frontend",
+    "Backend",
+    "Dev-Ops",
+    "Designer",
+    "Full-Stack"
+];
 
   return (
     <div className={styles.content}>
@@ -66,6 +78,8 @@ const ModalContent: FC<IProps> = (props) => {
                               className={
                                 styles.content__form__fields__users__fields__role
                               }
+                              dropdownItems={roles}
+                              component={SelectCustomField}
                             />
                           </div>
                         ))}
