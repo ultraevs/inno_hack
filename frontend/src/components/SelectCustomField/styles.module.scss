@@ -41,7 +41,7 @@
     overflow: hidden;
 
     &__items {
-      max-height: 120px;
+      max-height: 108px;
       overflow-y: scroll;
       padding-right: 4px;
 
@@ -81,10 +81,6 @@
           &:hover {
             background: var(--primary-blue);
             color: #ffffff;
-          }
-
-          &:last-child {
-            margin-bottom: 16px;
           }
         }
       }
