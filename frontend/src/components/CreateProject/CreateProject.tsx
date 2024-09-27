@@ -23,9 +23,9 @@ const CreateProject = () => {
 
   return (
     <>
-      <div className={styles.createProject}>
+      <div className={styles.createProject} onClick={openModal}>
         <h4>Создать проект</h4>
-        <button onClick={openModal}>
+        <button>
           <Image src={plusIcon} alt="plus icon" />
         </button>
       </div>

@@ -7,6 +7,7 @@ import { Tables } from "./sections/Tables";
 import { ProjectData } from "./sections/ProjectData";
 import { routes } from "@/consts/routes";
 import Link from "next/link";
+import { Assistant } from "@/components/Assistant";
 
 export default function ProjectSlug({
   params: { slug },
@@ -48,6 +49,7 @@ export default function ProjectSlug({
         <li>{role}</li>
       </ul>
       <div className={styles.page__content}>{renderSection()}</div>
+      <Assistant />
     </div>
   );
 }
