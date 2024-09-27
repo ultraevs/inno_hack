@@ -1,6 +1,6 @@
-import React, { FC } from "react";
+import React, { FC, useEffect } from "react";
 import styles from "./styles.module.scss";
-import { Field, Form, Formik } from "formik";
+import { Field, FieldArray, Form, Formik } from "formik";
 
 interface IProps {
   closeModal: () => void;
@@ -11,16 +11,9 @@ const ModalContent: FC<IProps> = (props) => {
 
   const initialValues = {
     projectName: "",
-    username: "",
-    role: "",
+    users: [{ username: "", role: "" }],
     linkToFigma: "",
   };
-
-  const partOfTheFields = [
-    { name: "projectName", placeholder: "Название проекта" },
-    { name: "username", placeholder: "Имя участника и тег" },
-    { name: "role", placeholder: "Роль" },
-  ];
 
   return (
     <div className={styles.content}>
@@ -28,24 +21,68 @@ const ModalContent: FC<IProps> = (props) => {
         initialValues={initialValues}
         onSubmit={(values) => console.log(values)}
       >
-        <Form className={styles.content__form}>
-          <div className={styles.content__form__fields}>
-            {partOfTheFields.map((field) => (
-              <Field
-                key={field.name}
-                name={field.name}
-                placeholder={field.placeholder}
-              />
-            ))}
-            <button type="button">Добавить</button>
-            <Field name="linkToFigma" placeholder="Ссылка на макет Figma" />
-          </div>
+        {({ values, setFieldValue }) => {
+          useEffect(() => {
+            const lastIndex = values.users.length - 1;
+            const lastUser = values.users[lastIndex];
 
-          <div className={styles.content__form__buttons}>
-            <button onClick={closeModal}>Закрыть</button>
-            <button type="submit">Сохранить</button>
-          </div>
-        </Form>
+            if (lastUser.username !== "" && lastUser.role !== "") {
+              setFieldValue(`users.${lastIndex + 1}`, {
+                username: "",
+                role: "",
+              });
+            }
+          }, [values.users]);
+
+          return (
+            <Form className={styles.content__form}>
+              <div className={styles.content__form__fields}>
+                <Field
+                  name="projectName"
+                  placeholder="Название проекта"
+                  className={styles.content__form__fields__projectName}
+                />
+                <FieldArray name="users">
+                  {() => (
+                    <div className={styles.content__form__fields__users}>
+                      {values.users.length > 0 &&
+                        values.users.map((user, index) => (
+                          <div
+                            key={index}
+                            className={
+                              styles.content__form__fields__users__fields
+                            }
+                          >
+                            <Field
+                              name={`users.${index}.username`}
+                              placeholder="Имя участника и тег"
+                              className={
+                                styles.content__form__fields__users__fields__username
+                              }
+                            />
+                            <Field
+                              name={`users.${index}.role`}
+                              placeholder="Роль"
+                              className={
+                                styles.content__form__fields__users__fields__role
+                              }
+                            />
+                          </div>
+                        ))}
+                    </div>
+                  )}
+                </FieldArray>
+                <Field name="linkToFigma" placeholder="Ссылка на макет Figma" />
+              </div>
+              <div className={styles.content__form__buttons}>
+                <button onClick={closeModal} type="button">
+                  Закрыть
+                </button>
+                <button type="submit">Сохранить</button>
+              </div>
+            </Form>
+          );
+        }}
       </Formik>
     </div>
   );
