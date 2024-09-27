@@ -19,7 +19,7 @@
         width: fit-content;
         margin-bottom: 10px;
         margin-top: -30px;
-        border-radius: 0.75rem 0.75rem 0 0;
+        border-radius: 0.75rem;
         border: 1px solid #EFEFEF;
         background: #FBFBFB;
 
@@ -29,7 +29,7 @@
             padding: 0.75rem;
             border: none;
             border-bottom: 1px solid #EFEFEF;
-            border-radius: 0.75rem 0.75rem 0 0;
+            border-radius: 0.75rem;
             background: #FBFBFB;
             color: #000;
             font-family: "Inter", sans-serif;
@@ -43,11 +43,13 @@
             display: flex;
             flex-direction: column;
             align-items: start;
+
             p:nth-child(1) {
                 color: #000;
                 font-size: 20px;
             }
-            p:nth-child(2){
+
+            p:nth-child(2) {
                 opacity: 0.2;
                 color: #000;
                 font-size: 16px;
