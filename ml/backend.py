@@ -11,20 +11,24 @@ from ml.figma.figma_compare import figma_compare
 import json
 from ml.db.database import set_token_data, get_token_data, delete_token_data
 import secrets
-import time
 import requests
 
-
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('project_logger')
 logger.setLevel(logging.INFO)
+logger.propagate = False
+
+file_handler = logging.FileHandler('ml/logs/app.log', encoding='utf-8')
+file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(file_formatter)
 
 console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)
+console_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(console_formatter)
+console_handler.setLevel(logging.ERROR)
 
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-console_handler.setFormatter(formatter)
-
+logger.addHandler(file_handler)
 logger.addHandler(console_handler)
+
 
 class TaskData(BaseModel):
     description: str
@@ -85,7 +89,7 @@ def process_ai_helper(usertext: UserText) -> dict:
     Authtoken = usertext.Authtoken
 
     try:
-        logger.info(f"Received user text: {user_text}")
+        logger.info(f"Received user text: {user_text}")        
 
         formatted_type_ = _gpt.classify(user_text)['result']
 
@@ -120,6 +124,9 @@ def process_ai_helper(usertext: UserText) -> dict:
                 action = _gpt.generate(prompts['add_task'].format(user_text=user_text))['result']
                 logger.info(f"Action: {action}")
 
+                if not check_answer_valid(action):
+                    return {'result': 'error', 'data': {'text': 'Кажется, я не смог понять ваш запрос. Убедитесь, что указали название задачи и проекта.', 'buttons': False, 'secret': None}}
+
                 formatted_action = json.loads(_format(action))
 
                 backup_project = formatted_action['target_project']
@@ -130,6 +137,13 @@ def process_ai_helper(usertext: UserText) -> dict:
                     return {'result': 'error', 'data': {'text': f'К сожалению, мне не удалось найти проект "{backup_project}" или у Вас нет к нему доступа.', 'buttons': False, 'secret': None}}
 
                 project_id = get_project_id_by_name(requests.get(url='https://task.shmyaks.ru/v1/user/projects', cookies=cookies).json(), formatted_action['target_project'])
+                project_tasks = requests.get(url=f'https://task.shmyaks.ru/v1/projects/{project_id}', cookies=cookies).json()
+                tasks = [task['title'].lower() for task in project_tasks['tasks']]
+                logger.info(f"Existing: {tasks}")
+
+                if formatted_action['task'].lower() in tasks:
+                    return {'result': 'error', 'data': {'text': f'Кажется, задача "{formatted_action["task"]}" уже существует в проекте "{formatted_action["target_project"]}".', 'buttons': False, 'secret': None}}
+
                 formatted_action['project_id'] = project_id
                 project_users = requests.get(url=f'https://task.shmyaks.ru/v1/projects/{project_id}/users', cookies=cookies).json()
                 role_name_dict = {user['role']: user['name'] for user in project_users['users']}
@@ -148,35 +162,32 @@ def process_ai_helper(usertext: UserText) -> dict:
                 set_token_data(secret, json.dumps(formatted_action))
 
             elif formatted_type_ == 'invite_team':
-                action = _gpt.generate(prompts['invite_team'].format(user_text=user_text))['result']
-                formatted_action = json.loads(_format(action))
+                return {'result': 'error', 'data': {'text': 'Извините, но я еще не умею добавлять и удалять пользователей из проекта.', 'buttons': False, 'secret': None}}
+                # action = _gpt.generate(prompts['invite_team'].format(user_text=user_text))['result']
+                # formatted_action = json.loads(_format(action))
 
-                if formatted_action['role'] == 'None':
-                    return {'result': 'error', 'data': {'text': 'К сожалению, я не смог определить желаемую роль пользователя, попробуйте еще раз.', 'buttons': False, 'secret': None}}
+                # if formatted_action['role'] == 'None':
+                #     return {'result': 'error', 'data': {'text': 'К сожалению, я не смог определить желаемую роль пользователя, попробуйте еще раз.', 'buttons': False, 'secret': None}}
 
-                backup_project = formatted_action['target_project']
-                formatted_action['target_project'] = _gpt.compare_projects(formatted_action['target_project'], user_projects)['result']
-                logger.info(f"Formatted action: {formatted_action}")
+                # backup_project = formatted_action['target_project']
+                # formatted_action['target_project'] = _gpt.compare_projects(formatted_action['target_project'], user_projects)['result']
+                # logger.info(f"Formatted action: {formatted_action}")
 
-                project_id = get_project_id_by_name(requests.get(url='https://task.shmyaks.ru/v1/user/projects', cookies=cookies).json(), formatted_action['target_project'])
-                formatted_action['project_id'] = project_id
+                # project_id = get_project_id_by_name(requests.get(url='https://task.shmyaks.ru/v1/user/projects', cookies=cookies).json(), formatted_action['target_project'])
+                # formatted_action['project_id'] = project_id
 
-                if formatted_action['target_project'] == 'other':
-                    return {'result': 'error', 'data': {'text': f'К сожалению, мне не удалось найти проект "{backup_project}" или у Вас нет к нему доступа.', 'buttons': False, 'secret': None}}
+                # if formatted_action['target_project'] == 'other':
+                #     return {'result': 'error', 'data': {'text': f'К сожалению, мне не удалось найти проект "{backup_project}" или у Вас нет к нему доступа.', 'buttons': False, 'secret': None}}
                 
-                similar_role = _gpt.find_similar_role(formatted_action['role'])['result']
+                # similar_role = _gpt.find_similar_role(formatted_action['role'])['result']
 
-                formatted_action['role'] = similar_role
+                # formatted_action['role'] = similar_role
 
-                answer = prompts['invite_team_answer'].format(project=formatted_action['target_project'], user=formatted_action['nickname'], role=similar_role)
-                set_token_data(secret, json.dumps(formatted_action))
+                # answer = prompts['invite_team_answer'].format(project=formatted_action['target_project'], user=formatted_action['nickname'], role=similar_role)
+                # set_token_data(secret, json.dumps(formatted_action))
             
             elif formatted_type_ == 'kick_team':
-                return {'result': 'error', 'data': {'text': 'Извините, но данное действие пока не поддерживается.', 'buttons': False, 'secret': None}}
-                # action = _gpt.generate(prompts['kick_team'].format(user_text=user_text))['result']
-                # formatted_action = json.loads(_format(action))
-                # answer = prompts['kick_team_answer'].format(project=formatted_action['target_project'], user=formatted_action['nickname'])
-                # set_token_data(secret, json.dumps(formatted_action))
+                return {'result': 'error', 'data': {'text': 'Извините, но я еще не умею добавлять и удалять пользователей из проекта.', 'buttons': False, 'secret': None}}
             
             elif formatted_type_ == 'delete_task':
                 action = _gpt.generate(prompts['delete_task'].format(user_text=user_text))['result']
@@ -217,6 +228,7 @@ def process_ai_helper(usertext: UserText) -> dict:
         return {'result': 'success', 'data': {'text': answer, 'buttons': buttons, 'secret': secret}}
     except Exception as e:
         logger.error(f"Error processing AI helper: {e}", exc_info=True)
+        print(e)
         return {'result': 'error', 'data': {'text': f'Кажется, возникла ошибка при обработке вашего запроса, вот, кстати, и она:\n{e}', 'buttons': False, 'secret': None}}
 
 @app.post("/user_answer")
@@ -335,3 +347,10 @@ def get_project_id_by_name(data, input_name):
         if project['name'] == input_name:
             return project['id']
     return None
+
+def check_answer_valid(text):
+    if '{' in text and '}' in text:
+        if text.count('{') == text.count('}'):
+            if len(text.split('{')) < 5 and len(text.split('}')) < 5:
+                return True
+    return False
