@@ -32,13 +32,13 @@ export default function Profile() {
           <div className={styles.page__secondColumn__widgets__meetings}>
             <Meeting
               projectName="Хакатон"
-              date="2024-09-19 10:23"
+              date="2024-09-19T12:23:00Z"
               images={[exampleIconUrl, exampleIconUrl, exampleIconUrl]}
               link="https://zoom.us/"
             />
             <Meeting
               projectName="Хакатон"
-              date="2024-09-19 10:23"
+              date="2024-09-29T10:23:00Z"
               images={[exampleIconUrl, exampleIconUrl, exampleIconUrl]}
               link="https://zoom.us/"
             />
