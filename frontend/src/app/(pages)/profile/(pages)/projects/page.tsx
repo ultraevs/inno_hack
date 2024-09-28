@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React from "react";
 import styles from "./page.module.scss";
@@ -34,7 +34,13 @@ export default function Projects() {
       </div>
       {userProjects?.length ? (
         <div className={styles.page__projects}>
-          <ProjectProgress projectName="Хакатон" progress={50} />
+          {userProjects?.map((project, index) => (
+            <ProjectProgress
+              key={index}
+              projectName={project.name}
+              progress={0}
+            />
+          ))}
         </div>
       ) : (
         <div className={styles.page__noProjects}>

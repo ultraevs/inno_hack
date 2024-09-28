@@ -50,6 +50,7 @@ export const registerUser = createAsyncThunk<IResult, IRegisterUserProps>(
         setCookie("Authtoken", token);
         localStorage.setItem("isAuth", JSON.stringify(true));
       }
+
       return { success: true };
     } catch (error) {
       return thunkAPI.rejectWithValue({ success: false, message: error });

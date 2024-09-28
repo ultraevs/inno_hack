@@ -1,7 +1,9 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC } from "react";
 import styles from "./styles.module.scss";
 import { Field, FieldArray, Form, Formik } from "formik";
 import { SelectCustomField } from "@/components/SelectCustomField";
+import { useAppDispatch } from "@/store/hooks";
+import { createProject } from "@/store/profile/actions";
 
 interface IProps {
   closeModal: () => void;
@@ -9,6 +11,8 @@ interface IProps {
 
 const ModalContent: FC<IProps> = (props) => {
   const { closeModal } = props;
+
+  const dispatch = useAppDispatch();
 
   interface IInitialValues {
     projectName: string;
@@ -37,7 +41,15 @@ const ModalContent: FC<IProps> = (props) => {
     <div className={styles.content}>
       <Formik
         initialValues={initialValues}
-        onSubmit={(values) => console.log(values)}
+        onSubmit={(values) =>
+          dispatch(createProject(values))
+            .unwrap()
+            .then((data) => {
+              if (data.success) {
+                closeModal()
+              }
+            })
+        }
       >
         {({ values }) => {
           return (

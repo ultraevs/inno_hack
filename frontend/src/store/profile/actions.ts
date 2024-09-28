@@ -1,6 +1,10 @@
-// actions.ts
 import { configApi } from "@/api/configApi";
 import { createAsyncThunk } from "@reduxjs/toolkit";
+
+interface IResult {
+  success: boolean;
+  message?: string;
+}
 
 interface IFetchUserInfoResponse {
   email: string;
@@ -61,7 +65,7 @@ export const fetchUserProjects = createAsyncThunk<any, void>(
         withCredentials: true,
       });
 
-      return response.data;
+      return response.data.projects;
     } catch (error) {
       return thunkAPI.rejectWithValue({ success: false, message: error });
     }
@@ -85,7 +89,7 @@ export const fetchUserInvitations = createAsyncThunk<any, void>(
 
 export const fetchMeetings = createAsyncThunk<IMeetingDetails[]>(
   "profile/fetchMeetings",
-  async (_, thunkAPI) => {
+  async (_params, thunkAPI) => {
     try {
       const response = await configApi.get("/users/meetings", {
         withCredentials: true,
@@ -94,16 +98,64 @@ export const fetchMeetings = createAsyncThunk<IMeetingDetails[]>(
 
       const meetingsWithDetails = await Promise.all(
         meetings.map(async (meeting) => {
-          const detailResponse = await configApi.get(`/meetings/${meeting.id}`, {
-            withCredentials: true,
-          });
+          const detailResponse = await configApi.get(
+            `/meetings/${meeting.id}`,
+            {
+              withCredentials: true,
+            },
+          );
           return detailResponse.data.meeting as IMeetingDetails;
-        })
+        }),
       );
 
       return meetingsWithDetails;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message || "Ошибка при получении созвонов");
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
     }
-  }
-)
+  },
+);
+
+interface ICreateProjectProps {
+  projectName: string;
+  users: { username: string; role: string }[];
+  linkToFigma: string;
+}
+
+export const createProject = createAsyncThunk<IResult, ICreateProjectProps>(
+  "profile/createProject",
+  async (data: ICreateProjectProps, thunkAPI) => {
+    try {
+      await configApi.post("/project_create", data, {
+        withCredentials: true,
+      });
+
+      thunkAPI.dispatch(fetchUserProjects());
+
+      return { success: true };
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ success: false, message: error });
+    }
+  },
+);
+
+interface ICreateMeetingProps {
+  projectName: string;
+  meetingName: string;
+  meetingDate: string;
+  zoomLink: string;
+}
+
+export const createMeeting = createAsyncThunk<IResult, ICreateMeetingProps>(
+  "profile/createMeeting",
+  async (data: ICreateMeetingProps, thunkAPI) => {
+    try {
+      await configApi.post("/meetings", data, {
+        withCredentials: true,
+      });
+
+      return { success: true };
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ success: false, message: error });
+    }
+  },
+);

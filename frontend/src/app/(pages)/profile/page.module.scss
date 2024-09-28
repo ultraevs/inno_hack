@@ -12,8 +12,8 @@
 
     &__projects {
       height: 380px;
-      display: flex;
-      flex-direction: row;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 20px;
     }
 
