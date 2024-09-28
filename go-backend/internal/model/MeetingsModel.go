@@ -1,7 +1,8 @@
 package model
 
 type MeetingCreateRequest struct {
-	ZoomLink    string `json:"zoomLink" binding:"required"`    // Ссылка на Zoom, обязательное поле
+	ZoomLink    string `json:"zoomLink" binding:"required"` // Ссылка на Zoom, обязательное поле
+	MeetingDate string `json:"meetingDate"`
 	MeetingName string `json:"meetingName" binding:"required"` // Название собрания, обязательное поле
 	ProjectName string `json:"projectName" binding:"required"` // Название проекта, обязательное поле
 }
@@ -15,6 +16,7 @@ type MeetingDetails struct {
 	Name        string `json:"name"`
 	ZoomLink    string `json:"zoom_link"`
 	ProjectName string `json:"projectName"`
+	MeetingDate string `json:"meetingDate"`
 }
 
 type MeetingDetailsWithParticipants struct {
@@ -22,5 +24,6 @@ type MeetingDetailsWithParticipants struct {
 	Name         string   `json:"name"`
 	ZoomLink     string   `json:"zoom_link"`
 	ProjectName  string   `json:"projectName"`
+	MeetingDate  string   `json:"meetingDate"`
 	Participants []string `json:"participants"`
 }

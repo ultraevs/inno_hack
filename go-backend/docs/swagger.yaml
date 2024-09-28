@@ -73,6 +73,8 @@ definitions:
     type: object
   model.MeetingCreateRequest:
     properties:
+      meetingDate:
+        type: string
       meetingName:
         description: Название собрания, обязательное поле
         type: string
@@ -91,6 +93,8 @@ definitions:
     properties:
       id:
         type: integer
+      meetingDate:
+        type: string
       name:
         type: string
       projectName:
@@ -102,6 +106,8 @@ definitions:
     properties:
       id:
         type: integer
+      meetingDate:
+        type: string
       name:
         type: string
       participants:

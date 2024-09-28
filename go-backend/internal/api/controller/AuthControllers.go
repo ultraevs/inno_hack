@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"app/internal/api/templates"
 	"app/internal/database"
 	"app/internal/model"
 	"database/sql"
@@ -8,8 +9,10 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/jordan-wright/email"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
+	"net/smtp"
 	"os"
 	"time"
 )
@@ -64,7 +67,53 @@ func UserCreate(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid token"})
 		return
 	}
+
+	sender := NewGmailSender("PLANIFY", os.Getenv("EMAIL_ADDRESS"), os.Getenv("EMAIL_PASSWORD"))
+
+	subject := "Создание аккаунта"
+	content := fmt.Sprintf(templates.RegisterTemplate())
+	to := []string{body.Email}
+	err = sender.SendEmail(subject, content, to, nil, nil)
+	if err != nil {
+		fmt.Println(err)
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Error with sending email"})
+		return
+	}
+
 	context.JSON(http.StatusOK, gin.H{"token": tokenString})
+}
+
+type GmailSender struct {
+	name              string
+	fromEmailAddress  string
+	fromEmailPassword string
+}
+
+func NewGmailSender(name string, fromEmailAddress string, fromEmailPassword string) model.EmailSender {
+	return &GmailSender{
+		name:              name,
+		fromEmailAddress:  fromEmailAddress,
+		fromEmailPassword: fromEmailPassword,
+	}
+}
+
+func (sender *GmailSender) SendEmail(
+	subject string,
+	content string,
+	to []string,
+	cc []string,
+	bcc []string,
+) error {
+	e := email.NewEmail()
+	e.From = fmt.Sprintf("%s <%s>", sender.name, sender.fromEmailAddress)
+	e.Subject = subject
+	e.HTML = []byte(content)
+	e.To = to
+	e.Cc = cc
+	e.Bcc = bcc
+
+	smtpAuth := smtp.PlainAuth("", sender.fromEmailAddress, sender.fromEmailPassword, os.Getenv("SMTP_HOST"))
+	return e.Send(os.Getenv("SMTP_HOST")+":"+os.Getenv("SMTP_PORT"), smtpAuth)
 }
 
 // Login Вход в аккаунт.

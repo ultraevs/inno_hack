@@ -1055,6 +1055,9 @@
                 "zoomLink"
             ],
             "properties": {
+                "meetingDate": {
+                    "type": "string"
+                },
                 "meetingName": {
                     "description": "Название собрания, обязательное поле",
                     "type": "string"
@@ -1075,6 +1078,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "meetingDate": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -1091,6 +1097,9 @@
             "properties": {
                 "id": {
                     "type": "integer"
+                },
+                "meetingDate": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"

@@ -1063,6 +1063,9 @@ const docTemplate = `{
                 "zoomLink"
             ],
             "properties": {
+                "meetingDate": {
+                    "type": "string"
+                },
                 "meetingName": {
                     "description": "Название собрания, обязательное поле",
                     "type": "string"
@@ -1083,6 +1086,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "meetingDate": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -1099,6 +1105,9 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "integer"
+                },
+                "meetingDate": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
