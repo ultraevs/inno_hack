@@ -11,7 +11,11 @@ import { Calendar } from "@/components/Calendar";
 import { Meeting } from "@/components/Meeting";
 import { CreateMeeting } from "@/components/CreateMeeting";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchUserInfo } from "@/store/profile/actions";
+import {
+  fetchUserInfo,
+  fetchUserProjects,
+  fetchUserStats,
+} from "@/store/profile/actions";
 
 const exampleIconUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
@@ -19,26 +23,55 @@ export default function Profile() {
   const dispatch = useAppDispatch();
 
   const userInfo = useAppSelector((store) => store.profile.info);
+  const userStats = useAppSelector((store) => store.profile.stats);
+  const userProjects = useAppSelector((store) => store.profile.projects);
 
   useEffect(() => {
     dispatch(fetchUserInfo());
+    dispatch(fetchUserStats());
+    dispatch(fetchUserProjects());
   }, []);
 
-  if (!userInfo) {
-    return <div>Loading...</div>;
+  if (!userInfo || !userStats) {
+    return (
+      <div className={styles.page}>
+        <h2>Loading...</h2>
+      </div>
+    );
   }
 
   return (
     <div className={styles.page}>
       <div className={styles.page__firstColumn}>
-        <Greeting userName={userInfo.name} />
-        <ProjectProgress projectName="Хакатон" progress={50} />
-        <ProjectProgress projectName="Хакатон" progress={50} />
-        <ProjectProgress projectName="Хакатон" progress={50} />
-        <ProjectProgress projectName="Хакатон" progress={50} />
-        <Statistics value={11} actionName="Часов работы" />
-        <Statistics value={11} actionName="Часов работы" />
-        <Statistics value={11} actionName="Часов работы" />
+        <div className={styles.page__firstColumn__greeting}>
+          <Greeting userName={userInfo.name} />
+        </div>
+        {userProjects?.length ? (
+          <div className={styles.page__firstColumn__projects}>
+            {userProjects?.slice(0, 4).map((project, index) => (
+              <ProjectProgress
+                key={index}
+                projectName={project.name}
+                progress={0}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className={styles.page__firstColumn__noProjects}>
+            <h3>У вас пока нет проектов</h3>
+          </div>
+        )}
+        <div className={styles.page__firstColumn__stats}>
+          <Statistics value={0} actionName="Часов работы" />
+          <Statistics
+            value={userStats.total_projects_count}
+            actionName="Проекта"
+          />
+          <Statistics
+            value={userStats.done_tasks_count}
+            actionName="Заданий выполнено"
+          />
+        </div>
       </div>
       <div className={styles.page__secondColumn}>
         <Username username={userInfo.name} />
