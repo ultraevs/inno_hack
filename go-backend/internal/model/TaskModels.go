@@ -9,8 +9,8 @@ type TaskDetails struct {
 	Status       *string    `json:"status,omitempty"`
 	AssigneeName *string    `json:"assignee_name,omitempty"`
 	Deadline     *time.Time `json:"deadline,omitempty"`   // Используем указатель на time.Time
-	StartTime    *time.Time `json:"start_time,omitempty"` // Используем указатель на time.Time
-	EndTime      *time.Time `json:"end_time,omitempty"`   // Используем указатель на time.Time
+	StartTime    *string    `json:"start_time,omitempty"` // Используем указатель на time.Time
+	EndTime      *string    `json:"end_time,omitempty"`   // Используем указатель на time.Time
 	Duration     *string    `json:"duration,omitempty"`
 }
 
@@ -28,7 +28,7 @@ type TaskUpdateRequest struct {
 	AssigneeName *string    `json:"assignee_name,omitempty"`
 	Status       *string    `json:"status,omitempty"`
 	Deadline     *time.Time `json:"deadline,omitempty"`
-	StartTime    *time.Time `json:"start_time,omitempty"`
-	EndTime      *time.Time `json:"end_time,omitempty"`
+	StartTime    *string    `json:"start_time,omitempty"`
+	EndTime      *string    `json:"end_time,omitempty"`
 	Duration     *string    `json:"duration,omitempty"`
 }

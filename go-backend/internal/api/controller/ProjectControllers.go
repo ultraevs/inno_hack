@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"app/internal/api/templates"
 	"app/internal/database"
 	"app/internal/model"
 	"database/sql"
@@ -8,6 +9,8 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"os"
+	"strings"
 )
 
 // ProjectCreate создает новый проект с видом по умолчанию "text".
@@ -70,17 +73,67 @@ func ProjectCreate(context *gin.Context) {
 			return
 		}
 
-		// Добавляем пользователя в проект
-		_, err = database.Db.Exec(`INSERT INTO notion_project_invitations (project_id,project_name, inviter_name, invitee_name, role) VALUES ($1, $2, $3, $4, $5)`,
-			projectID, body.ProjectName, userName, user.Username, user.Role)
-		if err != nil {
-			fmt.Println(err)
-			context.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to add user %s to project", user.Username)})
-			return
-		}
-	}
+		// Инициализируем отправителя email
+		sender := NewGmailSender("PLANIFY", os.Getenv("EMAIL_ADDRESS"), os.Getenv("EMAIL_PASSWORD"))
 
-	context.JSON(http.StatusOK, gin.H{"message": "Project created successfully", "project_id": projectID})
+		// Добавляем пользователей, указанных в запросе
+		for _, user := range body.Users {
+			// Проверяем, существует ли пользователь в базе
+			var existingUserName, userEmail string
+			err = database.Db.QueryRow("SELECT name, email FROM notion_users WHERE name = $1", user.Username).Scan(&existingUserName, &userEmail)
+			if errors.Is(err, sql.ErrNoRows) {
+				// Если пользователь не найден, возвращаем ошибку
+				context.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("User %s not found", user.Username)})
+				return
+			} else if err != nil {
+				context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check user existence"})
+				return
+			}
+
+			// Добавляем пользователя в проект
+			_, err = database.Db.Exec(`INSERT INTO notion_project_invitations (project_id,project_name, inviter_name, invitee_name, role) VALUES ($1, $2, $3, $4, $5)`,
+				projectID, body.ProjectName, userName, user.Username, user.Role)
+			if err != nil {
+				fmt.Println(err)
+				context.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to add user %s to project", user.Username)})
+				return
+			}
+
+			// Подготовка данных для подстановки в шаблон
+			invitationLink := fmt.Sprintf("https://task.shmyaks.ru/invite/%d", projectID)
+			data := struct {
+				ProjectName    string
+				InviterName    string
+				InvitationLink string
+			}{
+				ProjectName:    body.ProjectName,
+				InviterName:    userName,
+				InvitationLink: invitationLink,
+			}
+
+			// Формируем тело письма
+			var contentBuilder strings.Builder
+			template := templates.ProjectInvitationTemplate()
+			err = template.Execute(&contentBuilder, data)
+			if err != nil {
+				context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate email content"})
+				return
+			}
+			content := contentBuilder.String()
+
+			// Отправляем email-приглашение пользователю
+			subject := "Приглашение в проект"
+			to := []string{userEmail}
+			err = sender.SendEmail(subject, content, to, nil, nil)
+			if err != nil {
+				fmt.Println(err)
+				context.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Error sending email to user %s", user.Username)})
+				return
+			}
+		}
+
+		context.JSON(http.StatusOK, gin.H{"message": "Project created successfully, invitations sent", "project_id": projectID})
+	}
 }
 
 // GetProjectDetails возвращает детали проекта, включая текст и задачи

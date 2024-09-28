@@ -76,8 +76,8 @@ func ConnectDatabase() {
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Время создания задачи
 		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Время последнего обновления
 		deadline TIMESTAMP,                           -- Дедлайн задачи
-		start_time TIMESTAMP,                         -- Время начала выполнения задачи
-		end_time TIMESTAMP,                           -- Время завершения задачи
+		start_time VARCHAR(255),                         -- Время начала выполнения задачи
+		end_time VARCHAR(255),                           -- Время завершения задачи
 		duration INTERVAL                             -- Продолжительность выполнения задачи
 	);
 
