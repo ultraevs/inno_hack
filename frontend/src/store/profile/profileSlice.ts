@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchUserInfo, fetchUserProjects, fetchUserStats } from "./actions";
+import { fetchUserInfo, fetchUserInvitations, fetchUserProjects, fetchUserStats } from "./actions";
 
 interface IInitialState {
   info: {
@@ -10,13 +10,15 @@ interface IInitialState {
     done_tasks_count: number;
     total_projects_count: number;
   } | null;
-  projects: any[] | null;
+  projects: any[];
+  invitations: any[]
 }
 
 const initialState: IInitialState = {
   info: null,
   stats: null,
   projects: [],
+  invitations: [],
 };
 
 export const profileSlice = createSlice({
@@ -33,6 +35,9 @@ export const profileSlice = createSlice({
       })
       .addCase(fetchUserProjects.fulfilled, (state, action) => {
         state.projects = action.payload === null ? [] : action.payload;
+      })
+      .addCase(fetchUserInvitations.fulfilled, (state, action) => {
+        state.invitations = action.payload === null ? [] : action.payload;
       });
   },
 });

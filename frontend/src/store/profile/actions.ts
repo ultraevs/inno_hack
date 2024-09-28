@@ -7,7 +7,7 @@ interface IFetchUserInfoResponse {
 }
 
 export const fetchUserInfo = createAsyncThunk<IFetchUserInfoResponse, void>(
-  "auth/fetchUserInfo",
+  "profile/fetchUserInfo",
   async (_params, thunkAPI) => {
     try {
       const response = await configApi.get("/users/info", {
@@ -27,7 +27,7 @@ interface IFetchUserStatsResponse {
 }
 
 export const fetchUserStats = createAsyncThunk<IFetchUserStatsResponse, void>(
-  "auth/fetchUserStats",
+  "profile/fetchUserStats",
   async (_params, thunkAPI) => {
     try {
       const response = await configApi.get("/users/stats", {
@@ -42,10 +42,25 @@ export const fetchUserStats = createAsyncThunk<IFetchUserStatsResponse, void>(
 );
 
 export const fetchUserProjects = createAsyncThunk<any, void>(
-  "auth/fetchUserProjects",
+  "profile/fetchUserProjects",
   async (_params, thunkAPI) => {
     try {
       const response = await configApi.get("/user/projects", {
+        withCredentials: true,
+      });
+
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue({ success: false, message: error });
+    }
+  },
+);
+
+export const fetchUserInvitations = createAsyncThunk<any, void>(
+  "profile/fetchUserInvitations",
+  async (_params, thunkAPI) => {
+    try {
+      const response = await configApi.get("user/invitations", {
         withCredentials: true,
       });
 

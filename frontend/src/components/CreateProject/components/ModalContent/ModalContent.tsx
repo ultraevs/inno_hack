@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect, useState } from "react";
 import styles from "./styles.module.scss";
 import { Field, FieldArray, Form, Formik } from "formik";
 import { SelectCustomField } from "@/components/SelectCustomField";
@@ -10,11 +10,20 @@ interface IProps {
 const ModalContent: FC<IProps> = (props) => {
   const { closeModal } = props;
 
-  const initialValues = {
+  interface IInitialValues {
+    projectName: string;
+    users: { username: string; role: string }[];
+    linkToFigma: string;
+  }
+
+  const initialValues: IInitialValues = {
     projectName: "",
     users: [{ username: "", role: "" }],
     linkToFigma: "",
   };
+
+  const [values, setValues] = useState<IInitialValues>(initialValues);
+  const [key, setKey] = useState<number>(0);
 
   const roles = [
     "Project Manager",
@@ -24,28 +33,35 @@ const ModalContent: FC<IProps> = (props) => {
     "Backend",
     "Dev-Ops",
     "Designer",
-    "Full-Stack"
-];
+    "Full-Stack",
+  ];
+
+  useEffect(() => {
+    const lastIndex = values.users.length - 1;
+    const lastUser = values.users[lastIndex];
+
+
+
+    if (lastUser.username !== "" && lastUser.role !== "") {
+      const newUsers = [...values.users, { username: "", role: "" }];
+
+      setValues((prev) => ({
+        ...prev,
+        users: newUsers,
+      }));
+
+      setKey((prev) => prev + 1);
+    }
+  }, [values.users]);
 
   return (
     <div className={styles.content}>
       <Formik
-        initialValues={initialValues}
+        key={key}
+        initialValues={values}
         onSubmit={(values) => console.log(values)}
       >
-        {({ values, setFieldValue }) => {
-          useEffect(() => {
-            const lastIndex = values.users.length - 1;
-            const lastUser = values.users[lastIndex];
-
-            if (lastUser.username !== "" && lastUser.role !== "") {
-              setFieldValue(`users.${lastIndex + 1}`, {
-                username: "",
-                role: "",
-              });
-            }
-          }, [values.users]);
-
+        {({ values }) => {
           return (
             <Form className={styles.content__form}>
               <div className={styles.content__form__fields}>

@@ -7,9 +7,10 @@
   overflow-y: scroll;
 
   &__form {
+    height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 36px;
+    justify-content: space-between;
 
     &__fields {
       display: flex;
@@ -26,31 +27,6 @@
         color: rgba(64, 64, 64, 0.6);
         font-size: 1rem;
         font-weight: 500;
-      }
-
-      &__projectName {
-        width: 100%;
-      }
-
-      &__users {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-
-        &__fields {
-          display: grid;
-          grid-template-columns: 210px 161px 29px;
-          gap: 20px;
-
-          button {
-            cursor: pointer;
-            height: 39px;
-            border: none;
-            outline: none;
-            background: #efefef;
-            border-radius: 8px;
-          }
-        }
       }
     }
 
@@ -76,7 +52,7 @@
         }
 
         &:last-child {
-          width: 190px;
+          width: 210px;
           background: #d0ffd0;
           color: #3ac64f;
           font-size: 1rem;

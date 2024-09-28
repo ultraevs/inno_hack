@@ -10,27 +10,15 @@ import { CreateProject } from "@/components/CreateProject";
 import { Calendar } from "@/components/Calendar";
 import { Meeting } from "@/components/Meeting";
 import { CreateMeeting } from "@/components/CreateMeeting";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  fetchUserInfo,
-  fetchUserProjects,
-  fetchUserStats,
-} from "@/store/profile/actions";
+import { useAppSelector } from "@/store/hooks";
 
 const exampleIconUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
 export default function Profile() {
-  const dispatch = useAppDispatch();
 
   const userInfo = useAppSelector((store) => store.profile.info);
   const userStats = useAppSelector((store) => store.profile.stats);
   const userProjects = useAppSelector((store) => store.profile.projects);
-
-  useEffect(() => {
-    dispatch(fetchUserInfo());
-    dispatch(fetchUserStats());
-    dispatch(fetchUserProjects());
-  }, []);
 
   if (!userInfo || !userStats) {
     return (
