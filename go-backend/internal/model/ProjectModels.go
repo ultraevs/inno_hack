@@ -3,9 +3,14 @@ package model
 import "time"
 
 type ProjectCreateRequest struct {
-	Name        string  `json:"name"`
-	Description string  `json:"description"`
-	Figma       *string `json:"figma"`
+	ProjectName string        `json:"projectName" binding:"required"`
+	Users       []ProjectUser `json:"users" binding:"required"`
+	LinkToFigma *string       `json:"linkToFigma"`
+}
+
+type ProjectUser struct {
+	Username string `json:"username" binding:"required"`
+	Role     string `json:"role" binding:"required"`
 }
 
 type ProjectDetailsResponse struct {
@@ -15,7 +20,7 @@ type ProjectDetailsResponse struct {
 type Project struct {
 	ID          int       `json:"id"`
 	Name        string    `json:"name"`
-	Description string    `json:"description"`
+	Description *string   `json:"description"`
 	OwnerName   string    `json:"owner_name"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`

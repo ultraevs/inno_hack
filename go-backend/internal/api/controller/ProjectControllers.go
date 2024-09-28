@@ -4,6 +4,7 @@ import (
 	"app/internal/database"
 	"app/internal/model"
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -37,31 +38,49 @@ func ProjectCreate(context *gin.Context) {
 		return
 	}
 
-	// Создаем проект с видом по умолчанию "text"
-	_, err = database.Db.Exec("INSERT INTO notion_projects (name, description, owner_name, figma_link) VALUES ($1, $2, $3, $4)", body.Name, body.Description, userName, body.Figma)
+	// Создаем проект с видом по умолчанию "text" и получаем ID созданного проекта
+	var projectID int
+	err = database.Db.QueryRow("INSERT INTO notion_projects (name, owner_name, figma_link) VALUES ($1, $2, $3) RETURNING id",
+		body.ProjectName, userName, body.LinkToFigma).Scan(&projectID)
+
 	if err != nil {
-		fmt.Println(err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create project"})
 		return
 	}
 
-	// Получаем ID созданного проекта
-	var projectID int
-	err = database.Db.QueryRow("SELECT id FROM notion_projects WHERE name = $1 AND owner_name = $2", body.Name, userName).Scan(&projectID)
+	// Добавляем владельца проекта в список участников как "owner"
+	_, err = database.Db.Exec(`INSERT INTO notion_project_users (project_id, user_name, role) VALUES ($1, $2, $3)`,
+		projectID, userName, "owner")
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve project ID"})
-		return
-	}
-
-	// Добавляем владельца проекта в список участников
-	_, err = database.Db.Exec(`INSERT INTO notion_project_users (project_id, user_name, role) VALUES ($1, $2, $3)`, projectID, userName, "owner")
-	if err != nil {
-		fmt.Println(err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add project owner to users"})
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": gin.H{"project_id": projectID}})
+	// Добавляем пользователей, указанных в запросе
+	for _, user := range body.Users {
+		// Проверяем, существует ли пользователь в базе
+		var existingUserName string
+		err = database.Db.QueryRow("SELECT name FROM notion_users WHERE name = $1", user.Username).Scan(&existingUserName)
+		if errors.Is(err, sql.ErrNoRows) {
+			// Если пользователь не найден, возвращаем ошибку
+			context.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("User %s not found", user.Username)})
+			return
+		} else if err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check user existence"})
+			return
+		}
+
+		// Добавляем пользователя в проект
+		_, err = database.Db.Exec(`INSERT INTO notion_project_users (project_id, user_name, role) VALUES ($1, $2, $3)`,
+			projectID, user.Username, user.Role)
+		if err != nil {
+			fmt.Println(err)
+			context.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to add user %s to project", user.Username)})
+			return
+		}
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Project created successfully", "project_id": projectID})
 }
 
 // GetProjectDetails возвращает детали проекта, включая текст и задачи
@@ -175,6 +194,7 @@ func GetProjects(context *gin.Context) {
 	for rows.Next() {
 		var project model.Project
 		if err := rows.Scan(&project.ID, &project.Name, &project.Description, &project.OwnerName, &project.CreatedAt, &project.UpdatedAt, &project.Figma); err != nil {
+			fmt.Println(err)
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan project"})
 			return
 		}

@@ -26,13 +26,6 @@ definitions:
       order_num:
         type: integer
     type: object
-  model.CreateMeetingRequest:
-    properties:
-      meeting_date:
-        type: string
-      zoom_link:
-        type: string
-    type: object
   model.ErrorResponse:
     properties:
       error:
@@ -78,29 +71,45 @@ definitions:
     - email
     - password
     type: object
+  model.MeetingCreateRequest:
+    properties:
+      meetingName:
+        description: Название собрания, обязательное поле
+        type: string
+      projectName:
+        description: Название проекта, обязательное поле
+        type: string
+      zoomLink:
+        description: Ссылка на Zoom, обязательное поле
+        type: string
+    required:
+    - meetingName
+    - projectName
+    - zoomLink
+    type: object
   model.MeetingDetails:
     properties:
-      created_by:
-        type: string
       id:
         type: integer
-      meeting_date:
+      name:
+        type: string
+      projectName:
         type: string
       zoom_link:
         type: string
     type: object
   model.MeetingDetailsWithParticipants:
     properties:
-      created_by:
-        type: string
       id:
         type: integer
-      meeting_date:
+      name:
         type: string
       participants:
         items:
           type: string
         type: array
+      projectName:
+        type: string
       zoom_link:
         type: string
     type: object
@@ -123,12 +132,17 @@ definitions:
     type: object
   model.ProjectCreateRequest:
     properties:
-      description:
+      linkToFigma:
         type: string
-      figma:
+      projectName:
         type: string
-      name:
-        type: string
+      users:
+        items:
+          $ref: '#/definitions/model.ProjectUser'
+        type: array
+    required:
+    - projectName
+    - users
     type: object
   model.ProjectDetailsResponse:
     properties:
@@ -141,6 +155,16 @@ definitions:
         type: string
       role:
         type: string
+    type: object
+  model.ProjectUser:
+    properties:
+      role:
+        type: string
+      username:
+        type: string
+    required:
+    - role
+    - username
     type: object
   model.TaskCreateRequest:
     properties:
@@ -298,6 +322,33 @@ paths:
       summary: Логин
       tags:
       - Auth
+  /v1/meetings:
+    post:
+      consumes:
+      - application/json
+      description: Создает новое собрание и приглашает всех участников указанного
+        проекта
+      parameters:
+      - description: Запрос на создание собрания
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.MeetingCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Собрание успешно создано
+          schema:
+            $ref: '#/definitions/model.CodeResponse'
+        "400":
+          description: Ошибка при создании собрания
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Создать новое собрание
+      tags:
+      - Meetings
   /v1/meetings/{meeting_id}:
     get:
       description: Возвращает детальную информацию о созвоне, включая участников
@@ -350,32 +401,6 @@ paths:
           schema:
             $ref: '#/definitions/model.ErrorResponse'
       summary: Пригласить пользователя на созвон
-      tags:
-      - Meetings
-  /v1/meetings/new_meeting:
-    post:
-      consumes:
-      - application/json
-      description: Добавляет новый созвон с указанием даты и ссылки на Zoom
-      parameters:
-      - description: Запрос на создание созвона
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/model.CreateMeetingRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Созвон успешно создан
-          schema:
-            $ref: '#/definitions/model.CodeResponse'
-        "400":
-          description: Ошибка при создании созвона
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-      summary: Создать новый созвон
       tags:
       - Meetings
   /v1/project_create:
@@ -824,6 +849,25 @@ paths:
       summary: Получить все созвоны пользователя
       tags:
       - Meetings
+  /v1/users/names:
+    get:
+      description: Возвращает список всех никнеймов пользователей из таблицы notion_users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список всех никнеймов пользователей
+          schema:
+            items:
+              type: string
+            type: array
+        "500":
+          description: Ошибка при получении данных
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+      summary: Получить все никнеймы пользователей
+      tags:
+      - DevTOol
   /v1/users/stats:
     get:
       description: Возвращает количество завершённых задач и количество проектов,

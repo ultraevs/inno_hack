@@ -4,6 +4,7 @@ import (
 	"app/internal/database"
 	"app/internal/model"
 	"database/sql"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -19,54 +20,75 @@ func parseUserDate(userDate string) (time.Time, error) {
 	return parsedTime, nil
 }
 
-// CreateMeeting создает новый созвон
-// @Summary Создать новый созвон
-// @Description Добавляет новый созвон с указанием даты и ссылки на Zoom
+// CreateMeeting создает новое собрание и приглашает всех участников проекта
+// @Summary Создать новое собрание
+// @Description Создает новое собрание и приглашает всех участников указанного проекта
 // @Accept json
 // @Produce json
-// @Param request body model.CreateMeetingRequest true "Запрос на создание созвона"
-// @Success 200 {object} model.CodeResponse "Созвон успешно создан"
-// @Failure 400 {object} model.ErrorResponse "Ошибка при создании созвона"
+// @Param request body model.MeetingCreateRequest true "Запрос на создание собрания"
+// @Success 200 {object} model.CodeResponse "Собрание успешно создано"
+// @Failure 400 {object} model.ErrorResponse "Ошибка при создании собрания"
 // @Tags Meetings
-// @Router /v1/meetings/new_meeting [post]
+// @Router /v1/meetings [post]
 func CreateMeeting(context *gin.Context) {
-	var body struct {
-		MeetingDate string `json:"meeting_date" binding:"required"` // Дата и время собрания
-		ZoomLink    string `json:"zoom_link" binding:"required"`    // Ссылка на Zoom
-	}
+	var body model.MeetingCreateRequest
 
 	if err := context.ShouldBindJSON(&body); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
-	// Преобразуем строку в формат времени
-	parsedDate, err := parseUserDate(body.MeetingDate)
-	if err != nil {
-		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date format. Please use 'YYYY-MM-DD HH:MM'"})
+	// Находим проект по его названию
+	var projectID int
+	err := database.Db.QueryRow("SELECT id FROM notion_projects WHERE name = $1", body.ProjectName).Scan(&projectID)
+	if errors.Is(err, sql.ErrNoRows) {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Project not found"})
+		return
+	} else if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve project"})
 		return
 	}
 
-	userEmail := context.MustGet("Email").(string)
-
-	// Находим отправителя по его email
-	var creatorName string
-	err = database.Db.QueryRow("SELECT name FROM notion_users WHERE email = $1", userEmail).Scan(&creatorName)
-	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
-		return
-	}
-
-	_, err = database.Db.Exec(`INSERT INTO notion_meetings (meeting_date, zoom_link, created_by) 
-		VALUES ($1, $2, $3)`, parsedDate, body.ZoomLink, creatorName)
-
+	// Создаем собрание и получаем ID созданного собрания
+	var meetingID int
+	err = database.Db.QueryRow("INSERT INTO notion_meetings (name, zoom_link, project_name) VALUES ($1, $2, $3) RETURNING id",
+		body.MeetingName, body.ZoomLink, body.ProjectName).Scan(&meetingID)
 	if err != nil {
 		fmt.Println(err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create meeting"})
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message": "Meeting created successfully"})
+	// Находим всех участников проекта
+	rows, err := database.Db.Query("SELECT user_name FROM notion_project_users WHERE project_id = $1", projectID)
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve project participants"})
+		return
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+
+		}
+	}(rows)
+
+	// Добавляем участников в собрание
+	for rows.Next() {
+		var userName string
+		if err := rows.Scan(&userName); err != nil {
+			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan participant"})
+			return
+		}
+
+		_, err = database.Db.Exec(`INSERT INTO notion_meeting_participants (meeting_id, user_name) VALUES ($1, $2)`, meetingID, userName)
+		if err != nil {
+			fmt.Println(err)
+			context.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to add participant %s to meeting", userName)})
+			return
+		}
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message": "Meeting created successfully", "meeting_id": meetingID})
 }
 
 // InviteUserToMeeting приглашает пользователя на созвон
@@ -135,12 +157,13 @@ func GetUserMeetings(context *gin.Context) {
 
 	// Запрос для получения всех созвонов, где пользователь является создателем или участником
 	rows, err := database.Db.Query(`
-		SELECT m.id, m.meeting_date, m.zoom_link, m.created_by 
+		SELECT m.id, m.name, m.project_name, m.zoom_link 
 		FROM notion_meetings m 
 		LEFT JOIN notion_meeting_participants mp ON m.id = mp.meeting_id
 		WHERE m.created_by = $1 OR mp.user_name = $1`, userName)
 
 	if err != nil {
+		fmt.Println(err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve user meetings"})
 		return
 	}
@@ -154,7 +177,7 @@ func GetUserMeetings(context *gin.Context) {
 	var meetings []model.MeetingDetails
 	for rows.Next() {
 		var meeting model.MeetingDetails
-		if err := rows.Scan(&meeting.ID, &meeting.MeetingDate, &meeting.ZoomLink, &meeting.CreatedBy); err != nil {
+		if err := rows.Scan(&meeting.ID, &meeting.Name, &meeting.ProjectName, &meeting.ZoomLink); err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan meeting data"})
 			return
 		}
@@ -179,10 +202,10 @@ func GetMeetingDetails(context *gin.Context) {
 	// Запрос для получения деталей созвона
 	var meeting model.MeetingDetailsWithParticipants
 	err := database.Db.QueryRow(`
-		SELECT m.id, m.meeting_date, m.zoom_link, m.created_by
+		SELECT m.id, m.name, m.zoom_link, m.project_name
 		FROM notion_meetings m 
 		WHERE m.id = $1`, meetingID).
-		Scan(&meeting.ID, &meeting.MeetingDate, &meeting.ZoomLink, &meeting.CreatedBy)
+		Scan(&meeting.ID, &meeting.Name, &meeting.ZoomLink, &meeting.ProjectName)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve meeting details"})
