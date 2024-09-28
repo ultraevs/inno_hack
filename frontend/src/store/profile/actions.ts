@@ -8,9 +8,9 @@ interface IFetchUserInfoResponse {
 }
 
 interface IMeeting {
-  created_by: string;
   id: number;
-  meeting_date: string;
+  meetingDate: string;
+  name: string;
   zoom_link: string;
 }
 

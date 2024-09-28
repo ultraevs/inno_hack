@@ -73,8 +73,8 @@ export default function Profile() {
                 {meetings.map((meeting) => (
                   <Meeting
                     key={meeting.id}
-                    projectName={meeting.created_by}
-                    date={meeting.meeting_date}
+                    projectName={meeting.name}
+                    date={meeting.meetingDate}
                     images={[exampleIconUrl, exampleIconUrl, exampleIconUrl]}
                     link={meeting.zoom_link}
                   />
