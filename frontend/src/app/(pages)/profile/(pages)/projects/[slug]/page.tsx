@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import styles from "./page.module.scss";
 import { notFound, useSearchParams } from "next/navigation";
 import { Tables } from "./sections/Tables";
@@ -8,14 +8,25 @@ import { ProjectData } from "./sections/ProjectData";
 import { routes } from "@/consts/routes";
 import Link from "next/link";
 import { Assistant } from "@/components/Assistant";
+import { useAppDispatch } from "@/store/hooks";
+import { fetchProjectInfo } from "@/store/project/actions";
 
 export default function ProjectSlug({
   params: { slug },
 }: {
   params: { slug: string };
 }) {
+  const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const sectionId = searchParams.get("section") || "1";
+
+  useEffect(() => {
+    const id = Number(slug);
+
+    if (id) {
+      dispatch(fetchProjectInfo(id));
+    }
+  }, []);
 
   const renderSection = () => {
     switch (sectionId) {
@@ -40,6 +51,7 @@ export default function ProjectSlug({
         };
 
   const role = "frontend";
+
   return (
     <div className={styles.page}>
       <ul>

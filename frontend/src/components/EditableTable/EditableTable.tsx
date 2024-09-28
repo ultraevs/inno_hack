@@ -1,82 +1,46 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { FC } from "react";
 import styles from "./styles.module.scss";
 import { SelectForm } from "../SelectForm";
+import { ITask } from "@/store/project/projectSlice";
+import { useAppDispatch } from "@/store/hooks";
+import { createTask, deleteTask, updateTask } from "@/store/project/actions";
+import { DeleteOutlined } from "@ant-design/icons";
+import ReactInputMask from "react-input-mask";
 
-interface Row {
-  name: string;
-  user: string;
-  status: string;
+interface IProps {
+  projectId: number;
+  items: ITask[];
 }
 
-interface EditableTableState {
-  rows: Row[];
-  newRow: Row;
-  editing: boolean;
-}
+const EditableTable: FC<IProps> = (props) => {
+  const { projectId, items } = props;
 
-const EditableTable: React.FC = () => {
-  const [state, setState] = useState<EditableTableState>({
-    rows: [],
-    newRow: { name: "", user: "", status: "" },
-    editing: false,
-  });
+  const dispatch = useAppDispatch();
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setState((prevState) => ({
-      ...prevState,
-      newRow: { ...prevState.newRow, [name]: value },
-    }));
-  };
-
-  const handleInputChangeInSelect = (
-    index: number,
-    name: string,
-    newValue: string,
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    row: ITask,
   ) => {
-    setState((prevState) => ({
-      ...prevState,
-      newRow: { ...prevState.newRow, [name]: newValue },
-    }));
+    const { name, value } = e.target;
+
+    const changes = { [name]: value };
+
+    dispatch(updateTask({ projectId, taskId: row.id, changes }));
   };
 
   const addRow = () => {
-    setState((prevState) => ({
-      ...prevState,
-      editing: true,
-    }));
+    dispatch(createTask({ projectId, title: "1" }));
   };
 
-  const saveRow = () => {
-    setState((prevState) => ({
-      ...prevState,
-      rows: [...prevState.rows, prevState.newRow],
-      newRow: { name: "", user: "", status: "" },
-      editing: false,
-    }));
+  const updateRow = (index: number, name: string, value: string) => {
+    const changes = { [name]: value };
+    dispatch(updateTask({ projectId, taskId: index, changes }));
   };
 
-  const updateRow = (index: number, column: keyof Row, value: string) => {
-    const updatedRows = state.rows.map((row, i) => {
-      if (i === index) {
-        return { ...row, [column]: value };
-      }
-      return row;
-    });
-
-    setState((prevState) => ({
-      ...prevState,
-      rows: updatedRows,
-    }));
-  };
-
-  const deleteRow = (index: number) => {
-    setState((prevState) => ({
-      ...prevState,
-      rows: prevState.rows.filter((_, i) => i !== index),
-    }));
+  const deleteRow = (row: ITask) => {
+    dispatch(deleteTask({ projectId, taskId: row.id }));
   };
 
   return (
@@ -84,38 +48,40 @@ const EditableTable: React.FC = () => {
       <table className={styles.editableTable__table}>
         <thead>
           <tr>
-            <th style={{ width: "27%" }}>Название</th>
-            <th style={{ width: "24%" }}>Исполнитель</th>
+            <th style={{ width: "22%" }}>Название</th>
+            <th style={{ width: "20%" }}>Исполнитель</th>
             <th style={{ width: "20%" }}>Статус</th>
-            <th style={{ width: "29%" }}>Настройки</th>
+            <th style={{ width: "15%" }}>Начало</th>
+            <th style={{ width: "15%" }}>Конец</th>
+            <th style={{ width: "8%" }}>delete</th>
           </tr>
         </thead>
         <tbody className={styles.editableTable__table__body}>
-          {state.rows.map((row, index) => (
+          {items.map((row, index) => (
             <tr key={index} className={styles.editableTable__table__body__row}>
               <td>
                 <input
                   type="text"
-                  name="name"
-                  value={row.name}
-                  onChange={(e) => updateRow(index, "name", e.target.value)}
+                  name="title"
+                  value={row.title}
+                  onChange={(e) => handleInputChange(e, row)}
                   placeholder="Название"
                 />
               </td>
               <td>
                 <SelectForm
-                  index={index}
-                  name="user"
-                  value={row.user}
+                  index={row.id}
+                  name="assignee_name"
+                  value={row.assignee_name}
                   placeholder="Исполнитель"
-                  items={["Kostya", "Gleb"]}
+                  items={["Kostya#0005", "Глеб#0003"]}
                   setValue={updateRow}
                   isUsernames
                 />
               </td>
               <td className={styles.editableTable__table__body__row__status}>
                 <SelectForm
-                  index={index}
+                  index={row.id}
                   name="status"
                   value={row.status}
                   placeholder="Статус"
@@ -124,64 +90,45 @@ const EditableTable: React.FC = () => {
                 />
               </td>
               <td>
-                <button onClick={() => deleteRow(index)}>Удалить</button>
-              </td>
-            </tr>
-          ))}
-          {state.editing && (
-            <tr>
-              <td>
-                <input
-                  type="text"
-                  name="name"
-                  value={state.newRow.name}
-                  onChange={handleInputChange}
-                  placeholder="Название"
+                <ReactInputMask
+                  name="start_time"
+                  value={row.start_time}
+                  maskChar={null}
+                  mask={"9999-99-99"}
+                  onChange={(e) => handleInputChange(e, row)}
+                  placeholder="ГГГГ-ММ-ДД"
                 />
               </td>
               <td>
-                <SelectForm
-                  index={state.rows.length}
-                  name="user"
-                  value={state.newRow.user}
-                  placeholder="Исполнитель"
-                  items={["Kostya", "Gleb"]}
-                  setValue={handleInputChangeInSelect}
-                  isUsernames
+                <ReactInputMask
+                  name="end_time"
+                  value={row.end_time}
+                  maskChar={null}
+                  mask={"9999-99-99"}
+                  onChange={(e) => handleInputChange(e, row)}
+                  placeholder="ГГГГ-ММ-ДД"
                 />
               </td>
               <td>
-                <SelectForm
-                  index={state.rows.length}
-                  name="status"
-                  value={state.newRow.status}
-                  placeholder="Статус"
-                  items={["done", "in progress", "not started"]}
-                  setValue={handleInputChangeInSelect}
-                />
-              </td>
-              <td>
-                <button onClick={saveRow}>Сохранить</button>
-              </td>
-            </tr>
-          )}
-          {!state.editing && (
-            <tr className={styles.editableTable__table__body__addRow}>
-              <td
-                colSpan={1}
-                className={styles.editableTable__table__body__addRow__data}
-              >
-                <button
-                  onClick={addRow}
-                  className={
-                    styles.editableTable__table__body__addRow__data__btn
-                  }
-                >
-                  <span>+</span> Добавить
+                <button onClick={() => deleteRow(row)}>
+                  <DeleteOutlined />
                 </button>
               </td>
             </tr>
-          )}
+          ))}
+          <tr className={styles.editableTable__table__body__addRow}>
+            <td
+              colSpan={1}
+              className={styles.editableTable__table__body__addRow__data}
+            >
+              <button
+                onClick={addRow}
+                className={styles.editableTable__table__body__addRow__data__btn}
+              >
+                <span>+</span> Добавить
+              </button>
+            </td>
+          </tr>
         </tbody>
       </table>
     </div>
@@ -189,3 +136,13 @@ const EditableTable: React.FC = () => {
 };
 
 export { EditableTable };
+
+// assignee_name: string;
+//   deadline: string;
+//   description: string;
+//   duration: string;
+//   end_time: string;
+//   id: number;
+//   start_time: string;
+//   status: string;
+//   title: string;
