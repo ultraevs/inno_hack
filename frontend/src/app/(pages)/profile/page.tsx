@@ -68,15 +68,23 @@ export default function Profile() {
         <div className={styles.page__secondColumn__widgets}>
           <Calendar />
           <div className={styles.page__secondColumn__widgets__meetings}>
-            {meetings.map((meeting) => (
-              <Meeting
-                key={meeting.id}
-                projectName={meeting.created_by}
-                date={meeting.meeting_date}
-                images={[exampleIconUrl, exampleIconUrl, exampleIconUrl]}
-                link={meeting.zoom_link}
-              />
-            ))}
+            {meetings?.length ? (
+              <div className={styles.page__secondColumn__widgets__meetings__have}>
+                {meetings.map((meeting) => (
+                  <Meeting
+                    key={meeting.id}
+                    projectName={meeting.created_by}
+                    date={meeting.meeting_date}
+                    images={[exampleIconUrl, exampleIconUrl, exampleIconUrl]}
+                    link={meeting.zoom_link}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className={styles.page__secondColumn__widgets__meetings__noMeetings}>
+                <h3>Конференций <br/> не запланировано</h3>
+              </div>
+            )}
             <CreateMeeting />
           </div>
         </div>
