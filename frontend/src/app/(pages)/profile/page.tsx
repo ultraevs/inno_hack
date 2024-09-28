@@ -15,6 +15,7 @@ import {
   fetchUserInfo,
   fetchUserProjects,
   fetchUserStats,
+  fetchMeetings
 } from "@/store/profile/actions";
 
 const exampleIconUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
@@ -25,11 +26,13 @@ export default function Profile() {
   const userInfo = useAppSelector((store) => store.profile.info);
   const userStats = useAppSelector((store) => store.profile.stats);
   const userProjects = useAppSelector((store) => store.profile.projects);
+  const meetings = useAppSelector((store) => store.profile.meetings);
 
   useEffect(() => {
     dispatch(fetchUserInfo());
     dispatch(fetchUserStats());
     dispatch(fetchUserProjects());
+    dispatch(fetchMeetings())
   }, []);
 
   if (!userInfo || !userStats) {
