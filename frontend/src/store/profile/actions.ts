@@ -1,31 +1,20 @@
 import { configApi } from "@/api/configApi";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { setCookie } from "cookies-next";
 
-interface IResult {
-  success: boolean;
-  message?: string;
-}
-
-interface ILoginUserProps {
+interface IFetchUserInfoResponse {
   email: string;
-  password: string;
+  name: string;
 }
 
-export const loginUser = createAsyncThunk<IResult, ILoginUserProps>(
+export const fetchUserInfo = createAsyncThunk<IFetchUserInfoResponse, void>(
   "auth/loginUser",
-  async (data: ILoginUserProps, thunkAPI) => {
+  async (_params, thunkAPI) => {
     try {
-      const response = await configApi.post("/login", data);
+      const response = await configApi.get("/users/info", {
+        withCredentials: true,
+      });
 
-      const token = response.data.token;
-
-      if (token) {
-        setCookie("authToken", token);
-        localStorage.setItem("isAuth", JSON.stringify(true));
-      }
-
-      return { success: true };
+      return response.data as IFetchUserInfoResponse;
     } catch (error) {
       return thunkAPI.rejectWithValue({ success: false, message: error });
     }

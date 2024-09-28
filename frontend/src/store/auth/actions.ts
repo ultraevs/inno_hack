@@ -21,7 +21,7 @@ export const loginUser = createAsyncThunk<IResult, ILoginUserProps>(
       const token = response.data.token;
 
       if (token) {
-        setCookie("authToken", token);
+        setCookie("Authtoken", token);
         localStorage.setItem("isAuth", JSON.stringify(true));
       }
 
@@ -47,7 +47,7 @@ export const registerUser = createAsyncThunk<IResult, IRegisterUserProps>(
       const token = response.data.token;
 
       if (token) {
-        setCookie("authToken", token);
+        setCookie("Authtoken", token);
         localStorage.setItem("isAuth", JSON.stringify(true));
       }
       return { success: true };
