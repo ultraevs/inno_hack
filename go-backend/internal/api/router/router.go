@@ -24,7 +24,7 @@ func (router *Router) Setup() {
 	gin.SetMode(gin.DebugMode)
 	router.engine.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"https://task.shmyaks.ru", "http://localhost:5173"},
-		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
+		AllowMethods:     []string{"GET", "POST", "OPTIONS", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Content-Type", "Authorization"},
 		AllowCredentials: true,
 	}))
