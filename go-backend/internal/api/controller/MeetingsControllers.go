@@ -32,15 +32,21 @@ func parseUserDate(userDate string) (time.Time, error) {
 // @Router /v1/meetings [post]
 func CreateMeeting(context *gin.Context) {
 	var body model.MeetingCreateRequest
-
 	if err := context.ShouldBindJSON(&body); err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
+	// Преобразуем строку в формат времени
+	parsedDate, err := parseUserDate(body.MeetingDate)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": "Invalid date format. Please use 'YYYY-MM-DD HH:MM'"})
+		return
+	}
+
 	// Находим проект по его названию
 	var projectID int
-	err := database.Db.QueryRow("SELECT id FROM notion_projects WHERE name = $1", body.ProjectName).Scan(&projectID)
+	err = database.Db.QueryRow("SELECT id FROM notion_projects WHERE name = $1", body.ProjectName).Scan(&projectID)
 	if errors.Is(err, sql.ErrNoRows) {
 		context.JSON(http.StatusBadRequest, gin.H{"error": "Project not found"})
 		return
@@ -51,8 +57,8 @@ func CreateMeeting(context *gin.Context) {
 
 	// Создаем собрание и получаем ID созданного собрания
 	var meetingID int
-	err = database.Db.QueryRow("INSERT INTO notion_meetings (name, zoom_link, project_name) VALUES ($1, $2, $3) RETURNING id",
-		body.MeetingName, body.ZoomLink, body.ProjectName).Scan(&meetingID)
+	err = database.Db.QueryRow("INSERT INTO notion_meetings (name, zoom_link, project_name, meeting_date) VALUES ($1, $2, $3, $4) RETURNING id",
+		body.MeetingName, body.ZoomLink, body.ProjectName, parsedDate).Scan(&meetingID)
 	if err != nil {
 		fmt.Println(err)
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create meeting"})
@@ -157,7 +163,7 @@ func GetUserMeetings(context *gin.Context) {
 
 	// Запрос для получения всех созвонов, где пользователь является создателем или участником
 	rows, err := database.Db.Query(`
-		SELECT m.id, m.name, m.project_name, m.zoom_link 
+		SELECT m.id, m.name, m.project_name, m.zoom_link, m.meeting_date 
 		FROM notion_meetings m 
 		LEFT JOIN notion_meeting_participants mp ON m.id = mp.meeting_id
 		WHERE m.created_by = $1 OR mp.user_name = $1`, userName)
@@ -177,7 +183,7 @@ func GetUserMeetings(context *gin.Context) {
 	var meetings []model.MeetingDetails
 	for rows.Next() {
 		var meeting model.MeetingDetails
-		if err := rows.Scan(&meeting.ID, &meeting.Name, &meeting.ProjectName, &meeting.ZoomLink); err != nil {
+		if err := rows.Scan(&meeting.ID, &meeting.Name, &meeting.ProjectName, &meeting.ZoomLink, &meeting.MeetingDate); err != nil {
 			context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to scan meeting data"})
 			return
 		}
@@ -202,10 +208,10 @@ func GetMeetingDetails(context *gin.Context) {
 	// Запрос для получения деталей созвона
 	var meeting model.MeetingDetailsWithParticipants
 	err := database.Db.QueryRow(`
-		SELECT m.id, m.name, m.zoom_link, m.project_name
+		SELECT m.id, m.name, m.zoom_link, m.project_name, m.meeting_date
 		FROM notion_meetings m 
 		WHERE m.id = $1`, meetingID).
-		Scan(&meeting.ID, &meeting.Name, &meeting.ZoomLink, &meeting.ProjectName)
+		Scan(&meeting.ID, &meeting.Name, &meeting.ZoomLink, &meeting.ProjectName, &meeting.MeetingDate)
 
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve meeting details"})

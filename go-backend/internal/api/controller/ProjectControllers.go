@@ -71,8 +71,8 @@ func ProjectCreate(context *gin.Context) {
 		}
 
 		// Добавляем пользователя в проект
-		_, err = database.Db.Exec(`INSERT INTO notion_project_users (project_id, user_name, role) VALUES ($1, $2, $3)`,
-			projectID, user.Username, user.Role)
+		_, err = database.Db.Exec(`INSERT INTO notion_project_invitations (project_id,project_name, inviter_name, invitee_name, role) VALUES ($1, $2, $3, $4, $5)`,
+			projectID, body.ProjectName, userName, user.Username, user.Role)
 		if err != nil {
 			fmt.Println(err)
 			context.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to add user %s to project", user.Username)})
