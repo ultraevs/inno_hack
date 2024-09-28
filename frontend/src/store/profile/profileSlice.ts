@@ -1,15 +1,28 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { fetchUserInfo } from "./actions";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { fetchMeetings, fetchUserInfo } from "./actions";
 
 interface IInitialState {
   info: {
     email: string;
     name: string;
   } | null;
+  meetings: IMeetingDetails[];
+}
+
+interface IMeeting {
+  created_by: string;
+  id: number;
+  meeting_date: string;
+  zoom_link: string;
+}
+
+interface IMeetingDetails extends IMeeting {
+  participants: string[];
 }
 
 const initialState: IInitialState = {
   info: null,
+  meetings: [],
 };
 
 export const profileSlice = createSlice({
@@ -20,9 +33,13 @@ export const profileSlice = createSlice({
     builder.addCase(fetchUserInfo.fulfilled, (state, action) => {
       state.info = action.payload;
     });
+    builder.addCase(
+      fetchMeetings.fulfilled,
+      (state, action: PayloadAction<IMeetingDetails[]>) => {
+        state.meetings = action.payload;
+      }
+    );
   },
 });
-
-export const {} = profileSlice.actions;
 
 export default profileSlice.reducer;

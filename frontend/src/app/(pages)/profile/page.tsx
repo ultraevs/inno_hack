@@ -11,7 +11,7 @@ import { Calendar } from "@/components/Calendar";
 import { Meeting } from "@/components/Meeting";
 import { CreateMeeting } from "@/components/CreateMeeting";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchUserInfo } from "@/store/profile/actions";
+import { fetchUserInfo, fetchMeetings } from "@/store/profile/actions";
 
 const exampleIconUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
@@ -19,9 +19,12 @@ export default function Profile() {
   const dispatch = useAppDispatch();
 
   const userInfo = useAppSelector((store) => store.profile.info);
+  const meetings = useAppSelector((store) => store.profile.meetings);
+
 
   useEffect(() => {
     dispatch(fetchUserInfo());
+    dispatch(fetchMeetings())
   }, []);
 
   if (!userInfo) {
@@ -46,14 +49,12 @@ export default function Profile() {
         <div className={styles.page__secondColumn__widgets}>
           <Calendar />
           <div className={styles.page__secondColumn__widgets__meetings}>
-            {loading && <p>Загрузка созвонов...</p>}
-            {error && <p>Ошибка: {error}</p>}
-            {meetings.map((meeting: { id: React.Key | null | undefined; created_by: string; meeting_date: string; participants: any[]; zoom_link: string; }) => (
+            {meetings.map((meeting) => (
               <Meeting
                 key={meeting.id}
                 projectName={meeting.created_by}
                 date={meeting.meeting_date}
-                images={meeting.participants.map(() => exampleIconUrl)}
+                images={[exampleIconUrl, exampleIconUrl, exampleIconUrl]}
                 link={meeting.zoom_link}
               />
             ))}
