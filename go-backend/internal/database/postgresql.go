@@ -104,8 +104,9 @@ func ConnectDatabase() {
 
 	CREATE TABLE IF NOT EXISTS notion_meetings (
     	id SERIAL PRIMARY KEY,
-    	meeting_date TIMESTAMP NOT NULL,    -- Дата и время собрания
+    	name VARCHAR(255),    -- Название собрания
     	zoom_link VARCHAR(255) NOT NULL,    -- Ссылка на Zoom или другую платформу
+    	project_name VARCHAR(255), -- Название проекта
     	created_by VARCHAR(255) REFERENCES notion_users(name) ON DELETE CASCADE, -- Создатель созвона
     	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Время создания
 	);

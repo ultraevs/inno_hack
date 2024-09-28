@@ -102,9 +102,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/meetings/new_meeting": {
+        "/v1/meetings": {
             "post": {
-                "description": "Добавляет новый созвон с указанием даты и ссылки на Zoom",
+                "description": "Создает новое собрание и приглашает всех участников указанного проекта",
                 "consumes": [
                     "application/json"
                 ],
@@ -114,27 +114,27 @@ const docTemplate = `{
                 "tags": [
                     "Meetings"
                 ],
-                "summary": "Создать новый созвон",
+                "summary": "Создать новое собрание",
                 "parameters": [
                     {
-                        "description": "Запрос на создание созвона",
+                        "description": "Запрос на создание собрания",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.CreateMeetingRequest"
+                            "$ref": "#/definitions/model.MeetingCreateRequest"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Созвон успешно создан",
+                        "description": "Собрание успешно создано",
                         "schema": {
                             "$ref": "#/definitions/model.CodeResponse"
                         }
                     },
                     "400": {
-                        "description": "Ошибка при создании созвона",
+                        "description": "Ошибка при создании собрания",
                         "schema": {
                             "$ref": "#/definitions/model.ErrorResponse"
                         }
@@ -887,6 +887,35 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/users/names": {
+            "get": {
+                "description": "Возвращает список всех никнеймов пользователей из таблицы notion_users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "DevTOol"
+                ],
+                "summary": "Получить все никнеймы пользователей",
+                "responses": {
+                    "200": {
+                        "description": "Список всех никнеймов пользователей",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Ошибка при получении данных",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/users/stats": {
             "get": {
                 "description": "Возвращает количество завершённых задач и количество проектов, в которых пользователь участвует",
@@ -954,17 +983,6 @@ const docTemplate = `{
                 },
                 "order_num": {
                     "type": "integer"
-                }
-            }
-        },
-        "model.CreateMeetingRequest": {
-            "type": "object",
-            "properties": {
-                "meeting_date": {
-                    "type": "string"
-                },
-                "zoom_link": {
-                    "type": "string"
                 }
             }
         },
@@ -1037,16 +1055,38 @@ const docTemplate = `{
                 }
             }
         },
+        "model.MeetingCreateRequest": {
+            "type": "object",
+            "required": [
+                "meetingName",
+                "projectName",
+                "zoomLink"
+            ],
+            "properties": {
+                "meetingName": {
+                    "description": "Название собрания, обязательное поле",
+                    "type": "string"
+                },
+                "projectName": {
+                    "description": "Название проекта, обязательное поле",
+                    "type": "string"
+                },
+                "zoomLink": {
+                    "description": "Ссылка на Zoom, обязательное поле",
+                    "type": "string"
+                }
+            }
+        },
         "model.MeetingDetails": {
             "type": "object",
             "properties": {
-                "created_by": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
-                "meeting_date": {
+                "name": {
+                    "type": "string"
+                },
+                "projectName": {
                     "type": "string"
                 },
                 "zoom_link": {
@@ -1057,13 +1097,10 @@ const docTemplate = `{
         "model.MeetingDetailsWithParticipants": {
             "type": "object",
             "properties": {
-                "created_by": {
-                    "type": "string"
-                },
                 "id": {
                     "type": "integer"
                 },
-                "meeting_date": {
+                "name": {
                     "type": "string"
                 },
                 "participants": {
@@ -1071,6 +1108,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "projectName": {
+                    "type": "string"
                 },
                 "zoom_link": {
                     "type": "string"
@@ -1105,15 +1145,22 @@ const docTemplate = `{
         },
         "model.ProjectCreateRequest": {
             "type": "object",
+            "required": [
+                "projectName",
+                "users"
+            ],
             "properties": {
-                "description": {
+                "linkToFigma": {
                     "type": "string"
                 },
-                "figma": {
+                "projectName": {
                     "type": "string"
                 },
-                "name": {
-                    "type": "string"
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ProjectUser"
+                    }
                 }
             }
         },
@@ -1132,6 +1179,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ProjectUser": {
+            "type": "object",
+            "required": [
+                "role",
+                "username"
+            ],
+            "properties": {
+                "role": {
+                    "type": "string"
+                },
+                "username": {
                     "type": "string"
                 }
             }
