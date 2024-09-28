@@ -37,8 +37,7 @@ export default function Projects() {
           {userProjects?.map((project, index) => (
             <ProjectProgress
               key={index}
-              projectName={project.name}
-              progress={0}
+              item={project}
             />
           ))}
         </div>

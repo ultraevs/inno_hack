@@ -1,1 +1,0 @@
-export { ProjectProgress } from "./ProjectProgress";

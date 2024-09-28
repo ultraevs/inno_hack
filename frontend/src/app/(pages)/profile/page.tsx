@@ -40,8 +40,7 @@ export default function Profile() {
             {userProjects?.slice(0, 4).map((project, index) => (
               <ProjectProgress
                 key={index}
-                projectName={project.name}
-                progress={0}
+                item={project}
               />
             ))}
           </div>

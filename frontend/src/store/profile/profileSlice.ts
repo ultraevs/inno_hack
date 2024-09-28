@@ -1,5 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { fetchUserInfo, fetchUserInvitations, fetchUserProjects, fetchUserStats, fetchMeetings } from "./actions";
+import {
+  fetchUserInfo,
+  fetchUserInvitations,
+  fetchUserProjects,
+  fetchUserStats,
+  fetchMeetings,
+} from "./actions";
 
 interface IInitialState {
   info: {
@@ -11,9 +17,18 @@ interface IInitialState {
     total_projects_count: number;
   } | null;
   invitations: [];
-  projects: any[] | null;
-  meetings: IMeeting[]
-  
+  projects: IProject[];
+  meetings: IMeeting[];
+}
+
+export interface IProject {
+  created_at: string;
+  description: string | null;
+  figma: string;
+  id: number;
+  name: string;
+  owner_name: string;
+  updated_at: string;
 }
 
 interface IMeeting {
@@ -32,7 +47,7 @@ const initialState: IInitialState = {
   stats: null,
   projects: [],
   invitations: [],
-  meetings: []
+  meetings: [],
 };
 
 export const profileSlice = createSlice({
@@ -57,7 +72,7 @@ export const profileSlice = createSlice({
         fetchMeetings.fulfilled,
         (state, action: PayloadAction<IMeetingDetails[]>) => {
           state.meetings = action.payload;
-        }
+        },
       );
   },
 });
