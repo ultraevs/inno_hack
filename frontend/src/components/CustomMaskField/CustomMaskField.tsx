@@ -16,7 +16,7 @@ const CustomMaskField: FC<FieldProps> = ({
       name={field.name}
       value={field.value}
       maskChar={null}
-      mask={"9999-99-99"}
+      mask={"9999-99-99 99:99"}
       onChange={handleChange}
       placeholder="ГГГГ-ММ-ДД"
     />
