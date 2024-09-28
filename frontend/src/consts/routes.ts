@@ -2,7 +2,7 @@ import { IRouteItem } from "./types";
 import mainIcon from "@/assets/house.svg";
 import projectsIcon from "@/assets/panels-top-left.svg";
 import notificationsIcon from "@/assets/bell.svg";
-import settingsIcon from "@/assets/settings.svg";
+import statisticIcon from "@/assets/statisticIcon.svg";
 
 export const authRoutes: IRouteItem[] = [
   { title: "Войти", link: "/signin" },
@@ -17,7 +17,7 @@ export const profileRoutes: IRouteItem[] = [
     link: "/profile/notifications",
     img: notificationsIcon,
   },
-  { title: "Настройки", link: "/profile/settings", img: settingsIcon },
+  { title: "Статистика", link: "/profile/statistic", img: statisticIcon },
 ];
 
 export const routes = {

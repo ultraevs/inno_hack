@@ -1,10 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit'
 import authSlice from './auth/authSlice'
+import profileReducer from "./profile/profileSlice"; // Путь может отличаться
+
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
-        auth: authSlice
+        auth: authSlice,
+        profile: profileReducer,
+
     },
   })
 }

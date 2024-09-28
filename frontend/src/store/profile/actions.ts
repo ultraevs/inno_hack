@@ -1,33 +1,37 @@
+// actions.ts
 import { configApi } from "@/api/configApi";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { setCookie } from "cookies-next";
 
-interface IResult {
-  success: boolean;
-  message?: string;
+interface IMeeting {
+  created_by: string;
+  id: number;
+  meeting_date: string;
+  zoom_link: string;
 }
 
-interface ILoginUserProps {
-  email: string;
-  password: string;
+interface IMeetingDetails extends IMeeting {
+  participants: string[];
 }
 
-export const loginUser = createAsyncThunk<IResult, ILoginUserProps>(
-  "auth/loginUser",
-  async (data: ILoginUserProps, thunkAPI) => {
+// Асинхронное действие для получения списка созвонов
+export const fetchMeetings = createAsyncThunk<IMeetingDetails[]>(
+  "meetings/fetchMeetings",
+  async (_, thunkAPI) => {
     try {
-      const response = await configApi.post("/login", data);
+      const response = await configApi.get("/users/meetings");
+      const meetings: IMeeting[] = response.data.meetings;
 
-      const token = response.data.token;
+      // Получаем детали для каждого созвона
+      const meetingsWithDetails = await Promise.all(
+        meetings.map(async (meeting) => {
+          const detailResponse = await configApi.get(`/meetings/${meeting.id}`);
+          return detailResponse.data.meeting as IMeetingDetails;
+        })
+      );
 
-      if (token) {
-        setCookie("authToken", token);
-        localStorage.setItem("isAuth", JSON.stringify(true));
-      }
-
-      return { success: true };
-    } catch (error) {
-      return thunkAPI.rejectWithValue({ success: false, message: error });
+      return meetingsWithDetails;
+    } catch (error: any) {
+      return thunkAPI.rejectWithValue(error.message || "Ошибка при получении созвонов");
     }
-  },
+  }
 );

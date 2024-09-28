@@ -1,4 +1,7 @@
-import React from "react";
+"use client";
+
+import React, { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks"; // Путь к вашему hooks.ts
 import styles from "./page.module.scss";
 import { Greeting } from "@/components/Greeting";
 import { ProjectProgress } from "@/components/ProjectProgress";
@@ -8,10 +11,18 @@ import { CreateProject } from "@/components/CreateProject";
 import { Calendar } from "@/components/Calendar";
 import { Meeting } from "@/components/Meeting";
 import { CreateMeeting } from "@/components/CreateMeeting";
+import { fetchMeetings } from "@/store/profile/actions"; // Убедитесь, что путь корректный
 
 const exampleIconUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
 export default function Profile() {
+  const dispatch = useAppDispatch();
+  const { meetings, loading, error } = useAppSelector((state) => state.profile);
+
+  useEffect(() => {
+    dispatch(fetchMeetings());
+  }, [dispatch]);
+
   return (
     <div className={styles.page}>
       <div className={styles.page__firstColumn}>
@@ -30,18 +41,17 @@ export default function Profile() {
         <div className={styles.page__secondColumn__widgets}>
           <Calendar />
           <div className={styles.page__secondColumn__widgets__meetings}>
-            <Meeting
-              projectName="Хакатон"
-              date="2024-09-19T12:23:00Z"
-              images={[exampleIconUrl, exampleIconUrl, exampleIconUrl]}
-              link="https://zoom.us/"
-            />
-            <Meeting
-              projectName="Хакатон"
-              date="2024-09-29T10:23:00Z"
-              images={[exampleIconUrl, exampleIconUrl, exampleIconUrl]}
-              link="https://zoom.us/"
-            />
+            {loading && <p>Загрузка созвонов...</p>}
+            {error && <p>Ошибка: {error}</p>}
+            {meetings.map((meeting: { id: React.Key | null | undefined; created_by: string; meeting_date: string; participants: any[]; zoom_link: string; }) => (
+              <Meeting
+                key={meeting.id}
+                projectName={meeting.created_by}
+                date={meeting.meeting_date}
+                images={meeting.participants.map(() => exampleIconUrl)}
+                link={meeting.zoom_link}
+              />
+            ))}
             <CreateMeeting />
           </div>
         </div>
