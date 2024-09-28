@@ -149,9 +149,11 @@ export const createMeeting = createAsyncThunk<IResult, ICreateMeetingProps>(
   "profile/createMeeting",
   async (data: ICreateMeetingProps, thunkAPI) => {
     try {
-      await configApi.post("/meetings", data, {
+      await configApi.post("/meetings/", data, {
         withCredentials: true,
       });
+
+      thunkAPI.dispatch(fetchMeetings())
 
       return { success: true };
     } catch (error) {
