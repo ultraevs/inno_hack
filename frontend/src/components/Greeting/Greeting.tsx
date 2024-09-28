@@ -10,7 +10,7 @@ const Greeting: FC<IProps> = (props) => {
 
   return (
     <div className={styles.greeting}>
-      <h2>Добрый вечер, {userName}!</h2>
+      <h2>Здравствуйте, {userName}!</h2>
       <p>Рады видеть вас снова</p>
     </div>
   );

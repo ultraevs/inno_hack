@@ -42,7 +42,7 @@
       &__button__info {
         display: flex;
         flex-direction: column;
-        align-items: start;
+        align-items: flex-start;
   
         p:nth-child(1) {
           color: #000;

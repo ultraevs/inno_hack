@@ -1,28 +1,15 @@
-// profileSlice.ts
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { fetchMeetings } from "./actions";
+import { createSlice } from "@reduxjs/toolkit";
+import { fetchUserInfo } from "./actions";
 
-interface IMeeting {
-  created_by: string;
-  id: number;
-  meeting_date: string;
-  zoom_link: string;
+interface IInitialState {
+  info: {
+    email: string;
+    name: string;
+  } | null;
 }
 
-interface IMeetingDetails extends IMeeting {
-  participants: string[];
-}
-
-interface ProfileState {
-  meetings: IMeetingDetails[];
-  loading: boolean;
-  error: string | null;
-}
-
-const initialState: ProfileState = {
-  meetings: [],
-  loading: false,
-  error: null,
+const initialState: IInitialState = {
+  info: null,
 };
 
 export const profileSlice = createSlice({
@@ -30,20 +17,12 @@ export const profileSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder
-      .addCase(fetchMeetings.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchMeetings.fulfilled, (state, action: PayloadAction<IMeetingDetails[]>) => {
-        state.loading = false;
-        state.meetings = action.payload;
-      })
-      .addCase(fetchMeetings.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      });
+    builder.addCase(fetchUserInfo.fulfilled, (state, action) => {
+      state.info = action.payload;
+    });
   },
 });
+
+export const {} = profileSlice.actions;
 
 export default profileSlice.reducer;
