@@ -19,6 +19,7 @@ export default function Profile() {
   const userInfo = useAppSelector((store) => store.profile.info);
   const userStats = useAppSelector((store) => store.profile.stats);
   const userProjects = useAppSelector((store) => store.profile.projects);
+  const meetings = useAppSelector((store) => store.profile.meetings);
 
   if (!userInfo || !userStats) {
     return (
@@ -67,18 +68,15 @@ export default function Profile() {
         <div className={styles.page__secondColumn__widgets}>
           <Calendar />
           <div className={styles.page__secondColumn__widgets__meetings}>
-            <Meeting
-              projectName="Хакатон"
-              date="2024-09-19T12:23:00Z"
-              images={[exampleIconUrl, exampleIconUrl, exampleIconUrl]}
-              link="https://zoom.us/"
-            />
-            <Meeting
-              projectName="Хакатон"
-              date="2024-09-29T10:23:00Z"
-              images={[exampleIconUrl, exampleIconUrl, exampleIconUrl]}
-              link="https://zoom.us/"
-            />
+            {meetings.map((meeting) => (
+              <Meeting
+                key={meeting.id}
+                projectName={meeting.created_by}
+                date={meeting.meeting_date}
+                images={[exampleIconUrl, exampleIconUrl, exampleIconUrl]}
+                link={meeting.zoom_link}
+              />
+            ))}
             <CreateMeeting />
           </div>
         </div>
