@@ -4,8 +4,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { ViewMode, Gantt as GanttChart, Task } from "gantt-task-react";
 import "gantt-task-react/dist/index.css";
 import styles from "./styles.module.scss";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+
+import { fetchProjectInfo } from "@/store/project/actions";
 
 const Gantt = () => {
+  const dispatch = useAppDispatch();
+  const projects = useAppSelector(store => store.profile.projects)
+
   const tasks: Task[] = [
     {
       start: new Date(2023, 9, 1),
@@ -30,7 +36,10 @@ const Gantt = () => {
   ];
 
   const [viewMode, setViewMode] = useState<ViewMode>(ViewMode.Month);
-  const ganttContainerRef = useRef<HTMLDivElement>(null);  const [dimensions, setDimensions] = useState({ width: 800, height: 400 });
+  const ganttContainerRef = useRef<HTMLDivElement>(null);
+  
+//   const projects_id = project.
+//   console.log(projects)
 
   return (
     <div ref={ganttContainerRef} className={styles.ganttWrapper}>
