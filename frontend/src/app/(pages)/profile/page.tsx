@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import styles from "./page.module.scss";
 import { Greeting } from "@/components/Greeting";
 import { ProjectProgress } from "@/components/ProjectProgress";

@@ -3,6 +3,7 @@
 import React, { useEffect } from "react";
 import { useAppDispatch } from "@/store/hooks";
 import {
+  fetchMeetings,
   fetchUserInfo,
   fetchUserProjects,
   fetchUserStats,
@@ -15,6 +16,7 @@ const GlobalLogic = () => {
     dispatch(fetchUserInfo());
     dispatch(fetchUserStats());
     dispatch(fetchUserProjects());
+    dispatch(fetchMeetings());
   }, []);
 
   return <></>;

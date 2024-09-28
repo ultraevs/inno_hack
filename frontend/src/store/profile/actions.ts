@@ -84,7 +84,7 @@ export const fetchUserInvitations = createAsyncThunk<any, void>(
 );
 
 export const fetchMeetings = createAsyncThunk<IMeetingDetails[]>(
-  "meetings/fetchMeetings",
+  "profile/fetchMeetings",
   async (_, thunkAPI) => {
     try {
       const response = await configApi.get("/users/meetings", {

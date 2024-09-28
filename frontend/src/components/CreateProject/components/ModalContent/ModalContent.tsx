@@ -22,9 +22,6 @@ const ModalContent: FC<IProps> = (props) => {
     linkToFigma: "",
   };
 
-  const [values, setValues] = useState<IInitialValues>(initialValues);
-  const [key, setKey] = useState<number>(0);
-
   const roles = [
     "Project Manager",
     "Machine Learning",
@@ -36,29 +33,10 @@ const ModalContent: FC<IProps> = (props) => {
     "Full-Stack",
   ];
 
-  useEffect(() => {
-    const lastIndex = values.users.length - 1;
-    const lastUser = values.users[lastIndex];
-
-
-
-    if (lastUser.username !== "" && lastUser.role !== "") {
-      const newUsers = [...values.users, { username: "", role: "" }];
-
-      setValues((prev) => ({
-        ...prev,
-        users: newUsers,
-      }));
-
-      setKey((prev) => prev + 1);
-    }
-  }, [values.users]);
-
   return (
     <div className={styles.content}>
       <Formik
-        key={key}
-        initialValues={values}
+        initialValues={initialValues}
         onSubmit={(values) => console.log(values)}
       >
         {({ values }) => {
@@ -71,7 +49,7 @@ const ModalContent: FC<IProps> = (props) => {
                   className={styles.content__form__fields__projectName}
                 />
                 <FieldArray name="users">
-                  {() => (
+                  {({ push }) => (
                     <div className={styles.content__form__fields__users}>
                       {values.users.length > 0 &&
                         values.users.map((user, index) => (
@@ -97,6 +75,14 @@ const ModalContent: FC<IProps> = (props) => {
                               dropdownItems={roles}
                               component={SelectCustomField}
                             />
+                            {values.users.length - 1 === index && (
+                              <button
+                                type="button"
+                                onClick={() => push({ username: "", role: "" })}
+                              >
+                                +
+                              </button>
+                            )}
                           </div>
                         ))}
                     </div>
