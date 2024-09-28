@@ -1,0 +1,124 @@
+.assistant {
+    position: fixed;
+    bottom: 72px;
+    right: 90px;
+    z-index: 1000;
+
+    &__icon {
+        border: none;
+        background: none;
+        border-radius: 50%;
+        font-size: 24px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+
+    }
+
+    &__window {
+        width: 18.75rem;
+        height: 32.5rem;
+        border-radius: 0.75rem 0.75rem 0rem 0.75rem;
+        border: 1px solid #E9E9E9;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    &__header {
+        border-radius: 0.75rem 0.75rem 0rem 0rem;
+        background: #1C5664;
+        display: inline-flex;
+        padding: 0.625rem 1rem 0.5rem 5.5rem;
+        justify-content: flex-end;
+        align-items: flex-end;
+        gap: 3.3125rem;
+
+        color: #FFFFFF;
+        font-size: 1rem;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+
+        &__close {
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+    }
+
+    &__body {
+        flex: 1;
+        padding: 1rem;
+        overflow-y: auto;
+        background-color: #FAFAFA;
+    }
+
+    &__message {
+        border-radius: 6px;
+        background: #EFEFEF;
+        display: inline-flex;
+        padding: 10px;
+        margin-bottom: 12px;
+        align-items: center;
+        gap: 10px;
+
+        color: #1F1F1F;
+        font-family: "Inter", sans-serif;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+
+        width: 198px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    &__input {
+        border: none;
+        background: #FAFAFA;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        gap: 32px;
+
+        &__container {
+            display: flex;
+            width: 257px;
+            padding: 9px 31px;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+
+            border-radius: 24px;
+            background: #EFEFEF;
+            margin: 12px 16px 20px 27px;
+
+        }
+    }
+
+    &__inputField {
+        border-radius: 24px;
+        border: none;
+        background: #EFEFEF;
+        outline: none;
+        height: 21px;
+        color: #1F1F1F;
+        font-family: "Inter", sans-serif;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+
+    }
+
+    &__sendButton {
+        display: flex;
+        align-items: center;
+        border: none;
+        background: none;
+    }
+}

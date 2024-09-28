@@ -1,0 +1,31 @@
+.createMeeting {
+  cursor: pointer;
+  width: 100%;
+  height: 76px;
+  padding: 23px 30px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--primary-green);
+  border-radius: 18px;
+  gap: 69px;
+
+  h4 {
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
+
+  button {
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    border: none;
+    outline: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

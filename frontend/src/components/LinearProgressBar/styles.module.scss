@@ -1,0 +1,17 @@
+.progressBar {
+  position: relative;
+  overflow: hidden;
+  width: 80px;
+  height: 8px;
+  background: #d5d5d5;
+  border-radius: 100px;
+  border: 1px solid #d5d5d5;
+
+  &__filledZone {
+    border-radius: 100px;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    background: linear-gradient(90deg, #3eff45, #d5d5d5);
+  }
+}

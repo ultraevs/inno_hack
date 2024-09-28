@@ -1,0 +1,73 @@
+.navBar {
+  width: 273px;
+  height: calc(100vh - 144px);
+  padding: 64px 43px 80px;
+  display: flex;
+  flex-direction: column;
+  background: var(--primary-blue);
+  border-radius: 24px;
+
+  &__logo {
+    display: flex;
+    justify-content: center;
+  }
+
+  &__panel {
+    margin-top: 120px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    ul {
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+
+      li {
+        list-style: none;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+
+        img{
+          opacity: 0.7;
+        }
+
+        a {
+          text-decoration: none;
+          color: #ffffff;
+          font-size: 1.625rem;
+          font-weight: 500;
+          opacity: 0.7;
+        }
+
+        &.active {
+          a {
+            opacity: 1;
+          }
+
+          img{
+            opacity: 1;
+          }
+        }
+      }
+    }
+
+    &__logOut {
+      cursor: pointer;
+      width: fit-content;
+      border: none;
+      outline: none;
+      background: transparent;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 16px;
+      color: #ffffff;
+      font-size: 1.625rem;
+      font-weight: 500;
+    }
+  }
+}

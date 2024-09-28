@@ -1,0 +1,88 @@
+.content {
+  width: 480px;
+  height: 252px;
+  padding: 24px 20px 12px;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow-y: scroll;
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+
+    &__fields {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      input {
+        height: 39px;
+        padding: 9px 12px;
+        border-radius: 12px;
+        border: none;
+        outline: none;
+        background: #efefef;
+        color: rgba(64, 64, 64, 0.6);
+        font-size: 1rem;
+        font-weight: 500;
+      }
+
+      &__projectName {
+        width: 100%;
+      }
+
+      &__users {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        &__fields {
+          display: grid;
+          grid-template-columns: 210px 161px 29px;
+          gap: 20px;
+
+          button {
+            cursor: pointer;
+            height: 39px;
+            border: none;
+            outline: none;
+            background: #efefef;
+            border-radius: 8px;
+          }
+        }
+      }
+    }
+
+    &__buttons {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 20px;
+
+      button {
+        cursor: pointer;
+        height: 39px;
+        border: none;
+        outline: none;
+        border-radius: 12px;
+
+        &:first-child {
+          width: 230px;
+          background: #efefef;
+          color: rgba(64, 64, 64, 0.6);
+          font-size: 1rem;
+          font-weight: 500;
+        }
+
+        &:last-child {
+          width: 190px;
+          background: #d0ffd0;
+          color: #3ac64f;
+          font-size: 1rem;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}

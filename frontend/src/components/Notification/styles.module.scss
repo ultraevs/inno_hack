@@ -1,0 +1,32 @@
+.notification {
+  width: 100%;
+  height: 62px;
+  padding: 16px 0px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #DEDEDE;
+  border-bottom: 1px solid #DEDEDE;
+
+  p {
+    font-family: "Inter", sans-serif;
+    color: #000000;
+    font-size: 1.25rem;
+    font-weight: 400;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 23px;
+
+    button {
+      cursor: pointer;
+      border: none;
+      outline: none;
+      background: transparent;
+    }
+  }
+}

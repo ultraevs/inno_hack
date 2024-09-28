@@ -1,0 +1,88 @@
+.editableTable {
+  &__table {
+    &__body {
+      &__addRow {
+        &__data {
+          opacity: 1 !important;
+          border-right: 1px solid var(--border-color) !important;
+          border-bottom: none !important;
+
+          &__btn {
+            opacity: 1 !important;
+          }
+        }
+      }
+    }
+  }
+
+  table {
+    font-family: "Inter", sans-serif;
+    width: 1007px;
+    border-collapse: collapse;
+
+    thead {
+      tr {
+        th {
+          color: #000000;
+          font-size: 1.25rem;
+          font-weight: 500;
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        td {
+          opacity: 0.7;
+          color: #000000;
+          font-size: 1.25rem;
+          font-weight: 400;
+
+          input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            opacity: 0.7;
+            color: #000000;
+            font-size: 1.25rem;
+            font-weight: 400;
+          }
+
+          button {
+            cursor: pointer;
+            border: none;
+            outline: none;
+            background: transparent;
+            opacity: 0.7;
+            color: #000000;
+            font-size: 1.25rem;
+            font-weight: 400;
+          }
+        }
+      }
+    }
+
+    tr {
+      th,
+      td {
+        position: relative;
+        height: 44px;
+        padding: 0px 12px;
+        text-align: left;
+        border-top: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+        border-left: 2px solid var(--border-color);
+        border-right: 2px solid var(--border-color);
+
+        &:first-child {
+          border-left: none;
+        }
+
+        &:last-child {
+          border-right: none;
+        }
+      }
+    }
+  }
+}
