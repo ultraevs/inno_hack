@@ -2,17 +2,27 @@
 
 import React from "react";
 import styles from "./styles.module.scss";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import logo from "@/assets/logo.svg";
 import logOut from "@/assets/log-out.svg";
 import { profileRoutes } from "@/consts/routes";
+import { deleteCookie } from "cookies-next";
 
 const NavBar = () => {
   const pathname = usePathname();
+  const router = useRouter();
 
   const isLinkActive = (route: string): boolean => route === pathname;
+
+  const handleLogout = () => {
+    router.push("/signin");
+
+    deleteCookie("Authtoken");
+    localStorage.setItem("isAuth", JSON.stringify(false));
+
+  };
 
   return (
     <aside className={styles.navBar}>
@@ -31,7 +41,7 @@ const NavBar = () => {
             </li>
           ))}
         </ul>
-        <button className={styles.navBar__panel__logOut}>
+        <button onClick={handleLogout} className={styles.navBar__panel__logOut }>
           <Image src={logOut} alt="log out" />
           <p>Выйти</p>
         </button>
