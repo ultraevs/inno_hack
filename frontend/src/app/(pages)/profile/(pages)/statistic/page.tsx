@@ -1,7 +1,9 @@
+import { Gantt } from "@/components/Gantt";
+
 export default function Settings() {
   return (
     <div>
-      <h1>Settings Page</h1>
+      <Gantt />
     </div>
   );
 }
