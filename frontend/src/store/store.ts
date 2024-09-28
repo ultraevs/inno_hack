@@ -2,13 +2,15 @@ import { configureStore } from "@reduxjs/toolkit";
 import authSlice from "./auth/authSlice";
 import profileSlice from "./profile/profileSlice";
 import projectSlice from "./project/projectSlice";
+import ganttSlice from "./gantt/ganttSlice";
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       auth: authSlice,
       profile: profileSlice,
-      project: projectSlice
+      project: projectSlice,
+      gantt: ganttSlice
     },
   });
 };

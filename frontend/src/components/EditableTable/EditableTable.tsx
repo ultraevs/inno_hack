@@ -136,13 +136,3 @@ const EditableTable: FC<IProps> = (props) => {
 };
 
 export { EditableTable };
-
-// assignee_name: string;
-//   deadline: string;
-//   description: string;
-//   duration: string;
-//   end_time: string;
-//   id: number;
-//   start_time: string;
-//   status: string;
-//   title: string;

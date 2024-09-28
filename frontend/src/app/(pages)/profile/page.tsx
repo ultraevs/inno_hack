@@ -69,7 +69,7 @@ export default function Profile() {
           <div className={styles.page__secondColumn__widgets__meetings}>
             {meetings?.length ? (
               <div className={styles.page__secondColumn__widgets__meetings__have}>
-                {meetings.slice(0, 2).map((meeting) => (
+                {[...meetings].reverse().slice(0, 2).map((meeting) => (
                   <Meeting
                     key={meeting.id}
                     projectName={meeting.name}
