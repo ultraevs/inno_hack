@@ -4,18 +4,34 @@ import React, { FC } from "react";
 import styles from "./styles.module.scss";
 import { SelectForm } from "../SelectForm";
 import { ITask } from "@/store/project/projectSlice";
-import { useAppDispatch } from "@/store/hooks";
-import { createTask, deleteTask, updateTask } from "@/store/project/actions";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  createTask,
+  deleteTask,
+  generateTask,
+  updateTask,
+} from "@/store/project/actions";
 import { DeleteOutlined } from "@ant-design/icons";
 import ReactInputMask from "react-input-mask";
+import { IProject } from "@/store/profile/profileSlice";
+import { getCookie } from "cookies-next";
 
 interface IProps {
-  projectId: number;
+  projectInfo: IProject;
   items: ITask[];
 }
 
 const EditableTable: FC<IProps> = (props) => {
-  const { projectId, items } = props;
+  const { projectInfo, items } = props;
+
+  const users = useAppSelector((store) => store.project.users);
+
+  const projectId = projectInfo.id;
+  const description = projectInfo.description ? projectInfo.description : "";
+  const tasks = items.map((item) => {
+    return item.title;
+  });
+  const authtoken = getCookie("Authtoken") || "";
 
   const dispatch = useAppDispatch();
 
@@ -43,14 +59,25 @@ const EditableTable: FC<IProps> = (props) => {
     dispatch(deleteTask({ projectId, taskId: row.id }));
   };
 
+  const generateRow = () => {
+    dispatch(
+      generateTask({
+        description,
+        tasks,
+        project_id: projectId,
+        Authtoken: authtoken,
+      }),
+    );
+  };
+
   return (
     <div className={styles.editableTable}>
       <table className={styles.editableTable__table}>
         <thead>
           <tr>
-            <th style={{ width: "22%" }}>Название</th>
-            <th style={{ width: "20%" }}>Исполнитель</th>
-            <th style={{ width: "20%" }}>Статус</th>
+            <th style={{ width: "27%" }}>Название</th>
+            <th style={{ width: "17.5%" }}>Исполнитель</th>
+            <th style={{ width: "17.5%" }}>Статус</th>
             <th style={{ width: "15%" }}>Начало</th>
             <th style={{ width: "15%" }}>Конец</th>
             <th style={{ width: "8%" }}>delete</th>
@@ -59,7 +86,11 @@ const EditableTable: FC<IProps> = (props) => {
         <tbody className={styles.editableTable__table__body}>
           {items.map((row, index) => (
             <tr key={index} className={styles.editableTable__table__body__row}>
-              <td>
+              <td
+                style={{
+                  background: row.title.includes("#ai") ? "#F2EFFF" : undefined,
+                }}
+              >
                 <input
                   type="text"
                   name="title"
@@ -74,7 +105,7 @@ const EditableTable: FC<IProps> = (props) => {
                   name="assignee_name"
                   value={row.assignee_name}
                   placeholder="Исполнитель"
-                  items={["Kostya#0005", "Глеб#0003"]}
+                  items={users}
                   setValue={updateRow}
                   isUsernames
                 />
@@ -116,6 +147,19 @@ const EditableTable: FC<IProps> = (props) => {
               </td>
             </tr>
           ))}
+          <tr className={styles.editableTable__table__body__addRow}>
+            <td
+              colSpan={1}
+              className={styles.editableTable__table__body__addRow__data}
+            >
+              <button
+                onClick={generateRow}
+                className={styles.editableTable__table__body__addRow__data__btn}
+              >
+                <span>+</span> Сгенерировать
+              </button>
+            </td>
+          </tr>
           <tr className={styles.editableTable__table__body__addRow}>
             <td
               colSpan={1}

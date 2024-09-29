@@ -1,9 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchProjectInfo } from "./actions";
+import { fetchAllUsers, fetchProjectInfo } from "./actions";
 
 interface IInitialState {
   tasks: ITask[];
   text_content: any;
+  users: string[];
 }
 
 export interface ITask {
@@ -21,6 +22,7 @@ export interface ITask {
 const initialState: IInitialState = {
   tasks: [],
   text_content: null,
+  users: [],
 };
 
 export const projectSlice = createSlice({
@@ -28,10 +30,14 @@ export const projectSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(fetchProjectInfo.fulfilled, (state, action) => {
-      state.tasks = action.payload.tasks !== null ? action.payload.tasks : [];
-      state.text_content = action.payload.text_content;
-    });
+    builder
+      .addCase(fetchProjectInfo.fulfilled, (state, action) => {
+        state.tasks = action.payload.tasks !== null ? action.payload.tasks : [];
+        state.text_content = action.payload.text_content;
+      })
+      .addCase(fetchAllUsers.fulfilled, (state, action) => {
+        state.users = action.payload;
+      });
   },
 });
 

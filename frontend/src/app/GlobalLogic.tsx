@@ -8,6 +8,7 @@ import {
   fetchUserProjects,
   fetchUserStats,
 } from "@/store/profile/actions";
+import { fetchAllUsers } from "@/store/project/actions";
 
 const GlobalLogic = () => {
   const dispatch = useAppDispatch();
@@ -17,6 +18,7 @@ const GlobalLogic = () => {
     dispatch(fetchUserStats());
     dispatch(fetchUserProjects());
     dispatch(fetchMeetings());
+    dispatch(fetchAllUsers())
   }, []);
 
   return <></>;

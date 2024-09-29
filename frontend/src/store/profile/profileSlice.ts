@@ -16,7 +16,7 @@ interface IInitialState {
     done_tasks_count: number;
     total_projects_count: number;
   } | null;
-  invitations: [];
+  invitations: IInvite[];
   projects: IProject[];
   meetings: IMeeting[];
 }
@@ -31,7 +31,18 @@ export interface IProject {
   updated_at: string;
 }
 
-interface IMeeting {
+export interface IInvite {
+  id: number;
+  project_id: number;
+  project_name: string;
+  invitee_name: string;
+  inviter_name: string;
+  status: string;
+  created_at: string;
+  role: string;
+}
+
+export interface IMeeting {
   id: number;
   meetingDate: string;
   name: string;

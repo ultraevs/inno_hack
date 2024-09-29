@@ -1,5 +1,6 @@
 import { configApi } from "@/api/configApi";
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
 export const fetchProjectInfo = createAsyncThunk(
   "project/fetchProjectInfo",
@@ -93,3 +94,37 @@ export const deleteTask = createAsyncThunk(
     }
   },
 );
+
+export interface IGenerateTaskProps {
+  description: string;
+  tasks: string[];
+  project_id: number;
+  Authtoken: string;
+}
+
+export const generateTask = createAsyncThunk(
+  "project/generateTask",
+  async (data: IGenerateTaskProps, thunkAPI) => {
+    try {
+      await axios.post(
+        "http://127.0.0.1:8000/generate_tasks",
+        data,
+      );
+
+      thunkAPI.dispatch(fetchProjectInfo(data.project_id));
+
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error);
+    }
+  },
+);
+
+export const fetchAllUsers = createAsyncThunk("project/fetchAllUsers", async (_params, thunkAPI) => {
+  try {
+    const response = await configApi.get("/users/names")
+
+    return response.data.user_names;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error);
+  }
+})

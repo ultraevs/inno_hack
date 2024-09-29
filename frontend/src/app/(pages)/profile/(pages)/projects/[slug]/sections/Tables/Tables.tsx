@@ -6,16 +6,21 @@ import { useParams } from "next/navigation";
 
 const Tables = () => {
   const params = useParams();
-  const tasks = useAppSelector(store => store.project.tasks)
+  const userProjects = useAppSelector((store) => store.profile.projects);
+  const tasks = useAppSelector((store) => store.project.tasks);
 
-  const projectId = Number(params.slug)
-  
+  const projectId = Number(params.slug);
+
+  const projectInfo = userProjects.find((item) => item.id === projectId);
+
   return (
     <section className={styles.section}>
       <h5>Задачи проекта</h5>
-      <div className={styles.section__tables}>
-        <EditableTable projectId={projectId} items={tasks} />
-      </div>
+      {projectInfo && (
+        <div className={styles.section__tables}>
+          <EditableTable projectInfo={projectInfo} items={tasks} />
+        </div>
+      )}
     </section>
   );
 };

@@ -7,8 +7,9 @@ import { Username } from "@/components/Username";
 import { CreateProject } from "@/components/CreateProject";
 import { ProjectProgress } from "@/components/ProjectProgress";
 import { useAppSelector } from "@/store/hooks";
+import { withAuth } from "@/hoc/withAuth";
 
-export default function Projects() {
+const Projects = () => {
   const userInfo = useAppSelector((store) => store.profile.info);
   const userStats = useAppSelector((store) => store.profile.stats);
   const userProjects = useAppSelector((store) => store.profile.projects);
@@ -20,6 +21,8 @@ export default function Projects() {
       </div>
     );
   }
+
+  console.log(userProjects)
 
   return (
     <div className={styles.page}>
@@ -49,3 +52,5 @@ export default function Projects() {
     </div>
   );
 }
+
+export default withAuth(Projects)

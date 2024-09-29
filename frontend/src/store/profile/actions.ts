@@ -80,7 +80,7 @@ export const fetchUserInvitations = createAsyncThunk<any, void>(
         withCredentials: true,
       });
 
-      return response.data;
+      return response.data.invitations;
     } catch (error) {
       return thunkAPI.rejectWithValue({ success: false, message: error });
     }

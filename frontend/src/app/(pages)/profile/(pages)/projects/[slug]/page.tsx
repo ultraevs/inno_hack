@@ -10,12 +10,13 @@ import Link from "next/link";
 import { Assistant } from "@/components/Assistant";
 import { useAppDispatch } from "@/store/hooks";
 import { fetchProjectInfo } from "@/store/project/actions";
+import { withAuth } from "@/hoc/withAuth";
 
-export default function ProjectSlug({
+const ProjectSlug = ({
   params: { slug },
 }: {
   params: { slug: string };
-}) {
+}) => {
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const sectionId = searchParams.get("section") || "1";
@@ -65,3 +66,5 @@ export default function ProjectSlug({
     </div>
   );
 }
+
+export default withAuth(ProjectSlug)
