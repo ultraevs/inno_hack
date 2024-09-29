@@ -2,10 +2,10 @@ import React from "react";
 import styles from "./styles.module.scss";
 import { FontOptions } from "@/components/FontOptions";
 
-const ProjectData = () => {
+const ProjectData = ({ projectId }: { projectId: number }) => {
   return (
     <section className={styles.section}>
-      <FontOptions />
+      <FontOptions projectId={projectId} />
     </section>
   );
 };

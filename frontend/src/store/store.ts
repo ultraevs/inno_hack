@@ -3,6 +3,7 @@ import authSlice from "./auth/authSlice";
 import profileSlice from "./profile/profileSlice";
 import projectSlice from "./project/projectSlice";
 import chatSlice from "./chat/chatSlice";
+import ganttSlice from "./gantt/ganttSlice";
 
 export const makeStore = () => {
   return configureStore({
@@ -10,7 +11,8 @@ export const makeStore = () => {
       auth: authSlice,
       profile: profileSlice,
       project: projectSlice,
-      chat: chatSlice
+      chat: chatSlice,
+      gantt: ganttSlice
     },
   });
 };

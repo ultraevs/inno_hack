@@ -22,6 +22,7 @@ interface IInitialState {
 }
 
 export interface IProject {
+  title: ReactNode;
   created_at: string;
   description: string | null;
   figma: string;
