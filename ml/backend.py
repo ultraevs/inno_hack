@@ -12,6 +12,7 @@ import json
 from ml.db.database import set_token_data, get_token_data, delete_token_data
 import secrets
 import requests
+from fastapi.middleware.cors import CORSMiddleware
 
 import re
 
@@ -52,6 +53,13 @@ class UserText(BaseModel):
     user_text: str
     Authtoken: str
 
+origins = [
+    "http://localhost",
+    "http://localhost:5173"
+]
+
+
+
 _gpt = GPT()
 app = FastAPI(
     title="My Project API",
@@ -59,6 +67,14 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/swagger",
     redoc_url="/redoc"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
 )
 
 @app.get("/", response_class=FileResponse)
