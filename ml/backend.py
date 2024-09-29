@@ -13,6 +13,8 @@ from ml.db.database import set_token_data, get_token_data, delete_token_data
 import secrets
 import requests
 
+import re
+
 logger = logging.getLogger('project_logger')
 logger.setLevel(logging.INFO)
 logger.propagate = False
@@ -76,6 +78,9 @@ def process_tasks(task_data: TaskData) -> dict:
 
         response = _gpt.generate(prompts['tasks_gen'].format(project_description=project_description, project_tasks=', '.join(project_tasks)))
         response['result'] = response['result'].replace('* ', '').split('\n')
+
+        response['result'] = [line.strip() for line in response['result'] if line.strip()]
+        response['result'] = [re.sub(r'^\d+\.\s*', '', line) for line in response['result']]
         
         logger.info("Task generation successful")
         return response
@@ -150,6 +155,8 @@ def process_ai_helper(usertext: UserText) -> dict:
                 logger.info(f"Role name dict: {role_name_dict}")
 
                 most_suitable_role = _gpt.compare_role_task(formatted_action['task'], list(role_name_dict.keys()))['result']
+                if 'error' in most_suitable_role:
+                    return {'result': 'error', 'data': {'text': 'Кажется, вы один в команде, поэтому я не смогу корректно провести размышления насчет лучшего исполнителя для задачи.', 'buttons': False, 'secret': None}}
                 logger.info(f"Most suitable role: {most_suitable_role}")
 
                 worker_name = role_name_dict[most_suitable_role]
@@ -227,9 +234,10 @@ def process_ai_helper(usertext: UserText) -> dict:
 
         return {'result': 'success', 'data': {'text': answer, 'buttons': buttons, 'secret': secret}}
     except Exception as e:
-        logger.error(f"Error processing AI helper: {e}", exc_info=True)
-        print(e)
-        return {'result': 'error', 'data': {'text': f'Кажется, возникла ошибка при обработке вашего запроса, вот, кстати, и она:\n{e}', 'buttons': False, 'secret': None}}
+        if 'projects' in str(e):
+            return {'result': 'error', 'data': {'text': f'Не удалось получить список ваших проектов.\n{e}', 'buttons': False, 'secret': None}}
+        
+        return {'result': 'error', 'data': {'text': f'Ошибка обработки запроса:\n{e}', 'buttons': False, 'secret': None}}
 
 @app.post("/user_answer")
 def process_user_answer(user_answer: UserAnswer) -> dict:

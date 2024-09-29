@@ -12,17 +12,13 @@ load_dotenv()
 
 class GPT:
     def __init__(self):
-        self.YC_JWT             = os.getenv('YC_JWT')
-        self.folder             = os.getenv('YC_folder')
-
-        self.IAM = None
-
-        self.generate_iam()
+        self.IAM = os.getenv('IAM_TOKEN')
+        self.folder = 'b1gipi6k76isoam919eo'
 
         self.url                = 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion'
         self.classification_url = 'https://llm.api.cloud.yandex.net/foundationModels/v1/fewShotTextClassification'
 
-    def generate(self, prompt, maxTokens=30):
+    def generate(self, prompt, maxTokens=150):
         logger.info('> generate')
 
         headers = {
@@ -126,6 +122,8 @@ class GPT:
     def compare_role_task(self, A, B):
         logger.info('> compare_role_task')
         B.remove('owner')
+        if len(B) == 0:
+            return {'error': 'no roles'}
         headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.IAM}",
@@ -227,26 +225,6 @@ class GPT:
         
         return {'status': 'success', 'result': max(response.json()['predictions'], key=lambda x: x['confidence'])['label']}
     
-
-    def generate_iam(self):
-        logger.info('generating iam...')
-        response = requests.post(
-            'https://iam.api.cloud.yandex.net/iam/v1/tokens',
-            json={"jwt": self.YC_JWT}
-        )
-
-        if 'is invalid' in response.text or 'was not found' in response.text:
-            self.IAM = None
-            logger.error(f'JWT is invalid: {self.IAM}')
-            return
-        
-        if 'JWT already expired' in response.text:
-            logger.error(f'JWT already expired: {self.IAM}')
-            self.IAM = None
-            return
-
-        self.IAM = response.json()['iamToken']
-        logger.info(f'IAM generated')
 
     def check_result(self, data_):
         if 'token is invalid' in data_.text:
