@@ -17,7 +17,7 @@ const formatDate = (dateString: string): string => {
   const dateObj = new Date(dateString);
   const day = dateObj.getDate();
   const month = months[dateObj.getMonth()];
-  const hours = dateObj.getHours();
+  const hours = dateObj.getHours() - 3;
   const minutes = dateObj.getMinutes().toString().padStart(2, "0");
 
   return `${day} ${month}, ${hours}:${minutes}`;
