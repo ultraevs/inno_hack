@@ -28,10 +28,12 @@ export default function ProjectSlug({
     }
   }, []);
 
+  const idForText = Number(slug);
+
   const renderSection = () => {
     switch (sectionId) {
       case "1":
-        return <ProjectData />;
+        return <ProjectData projectId={idForText} />;
       case "2":
         return <Tables />;
       default:
