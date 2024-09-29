@@ -3,7 +3,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import styles from "./styles.module.scss";
+import frameh1 from "@/assets/frameh1.svg"
+import frameh2 from "@/assets/frameh2.svg"
+import frameh3 from "@/assets/frameh3.svg"
 import frameImg from "@/assets/frameImg.svg";
+import frameMark from "@/assets/frameMark.svg"
+import frameCheck from "@/assets/frameCheck.svg"
+
 
 const FontOptions = () => {
   const [showOptions, setShowOptions] = useState(false);
@@ -285,21 +291,21 @@ const FontOptions = () => {
               <p>Текст h1</p>
               <p>Для того, чтобы начать писать план</p>
             </div>
-            <Image src={frameImg} alt="" />
+            <Image src={frameh1} alt="" />
           </button>
           <button onClick={() => handleOptionClick("h2")}>
             <div className={styles.fontOptions__optionsMenu__button__info}>
               <p>Текст h2</p>
               <p>Для того, чтобы начать писать план</p>
             </div>
-            <Image src={frameImg} alt="" />
+            <Image src={frameh2} alt="" />
           </button>
           <button onClick={() => handleOptionClick("h3")}>
             <div className={styles.fontOptions__optionsMenu__button__info}>
               <p>Текст h3</p>
               <p>Для того, чтобы начать писать план</p>
             </div>
-            <Image src={frameImg} alt="" />
+            <Image src={frameh3} alt="" />
           </button>
           <button onClick={() => handleOptionClick("Image")}>
             <div className={styles.fontOptions__optionsMenu__button__info}>
@@ -313,14 +319,14 @@ const FontOptions = () => {
               <p>Список с чекбоксами</p>
               <p>Создайте список задач</p>
             </div>
-            <Image src={frameImg} alt="" />
+            <Image src={frameCheck} alt="" />
           </button>
           <button onClick={() => handleOptionClick("BulletList")}>
             <div className={styles.fontOptions__optionsMenu__button__info}>
               <p>Маркированный список</p>
               <p>Перечислите элементы</p>
             </div>
-            <Image src={frameImg} alt="" />
+            <Image src={frameMark} alt="" />
           </button>
         </div>
       )}
