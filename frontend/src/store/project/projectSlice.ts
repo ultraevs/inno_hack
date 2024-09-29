@@ -46,7 +46,7 @@ export const projectSlice = createSlice({
     });
     builder.addCase(updateTextContent.fulfilled, (state, action) => {
       const index = state.text_content.findIndex(
-        (content) => content.id === action.payload.id
+        (content: any) => content.id === action.payload.id
       );
       if (index !== -1) {
         state.text_content[index] = action.payload;
@@ -54,7 +54,7 @@ export const projectSlice = createSlice({
     });
     builder.addCase(deleteTextContent.fulfilled, (state, action) => {
       state.text_content = state.text_content.filter(
-        (content) => content.id !== action.meta.arg.blockId
+        (content: any) => content.id !== action.meta.arg.blockId
       );
     })
     .addCase(fetchAllUsers.fulfilled, (state, action) => {
