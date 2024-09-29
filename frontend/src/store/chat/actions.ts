@@ -11,7 +11,7 @@ export const sendMessage = createAsyncThunk<IMessage, ISendMessageProps>(
   "chat/sendMessage",
   async (data: ISendMessageProps, thunkAPI) => {
     try {
-      const response = await axios.post("http://127.0.0.1:8000/ai", data, {
+      const response = await axios.post("https://task.shmyaks.ru/ai", data, {
         withCredentials: true,
       });
 
@@ -35,7 +35,7 @@ export const sendAnswer = createAsyncThunk<IMessage, ISendAnswerProps>(
   async (data: ISendAnswerProps, thunkAPI) => {
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/user_answer",
+        "https://task.shmyaks.ru/user_answer",
         data,
         {
           withCredentials: true,

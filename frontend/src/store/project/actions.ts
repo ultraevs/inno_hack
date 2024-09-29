@@ -107,7 +107,7 @@ export const generateTask = createAsyncThunk(
   async (data: IGenerateTaskProps, thunkAPI) => {
     try {
       await axios.post(
-        "http://127.0.0.1:8000/generate_tasks",
+        "https://task.shmyaks.ru/generate_tasks",
         data,
       );
 
