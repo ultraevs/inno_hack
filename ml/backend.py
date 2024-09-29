@@ -88,7 +88,7 @@ def process_tasks(task_data: TaskData) -> dict:
 
         for string_ in response['result']:
             print(string_)
-            r = requests.post(url=f'https://task.shmyaks.ru/v1/projects/{project_id}/tasks', json={'title': string_}, cookies={'Authtoken': Authtoken})
+            r = requests.post(url=f'https://task.shmyaks.ru/v1/projects/{project_id}/tasks', json={'title': string_+'#ai'}, cookies={'Authtoken': Authtoken})
             print(r.json())
         
         logger.info("Task generation successful")
