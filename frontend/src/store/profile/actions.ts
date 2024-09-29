@@ -80,7 +80,7 @@ export const fetchUserInvitations = createAsyncThunk<any, void>(
         withCredentials: true,
       });
 
-      return response.data;
+      return response.data.invitations;
     } catch (error) {
       return thunkAPI.rejectWithValue({ success: false, message: error });
     }
@@ -149,9 +149,11 @@ export const createMeeting = createAsyncThunk<IResult, ICreateMeetingProps>(
   "profile/createMeeting",
   async (data: ICreateMeetingProps, thunkAPI) => {
     try {
-      await configApi.post("/meetings", data, {
+      await configApi.post("/meetings/", data, {
         withCredentials: true,
       });
+
+      thunkAPI.dispatch(fetchMeetings())
 
       return { success: true };
     } catch (error) {

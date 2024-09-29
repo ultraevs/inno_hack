@@ -1,11 +1,81 @@
 .section {
+  display: flex;
+  flex-direction: column;
+  gap: 70px;
+
   h5 {
     color: #000;
     font-size: 1.875rem;
     font-weight: 500;
   }
-  
+
   &__tables {
     margin-top: 55px;
+  }
+
+  table {
+    font-family: "Inter", sans-serif;
+    width: 100%;
+    border-collapse: collapse;
+
+    thead {
+      tr {
+        th {
+          color: #000000;
+          font-size: 1.25rem;
+          font-weight: 500;
+        }
+      }
+    }
+
+    tbody {
+      tr {
+        td {
+          opacity: 0.7;
+          color: #000000;
+          font-size: 1.25rem;
+          font-weight: 400;
+
+          a {
+            color: #3AC64F;
+            font-family: "Inter", sans-serif;
+            font-size: 20px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: normal;
+
+            text-decoration: none;
+          }
+        }
+      }
+    }
+
+    tr {
+
+      th,
+      td {
+        position: relative;
+        height: 44px;
+        padding: 0px 12px;
+        text-align: left;
+        border-top: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+        border-left: 2px solid var(--border-color);
+        border-right: 2px solid var(--border-color);
+
+        &:first-child {
+          border-left: none;
+        }
+
+        &:last-child {
+          border-right: none;
+        }
+      }
+    }
+
+  }
+
+  &__block{
+    width: 50%;
   }
 }

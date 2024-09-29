@@ -65,6 +65,7 @@
       resize: none;
       overflow: hidden;
       word-break: break-word;
+      height: auto;
       margin-bottom: 10px;
     }
   
@@ -104,6 +105,10 @@
     &__h3 {
       font-family: "Inter", sans-serif;
       font-weight: 400;
+      font-size: 20px;
+    }
+
+    &__CheckboxList, &__BulletList{
       font-size: 20px;
     }
   

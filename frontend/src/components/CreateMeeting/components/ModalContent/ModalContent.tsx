@@ -45,7 +45,7 @@ const ModalContent: FC<IProps> = (props) => {
                   <Field name="meetingDate" component={CustomMaskField} />
                   <Field
                     name="zoomLink"
-                    placeholder="Ссылка на макет Figma"
+                    placeholder="Ссылка на Zoom"
                   />
                 </div>
               </div>

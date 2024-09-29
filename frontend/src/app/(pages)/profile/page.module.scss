@@ -55,6 +55,12 @@
         flex-direction: column;
         gap: 20px;
 
+        &__have{
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+
         &__noMeetings {
           height: 372px;
           display: flex;

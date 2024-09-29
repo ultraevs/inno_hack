@@ -5,15 +5,16 @@ import styles from "./page.module.scss";
 import { Notification } from "@/components/Notification";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchUserInvitations } from "@/store/profile/actions";
+import { withAuth } from "@/hoc/withAuth";
 
-export default function Notifications() {
-  const dispatch = useAppDispatch()
+const Notifications = () => {
+  const dispatch = useAppDispatch();
 
-  const userInvites = useAppSelector((store) => store.profile.invitations)
+  const userInvites = useAppSelector((store) => store.profile.invitations);
 
   useEffect(() => {
-    dispatch(fetchUserInvitations())
-  }, [])
+    dispatch(fetchUserInvitations());
+  }, []);
 
   return (
     <div className={styles.page}>
@@ -24,14 +25,14 @@ export default function Notifications() {
       ) : (
         <div className={styles.page__content}>
           <ul>
-            <Notification
-              item={{
-                text: "Crowdy#2280 приглашает Вас в проект Selectel hack",
-              }}
-            />
+            {userInvites.map((invite) => (
+              <Notification key={invite.id} item={invite} />
+            ))}
           </ul>
         </div>
       )}
     </div>
   );
-}
+};
+
+export default withAuth(Notifications);

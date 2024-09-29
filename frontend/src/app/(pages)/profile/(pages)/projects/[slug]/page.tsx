@@ -10,12 +10,13 @@ import Link from "next/link";
 import { Assistant } from "@/components/Assistant";
 import { useAppDispatch } from "@/store/hooks";
 import { fetchProjectInfo } from "@/store/project/actions";
+import { withAuth } from "@/hoc/withAuth";
 
-export default function ProjectSlug({
+const ProjectSlug = ({
   params: { slug },
 }: {
   params: { slug: string };
-}) {
+}) => {
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const sectionId = searchParams.get("section") || "1";
@@ -28,10 +29,12 @@ export default function ProjectSlug({
     }
   }, []);
 
+  const idForText = Number(slug);
+
   const renderSection = () => {
     switch (sectionId) {
       case "1":
-        return <ProjectData />;
+        return <ProjectData projectId={idForText} />;
       case "2":
         return <Tables />;
       default:
@@ -65,3 +68,5 @@ export default function ProjectSlug({
     </div>
   );
 }
+
+export default withAuth(ProjectSlug)
