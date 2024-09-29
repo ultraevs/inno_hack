@@ -53,6 +53,8 @@
   &__dropdown {
     z-index: 1000;
     display: none;
+    max-height: 180px;
+    overflow: scroll;
     position: absolute;
     top: 56px;
     left: 50%;
