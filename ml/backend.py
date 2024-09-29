@@ -35,6 +35,8 @@ logger.addHandler(console_handler)
 class TaskData(BaseModel):
     description: str
     tasks: List[str]
+    project_id: int
+    Authtoken: str
 
 class FigmaData(BaseModel):
     project_name: str
@@ -73,6 +75,8 @@ def process_tasks(task_data: TaskData) -> dict:
     try:
         project_description = task_data.description
         project_tasks = task_data.tasks
+        project_id = task_data.project_id
+        Authtoken = task_data.Authtoken
 
         logger.info(f"Received task data: description={project_description}, tasks={project_tasks}")
 
@@ -81,6 +85,11 @@ def process_tasks(task_data: TaskData) -> dict:
 
         response['result'] = [line.strip() for line in response['result'] if line.strip()]
         response['result'] = [re.sub(r'^\d+\.\s*', '', line) for line in response['result']]
+
+        for string_ in response['result']:
+            print(string_)
+            r = requests.post(url=f'https://task.shmyaks.ru/v1/projects/{project_id}/tasks', json={'title': string_}, cookies={'Authtoken': Authtoken})
+            print(r.json())
         
         logger.info("Task generation successful")
         return response
