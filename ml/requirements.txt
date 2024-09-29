@@ -2,3 +2,6 @@ fastapi
 uvicorn
 requests
 pydantic
+SQLAlchemy
+python-dotenv
+deepdiff
