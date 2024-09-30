@@ -10,8 +10,8 @@
 
 ## Используемый стек технологий:
 - [GO-Backend](https://github.com/ultraevs/AtomicHack/tree/main/go-backend) - Реализован с использванием [GO](https://go.dev/) и фреймворка [Gin](https://github.com/gin-gonic/gin). Задачей модуля является реализация API для взаимодействия с frontend модулем.
-- [ML](https://github.com/ultraevs/AtomicHack/tree/main/ml) - Реализован с использванием [Python](https://www.python.org/) и фреймворка [FastAPI](https://fastapi.tiangolo.com/). Задачей модуля является реализация ИИ фич проекта.
-- [Frontend](https://github.com/ultraevs/inno_hack/tree/main/front) - Реализован с использованием [React](https://ru.legacy.reactjs.org/). Задачай является предоставление красивого и функционалоного интерфейса для пользователя.
+- [ML](https://github.com/ultraevs/inno_hack/tree/main/ml) - Реализован с использванием [Python](https://www.python.org/) и фреймворка [FastAPI](https://fastapi.tiangolo.com/). Задачей модуля является реализация ИИ фич проекта.
+- [Frontend](https://github.com/ultraevs/inno_hack/tree/main/frontend) - Реализован с использованием [React](https://ru.legacy.reactjs.org/). Задачай является предоставление красивого и функционалоного интерфейса для пользователя.
 - [Deployment](https://github.com/ultraevs/inno_hack/tree/main/deployment) - Реализован с использованием [Docker-Compose](https://www.docker.com/). Задачей модуля является возможность быстрого и безошибочного развертывания приложения на любом сервере.
 
 
