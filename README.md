@@ -4,6 +4,7 @@
 
 
 # [Ссылка на готовое решение](https://task.shmyaks.ru/signin)
+# [Figma](https://www.figma.com/design/MjyrI7VAlMd9dvTn1tYe9G/shmyaks-it-inno-hack?node-id=0-1&t=MDANzs8DbdDwXYv0-1)
 
 ### Трек: Создать высокопроизводительное приложение для управления проектами, которое будет включать в себя функционал для работы с задачами, пользователями и интеграции с внешними системами.
 
